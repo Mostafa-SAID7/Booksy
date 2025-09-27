@@ -1,6 +1,5 @@
 ﻿using Booksy.Models.Entities.Users;
 using Microsoft.AspNetCore.Identity;
-using System.Web.Providers.Entities;
 
 namespace Booksy.DataAccess.Seeds
 {

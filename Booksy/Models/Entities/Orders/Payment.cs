@@ -1,4 +1,5 @@
 ﻿using Booksy.Models.Entities.Common;
+using Booksy.Models.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace Booksy.Models.Entities.Orders
@@ -15,7 +16,7 @@ namespace Booksy.Models.Entities.Orders
         [Required]
         public string PaymentMethod { get; set; } = string.Empty; // e.g., Stripe, PayPal
 
-        public TransactionStatus Status { get; set; } = TransactionStatus.Pending;
+        public TransactionStatus Status { get; set; } = TransactionStatus.Success;
 
         public bool IsDeleted { get; set; } = false;
     }

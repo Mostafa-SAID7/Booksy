@@ -20,8 +20,19 @@ namespace Booksy.Extensions
         {
             // Database Context
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
-            
+                 options.UseSqlServer(
+                     configuration.GetConnectionString("DefaultConnection"),
+                     sqlOptions =>
+                     {
+                         sqlOptions.EnableRetryOnFailure(
+                             maxRetryCount: 5,
+                             maxRetryDelay: TimeSpan.FromSeconds(10),
+                             errorNumbersToAdd: null
+                         );
+                     }
+                 )
+             );
+
             Booksy.Utility.Mapping.MapsterConfig.RegisterMappings();
 
             // Identity
@@ -41,12 +52,12 @@ namespace Booksy.Extensions
                 options.AccessDeniedPath = "/Customer/Home/NotFoundPage";
             });
 
+
             // Repositories
             services.AddScoped<IBookRepository, BookRepository>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IRepository<Category>, Repository<Category>>();
             services.AddScoped<IRepository<Book>, Repository<Book>>();
-
             services.AddScoped<IRepository<Cart>, Repository<Cart>>();
             services.AddScoped<IRepository<CartItem>, Repository<CartItem>>();
             services.AddScoped<IRepository<Order>, Repository<Order>>();
@@ -54,9 +65,9 @@ namespace Booksy.Extensions
             services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
             services.AddScoped<IRepository<ApplicationUser>, Repository<ApplicationUser>>();
             services.AddScoped<IRepository<UserOTP>, Repository<UserOTP>>();
-
-
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+
+
 
             // DB Initializer
             services.AddScoped<IDBInitializer, DBInitializer>();
