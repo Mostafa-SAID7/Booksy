@@ -4,6 +4,7 @@ using Booksy.Models.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Localization;
 
 namespace Booksy.Areas.Identity.Controllers
 {
@@ -16,19 +17,26 @@ namespace Booksy.Areas.Identity.Controllers
         private readonly IEmailSender _emailSender;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IRepository<UserOTP> _userOTP;
+        private readonly IStringLocalizer<LocalizationController> localizer;
 
-        public AccountsController(UserManager<ApplicationUser> userManager, IEmailSender emailSender, SignInManager<ApplicationUser> signInManager, IRepository<UserOTP> userOTP)
+        public AccountsController(UserManager<ApplicationUser> userManager, 
+            IEmailSender emailSender, 
+            SignInManager<ApplicationUser> signInManager, 
+            IRepository<UserOTP> userOTP,
+            IStringLocalizer<LocalizationController> localizer)
         {
             _userManager = userManager;
             _emailSender = emailSender;
             _signInManager = signInManager;
             _userOTP = userOTP;
+            this.localizer = localizer;
         }
 
         [HttpPost]
         [Route("Register")]
         public async Task<IActionResult> Register(RegisterDTO registerDTO)
         {
+            //Request.Headers["Accept-Language"] = ;
             ApplicationUser applicationUser = new()
             {
                 Name = registerDTO.Name,
@@ -71,7 +79,7 @@ namespace Booksy.Areas.Identity.Controllers
 
             return Ok(new
             {
-                msg = "Create User successfully, Confirm Your Email!"
+                msg = localizer["Add User"],
             });
         }
 
@@ -182,7 +190,8 @@ namespace Booksy.Areas.Identity.Controllers
 
             return Ok(new
             {
-                msg = "Send Email successfully, Confirm Your Email!"
+                msg = localizer["Add User"],
+                //msg = "Send Email Confirmation successfully"
             });
         }
 

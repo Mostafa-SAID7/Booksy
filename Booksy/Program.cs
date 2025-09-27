@@ -3,7 +3,10 @@ using Booksy.Models.Entities.Users;
 using Booksy.Utility.DBInitializer;
 using Booksy.Utility.Settings;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +15,21 @@ var configuration = builder.Configuration;
 var services = builder.Services;
 
 // ------------------------- Services -------------------------
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
+const string defaultCulture = "en";
+
+var supportedCultures = new[]
+{
+    new CultureInfo(defaultCulture),
+    new CultureInfo("ar")
+};
+
+builder.Services.Configure<RequestLocalizationOptions>(options => {
+    options.DefaultRequestCulture = new RequestCulture(defaultCulture);
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 // Add Controllers
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
@@ -69,6 +86,8 @@ using (var scope = app.Services.CreateScope())
     var dbInitializer = scope.ServiceProvider.GetRequiredService<IDBInitializer>();
     dbInitializer.Initialize(); // <- synchronous
 }
+app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
+
 
 // ------------------------- Run -------------------------
 app.Run();
