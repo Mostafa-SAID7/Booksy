@@ -5,6 +5,7 @@ using Booksy.Utility;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Booksy.Areas.Admin.Controllers
 {
@@ -36,6 +37,12 @@ namespace Booksy.Areas.Admin.Controllers
 
         // GET: api/admin/books/5
         [HttpGet("{id}")]
+        [SwaggerOperation(
+    Summary = "Get a book by its ID",
+    Description = "Returns a single book object based on the provided ID"
+)]
+        [SwaggerResponse(200, "Book found successfully", typeof(Book))]
+        [SwaggerResponse(404, "Book not found")]
         public async Task<IActionResult> Details(int id)
         {
             var book = await _bookRepository.GetOneAsync(

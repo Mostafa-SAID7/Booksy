@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ------------------------- Configuration -------------------------
 var configuration = builder.Configuration;
+var services = builder.Services;
 
 // ------------------------- Services -------------------------
 
@@ -45,6 +46,9 @@ if (app.Environment.IsDevelopment())
     {
         c.SwaggerEndpoint("/swagger/v1/swagger.json", "Booksy API V1");
         c.RoutePrefix = string.Empty; // Swagger at root
+        c.DocumentTitle = "Booksy API Documentation";
+        c.DisplayRequestDuration(); // Shows request duration
+        c.DefaultModelsExpandDepth(-1); // Collapse schemas by default
     });
 }
 
