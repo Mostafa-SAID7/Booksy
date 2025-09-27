@@ -38,11 +38,7 @@ var app = builder.Build();
 // Enable CORS
 app.UseCustomCors();
 // Cookie settings
-services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Customer/Home/NotFoundPage";
-});
+
 // Enable Swagger (for dev environment)
 if (app.Environment.IsDevelopment())
 {
