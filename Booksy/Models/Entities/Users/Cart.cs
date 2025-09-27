@@ -1,12 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Booksy.Models.Entities.Common;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace Booksy.Models.Entities.Users
 {
-    public class Cart
+    public class Cart: BaseEntity
     {
-        [Key]
-        public int Id { get; set; }
+      
 
         public string UserId { get; set; } = string.Empty; // FK to Identity User
         public ApplicationUser User { get; set; } = null!;

@@ -4,6 +4,7 @@ using Booksy.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Booksy.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250927184933_AddDataSeed")]
+    partial class AddDataSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -50,88 +53,6 @@ namespace Booksy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Authors");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Bio = "Author of Harry Potter",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(9874),
-                            IsDeleted = false,
-                            Name = "J.K. Rowling"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Bio = "Author of Game of Thrones",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1020),
-                            IsDeleted = false,
-                            Name = "George R.R. Martin"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Bio = "Author of The Lord of the Rings",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1024),
-                            IsDeleted = false,
-                            Name = "J.R.R. Tolkien"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Bio = "Famous mystery writer",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1026),
-                            IsDeleted = false,
-                            Name = "Agatha Christie"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Bio = "Horror and thriller author",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1033),
-                            IsDeleted = false,
-                            Name = "Stephen King"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Bio = "Author of Da Vinci Code",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1041),
-                            IsDeleted = false,
-                            Name = "Dan Brown"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Bio = "Author of Hunger Games",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1042),
-                            IsDeleted = false,
-                            Name = "Suzanne Collins"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Bio = "American novelist",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1044),
-                            IsDeleted = false,
-                            Name = "Ernest Hemingway"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Bio = "Famous American writer",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1045),
-                            IsDeleted = false,
-                            Name = "Mark Twain"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Bio = "Science fiction author",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 937, DateTimeKind.Utc).AddTicks(1048),
-                            IsDeleted = false,
-                            Name = "Isaac Asimov"
-                        });
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Books.Book", b =>
@@ -199,248 +120,6 @@ namespace Booksy.Migrations
                     b.HasIndex("PromotionId");
 
                     b.ToTable("Books");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            AuthorId = 1,
-                            CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(5379),
-                            Discount = 0m,
-                            ISBN = "9780747532699",
-                            IsDeleted = false,
-                            Price = 19.99m,
-                            Quantity = 0,
-                            Stock = 50,
-                            Title = "Harry Potter and the Philosopher's Stone",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 2,
-                            AuthorId = 1,
-                            CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9079),
-                            Discount = 0m,
-                            ISBN = "9780747538493",
-                            IsDeleted = false,
-                            Price = 19.99m,
-                            Quantity = 0,
-                            Stock = 45,
-                            Title = "Harry Potter and the Chamber of Secrets",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 3,
-                            AuthorId = 2,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9084),
-                            Discount = 0m,
-                            ISBN = "9780553103540",
-                            IsDeleted = false,
-                            Price = 24.99m,
-                            Quantity = 0,
-                            Stock = 40,
-                            Title = "A Game of Thrones",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 4,
-                            AuthorId = 2,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9087),
-                            Discount = 0m,
-                            ISBN = "9780553108033",
-                            IsDeleted = false,
-                            Price = 24.99m,
-                            Quantity = 0,
-                            Stock = 35,
-                            Title = "A Clash of Kings",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 5,
-                            AuthorId = 5,
-                            CategoryId = 9,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9089),
-                            Discount = 0m,
-                            ISBN = "9780385121675",
-                            IsDeleted = false,
-                            Price = 17.99m,
-                            Quantity = 0,
-                            Stock = 30,
-                            Title = "The Shining",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 6,
-                            AuthorId = 5,
-                            CategoryId = 9,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9109),
-                            Discount = 0m,
-                            ISBN = "9780450411434",
-                            IsDeleted = false,
-                            Price = 18.99m,
-                            Quantity = 0,
-                            Stock = 25,
-                            Title = "It",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 7,
-                            AuthorId = 3,
-                            CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9112),
-                            Discount = 0m,
-                            ISBN = "9780547928210",
-                            IsDeleted = false,
-                            Price = 22.99m,
-                            Quantity = 0,
-                            Stock = 40,
-                            Title = "The Lord of the Rings: Fellowship",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 8,
-                            AuthorId = 4,
-                            CategoryId = 6,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9114),
-                            Discount = 0m,
-                            ISBN = "9780062073501",
-                            IsDeleted = false,
-                            Price = 14.99m,
-                            Quantity = 0,
-                            Stock = 30,
-                            Title = "Murder on the Orient Express",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 9,
-                            AuthorId = 6,
-                            CategoryId = 7,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9116),
-                            Discount = 0m,
-                            ISBN = "9780307474278",
-                            IsDeleted = false,
-                            Price = 16.99m,
-                            Quantity = 0,
-                            Stock = 25,
-                            Title = "The Da Vinci Code",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 10,
-                            AuthorId = 7,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9120),
-                            Discount = 0m,
-                            ISBN = "9780439023481",
-                            IsDeleted = false,
-                            Price = 18.99m,
-                            Quantity = 0,
-                            Stock = 35,
-                            Title = "The Hunger Games",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 11,
-                            AuthorId = 7,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9122),
-                            Discount = 0m,
-                            ISBN = "9780439023498",
-                            IsDeleted = false,
-                            Price = 18.99m,
-                            Quantity = 0,
-                            Stock = 35,
-                            Title = "Catching Fire",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 12,
-                            AuthorId = 7,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9124),
-                            Discount = 0m,
-                            ISBN = "9780439023511",
-                            IsDeleted = false,
-                            Price = 18.99m,
-                            Quantity = 0,
-                            Stock = 35,
-                            Title = "Mockingjay",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 13,
-                            AuthorId = 10,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9127),
-                            Discount = 0m,
-                            ISBN = "9780553293357",
-                            IsDeleted = false,
-                            Price = 15.99m,
-                            Quantity = 0,
-                            Stock = 25,
-                            Title = "Foundation",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 14,
-                            AuthorId = 10,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9129),
-                            Discount = 0m,
-                            ISBN = "9780553294385",
-                            IsDeleted = false,
-                            Price = 15.99m,
-                            Quantity = 0,
-                            Stock = 25,
-                            Title = "I, Robot",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 15,
-                            AuthorId = 8,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9131),
-                            Discount = 0m,
-                            ISBN = "9780684801223",
-                            IsDeleted = false,
-                            Price = 12.99m,
-                            Quantity = 0,
-                            Stock = 20,
-                            Title = "The Old Man and The Sea",
-                            Traffic = 0
-                        },
-                        new
-                        {
-                            Id = 16,
-                            AuthorId = 9,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 938, DateTimeKind.Utc).AddTicks(9133),
-                            Discount = 0m,
-                            ISBN = "9780486280615",
-                            IsDeleted = false,
-                            Price = 11.99m,
-                            Quantity = 0,
-                            Stock = 20,
-                            Title = "Adventures of Huckleberry Finn",
-                            Traffic = 0
-                        });
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Books.Category", b =>
@@ -468,106 +147,6 @@ namespace Booksy.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(1489),
-                            IsDeleted = false,
-                            Name = "Fiction"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2881),
-                            IsDeleted = false,
-                            Name = "Non-Fiction"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2885),
-                            IsDeleted = false,
-                            Name = "Science"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2923),
-                            IsDeleted = false,
-                            Name = "Children"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2925),
-                            IsDeleted = false,
-                            Name = "Fantasy"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2942),
-                            IsDeleted = false,
-                            Name = "Mystery"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2943),
-                            IsDeleted = false,
-                            Name = "Thriller"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2945),
-                            IsDeleted = false,
-                            Name = "Romance"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2946),
-                            IsDeleted = false,
-                            Name = "Horror"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2949),
-                            IsDeleted = false,
-                            Name = "Biography"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2950),
-                            IsDeleted = false,
-                            Name = "Self-Help"
-                        },
-                        new
-                        {
-                            Id = 12,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2967),
-                            IsDeleted = false,
-                            Name = "History"
-                        },
-                        new
-                        {
-                            Id = 13,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2969),
-                            IsDeleted = false,
-                            Name = "Poetry"
-                        },
-                        new
-                        {
-                            Id = 14,
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 936, DateTimeKind.Utc).AddTicks(2970),
-                            IsDeleted = false,
-                            Name = "Science Fiction"
-                        });
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Books.Review", b =>
@@ -611,74 +190,6 @@ namespace Booksy.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            BookId = 1,
-                            Comment = "Loved this book!",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 939, DateTimeKind.Utc).AddTicks(4991),
-                            IsDeleted = false,
-                            Rating = 5,
-                            Status = 1,
-                            UserId = "00000000-0000-0000-0000-000000000002"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            BookId = 3,
-                            Comment = "Great story.",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 939, DateTimeKind.Utc).AddTicks(7743),
-                            IsDeleted = false,
-                            Rating = 4,
-                            Status = 1,
-                            UserId = "00000000-0000-0000-0000-000000000003"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            BookId = 5,
-                            Comment = "Terrifying but amazing.",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 939, DateTimeKind.Utc).AddTicks(7747),
-                            IsDeleted = false,
-                            Rating = 5,
-                            Status = 1,
-                            UserId = "00000000-0000-0000-0000-000000000002"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            BookId = 10,
-                            Comment = "Could not put it down!",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 939, DateTimeKind.Utc).AddTicks(7749),
-                            IsDeleted = false,
-                            Rating = 5,
-                            Status = 1,
-                            UserId = "00000000-0000-0000-0000-000000000003"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            BookId = 7,
-                            Comment = "Classic fantasy!",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 939, DateTimeKind.Utc).AddTicks(7751),
-                            IsDeleted = false,
-                            Rating = 5,
-                            Status = 1,
-                            UserId = "00000000-0000-0000-0000-000000000002"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            BookId = 13,
-                            Comment = "Interesting sci-fi.",
-                            CreatedAt = new DateTime(2025, 9, 27, 19, 54, 44, 939, DateTimeKind.Utc).AddTicks(7758),
-                            IsDeleted = false,
-                            Rating = 4,
-                            Status = 1,
-                            UserId = "00000000-0000-0000-0000-000000000003"
-                        });
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Orders.Order", b =>
@@ -1020,59 +531,6 @@ namespace Booksy.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "00000000-0000-0000-0000-000000000001",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "a3568feb-50e7-4383-8dd5-45bb78f076c8",
-                            Email = "admin@booksy.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            Name = "System Admin",
-                            NormalizedEmail = "ADMIN@BOOKSY.COM",
-                            NormalizedUserName = "ADMIN@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEEuKHVyY5Q0L8QEcGRzPQ0d5sGLZ9pzyeCWVkL/FSYtHBHX5VXqo0Vmzg2XXaWJfvw==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "1160f88d-24dc-4faa-99ed-c3490ad834ae",
-                            TwoFactorEnabled = false,
-                            UserName = "admin@booksy.com"
-                        },
-                        new
-                        {
-                            Id = "00000000-0000-0000-0000-000000000002",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "a7e37399-bc6e-4b0f-9582-1475608a56ca",
-                            Email = "customer1@booksy.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            Name = "Alice",
-                            NormalizedEmail = "CUSTOMER1@BOOKSY.COM",
-                            NormalizedUserName = "CUSTOMER1@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEPoeHWFHCUXCh4xbvTKoFpikX2V70TBWVR9mUAVeiFEbWw/kD81gg9xDDO/C+X+nyg==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "d9aee5a8-9939-47ae-9184-adc2510d220e",
-                            TwoFactorEnabled = false,
-                            UserName = "customer1@booksy.com"
-                        },
-                        new
-                        {
-                            Id = "00000000-0000-0000-0000-000000000003",
-                            AccessFailedCount = 0,
-                            ConcurrencyStamp = "4fd23e08-9b87-4768-b567-bbac48ec6d74",
-                            Email = "customer2@booksy.com",
-                            EmailConfirmed = true,
-                            LockoutEnabled = false,
-                            Name = "Bob",
-                            NormalizedEmail = "CUSTOMER2@BOOKSY.COM",
-                            NormalizedUserName = "CUSTOMER2@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHT+j9jQUak1P24K1AkkmfMtgElzkGRqPC09VUb/TvVRjqtY0KOqb4gBaqppxOd+IQ==",
-                            PhoneNumberConfirmed = false,
-                            SecurityStamp = "07742095-cf7f-48cf-8101-910acc78425c",
-                            TwoFactorEnabled = false,
-                            UserName = "customer2@booksy.com"
-                        });
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Users.Cart", b =>
@@ -1124,35 +582,6 @@ namespace Booksy.Migrations
                     b.HasIndex("CartId");
 
                     b.ToTable("CartItem");
-                });
-
-            modelBuilder.Entity("Booksy.Models.Entities.Users.Setting", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppSettings");
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Users.UserOTP", b =>
@@ -1319,13 +748,13 @@ namespace Booksy.Migrations
                     b.HasOne("Booksy.Models.Entities.Books.Author", "Author")
                         .WithMany("Books")
                         .HasForeignKey("AuthorId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Booksy.Models.Entities.Books.Category", "Category")
                         .WithMany("Books")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Booksy.Models.Entities.Promotions.Promotion", null)

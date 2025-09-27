@@ -71,6 +71,7 @@ namespace Booksy.Extensions
 
             // DB Initializer
             services.AddScoped<IDBInitializer, DBInitializer>();
+            services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
 
             // Email Sender
             services.AddTransient<IEmailSender, EmailSender>();
