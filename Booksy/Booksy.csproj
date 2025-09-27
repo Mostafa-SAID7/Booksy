@@ -12,7 +12,7 @@
 
 		<!-- Authentication & Identity -->
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.7" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.9" />
 
 		<!-- JSON / Patch / MVC -->
 		<PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="9.0.9" />
@@ -23,10 +23,10 @@
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
 
 		<!-- Entity Framework Core -->
-		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.7" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" Version="9.0.9" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.7" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.7">
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.9" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.9">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>

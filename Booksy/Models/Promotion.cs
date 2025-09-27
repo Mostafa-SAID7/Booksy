@@ -1,13 +1,20 @@
-﻿namespace Booksy.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Booksy.Models
 {
     public class Promotion
     {
+        [Key]
         public int Id { get; set; }
-        public string Code { get; set; }
-        public DateTime ValidTo { get; set; }
-        public bool Status { get; set; }
-        public int TotalUsed { get; set; }
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+
+        [Required]
+        public string Code { get; set; } = string.Empty;
+
+        public decimal DiscountPercentage { get; set; }
+
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
+
+        public bool IsActive => DateTime.UtcNow >= StartDate && DateTime.UtcNow <= EndDate;
     }
 }

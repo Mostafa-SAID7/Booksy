@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
 using Stripe.Checkout;
-using System.Threading.Tasks;
+using Booksy.Models;
+using Booksy.Utility;
 
 namespace Booksy.Areas.Customer.Controllers
 {
@@ -15,18 +15,25 @@ namespace Booksy.Areas.Customer.Controllers
         private readonly IRepository<Order> _orderRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IRepository<Cart> _cartRepository;
-        private readonly IOrderItemRepository _orderItemRepository;
-        private readonly IProductRepository _productRepository;
+        private readonly IRepository<OrderItem> _orderItemRepository;
+        private readonly IRepository<Book> _bookRepository;
         private readonly ApplicationDbContext _context;
         private readonly ILogger<CheckoutsController> _logger;
 
-        public CheckoutsController(IRepository<Order> orderRepository, UserManager<ApplicationUser> userManager, IRepository<Cart> cartRepository, IOrderItemRepository orderItemRepository, IProductRepository productRepository, ApplicationDbContext context, ILogger<CheckoutsController> logger)
+        public CheckoutsController(
+            IRepository<Order> orderRepository,
+            UserManager<ApplicationUser> userManager,
+            IRepository<Cart> cartRepository,
+            IRepository<OrderItem> orderItemRepository,
+            IRepository<Book> bookRepository,
+            ApplicationDbContext context,
+            ILogger<CheckoutsController> logger)
         {
             _orderRepository = orderRepository;
             _userManager = userManager;
             _cartRepository = cartRepository;
             _orderItemRepository = orderItemRepository;
-            _productRepository = productRepository;
+            _bookRepository = bookRepository;
             _context = context;
             _logger = logger;
         }
@@ -34,74 +41,74 @@ namespace Booksy.Areas.Customer.Controllers
         [HttpGet("{orderId}")]
         public async Task<IActionResult> Success(int orderId)
         {
-            var transaction = _context.Database.BeginTransaction();
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
-                //1. Update Transaction Id
-                var order = await _orderRepository.GetOneAsync(e => e.Id == orderId);
-
-                if (order is null)
+                // 1️⃣ Update transaction info from Stripe
+                var order = await _orderRepository.GetOneAsync(o => o.Id == orderId);
+                if (order == null)
                     return NotFound();
 
-                var service = new SessionService();
-                var session = service.Get(order.SessionId);
+                var sessionService = new SessionService();
+                var session = sessionService.Get(order.SessionId);
 
                 order.TransactionId = session.PaymentIntentId;
                 order.TransactionStatus = TransactionStatus.Confirmed;
                 order.OrderStatus = OrderStatus.UnShipped;
                 await _orderRepository.CommitAsync();
 
-                //2. Cart => Order Items
+                // 2️⃣ Get user's cart items
                 var user = await _userManager.GetUserAsync(User);
-
-                if (user is null)
+                if (user == null)
                     return NotFound();
 
-                var carts = await _cartRepository.GetAsync(e => e.ApplicationUserId == user.Id, includes: [e => e.Product]);
-                var orderItems = carts.Select(e => new OrderItem
+                var carts = (await _cartRepository.GetAsync(
+                    c => c.UserId == user.Id,
+                    includes: new List<Func<IQueryable<Cart>, IQueryable<Cart>>> { q => q.Include(c => c.Items).ThenInclude(i => i.Book) }
+                )).FirstOrDefault();
+
+                if (carts == null || !carts.Items.Any())
+                    return BadRequest(new { msg = "Cart is empty." });
+
+                // 3️⃣ Convert CartItems to OrderItems
+                var orderItems = carts.Items.Select(i => new OrderItem
                 {
-                    ProductId = e.ProductId,
-                    Count = e.Count,
-                    OrderId = orderId,
-                    TotalPrice = (decimal)carts.Sum(e => e.Product.Price * e.Count),
+                    OrderId = order.Id,
+                    BookId = i.BookId,
+                    Quantity = i.Quantity,
+                    Price = i.Book.Price
                 }).ToList();
 
-                await _orderItemRepository.AddRangeAsync(orderItems);
+                foreach (var item in orderItems)
+                    await _orderItemRepository.CreateAsync(item);
+
                 await _orderItemRepository.CommitAsync();
 
-                //3.Update Quantity Products
-                foreach (var item in carts)
+                // 4️⃣ Update Book stock
+                foreach (var item in carts.Items)
                 {
-                    item.Product.Quantity -= item.Count;
+                    item.Book.Quantity -= item.Quantity;
                 }
-                await _productRepository.CommitAsync();
+                await _bookRepository.CommitAsync();
 
-                //4.Delete Cart
-                foreach (var item in carts)
+                // 5️⃣ Clear cart
+                foreach (var item in carts.Items.ToList())
                 {
-                    _cartRepository.Delete(item);
+                    _cartRepository.Delete(carts);
                 }
                 await _cartRepository.CommitAsync();
 
-                transaction.Commit();
-                return Ok(new
-                {
-                    msg = "Place Order Successfully"
-                });
+                await transaction.CommitAsync();
+
+                return Ok(new { msg = "Order placed successfully!" });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                transaction.Rollback();
-
-                _logger.LogError(ex.Message);
-
-                return BadRequest(new
-                {
-                    msg = "Failed Place Order"
-                });
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Checkout failed for order {OrderId}", orderId);
+                return BadRequest(new { msg = "Failed to place order." });
             }
-        
         }
     }
- }
+}

@@ -1,6 +1,8 @@
 ﻿using Mapster;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Booksy.Models;
+using Booksy.DTOs.Response.Carts;
+
 
 namespace Booksy.Areas.Admin.Controllers
 {
@@ -9,85 +11,71 @@ namespace Booksy.Areas.Admin.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly IRepository<Category> _categoryRepository;
+        private readonly ICategoryRepository _categoryRepository;
 
-        public CategoriesController(IRepository<Category> categoryRepository)
+        public CategoriesController(ICategoryRepository categoryRepository)
         {
             _categoryRepository = categoryRepository;
         }
 
-        // CRUD
-        // GET / categories
-        [HttpGet("")]
+        // GET: api/admin/categories
+        [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var categories = await _categoryRepository.GetAsync();
-
-            return Ok(categories);
+            var categories = await _categoryRepository.GetAllAsync();
+            var response = categories.Adapt<List<CategoryResponse>>();
+            return Ok(response);
         }
 
-        // GET / categories/{id}
+        // GET: api/admin/categories/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var category = await _categoryRepository.GetOneAsync(e => e.Id == id);
-
+            var category = await _categoryRepository.GetByIdAsync(id);
             if (category is null)
                 return NotFound();
 
-            return Ok(category);
+            return Ok(category.Adapt<CategoryResponse>());
         }
 
-        // POST / categories
+        // POST: api/admin/categories
         [HttpPost]
-        public async Task<IActionResult> Create(CategoryRequest categoryRequest)
+        public async Task<IActionResult> Create([FromBody] CategoryCreateRequest request)
         {
-            await _categoryRepository.CreateAsync(categoryRequest.Adapt<Category>());
+            var category = request.Adapt<Category>();
+            var createdCategory = await _categoryRepository.CreateAsync(category);
             await _categoryRepository.CommitAsync();
 
-            return Ok(new
-            {
-                msg = "Add Category Successfully"
-            });
+            return CreatedAtAction(nameof(Details), new { id = createdCategory.Id }, new { msg = "Category created successfully" });
         }
 
-        // PUT / categories/{id}
+        // PUT: api/admin/categories/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, CategoryRequest categoryRequest)
+        public async Task<IActionResult> Edit(int id, [FromBody] CategoryCreateRequest request)
         {
-            var categoryInDB = await _categoryRepository.GetOneAsync(e => e.Id == id);
-
+            var categoryInDB = await _categoryRepository.GetByIdAsync(id);
             if (categoryInDB is null)
                 return NotFound();
 
-            categoryInDB.Name = categoryRequest.Name;
-            categoryInDB.Description = categoryRequest.Description;
-            categoryInDB.Status = categoryRequest.Status;
-
+            var updatedCategory = request.Adapt(categoryInDB);
+            _categoryRepository.Update(updatedCategory);
             await _categoryRepository.CommitAsync();
 
-            return Ok(new
-            {
-                msg = "Update Category Successfully"
-            });
+            return NoContent();
         }
 
-        // DELETE / categories/{id}
+        // DELETE: api/admin/categories/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var categoryInDB = await _categoryRepository.GetOneAsync(e => e.Id == id);
-
-            if (categoryInDB is null)
+            var category = await _categoryRepository.GetByIdAsync(id);
+            if (category is null)
                 return NotFound();
-            
-            _categoryRepository.Delete(categoryInDB);
+
+            _categoryRepository.Delete(category);
             await _categoryRepository.CommitAsync();
 
-            return Ok(new
-            {
-                msg = "Delete Category Successfully"
-            });
+            return NoContent();
         }
     }
 }

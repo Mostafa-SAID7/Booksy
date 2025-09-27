@@ -1,92 +1,52 @@
-using Booksy.Extentions;
+using Booksy.Extensions;
+using Booksy.Services;
 using Booksy.Utility.DBInitializer;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.EntityFrameworkCore;
-using Stripe;
+using Booksy.Utility.Settings;
 
 var builder = WebApplication.CreateBuilder(args);
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-                      policy =>
-                      {
-                          policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-                      });
-
-});
-
-
-builder.Services.AddControllers();
-
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+// Controllers
 builder.Services.AddControllers().AddNewtonsoftJson();
-
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGenJwtAuth();
-builder.Services.AddOpenApi();
+
+// Swagger
+builder.Services.AddCustomSwagger();
+builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("JWT"));
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+
+// CORS
+builder.Services.AddCustomCors();
+
+// JWT
 builder.Services.AddCustomJwtAuth(builder.Configuration);
-builder.Services.AddSwaggerGen();
-//builder.Services.AddOpenApi();
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped<IDBInitializer, DBInitializer>();
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>(option =>
-{
-    option.Password.RequiredLength = 6;
-    option.Password.RequireNonAlphanumeric = false;
-    option.User.RequireUniqueEmail = true;
-})
-    .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
 
-builder.Services.ConfigureApplicationCookie(options =>
-{
-    options.LoginPath = "/Identity/Account/Login";
-    options.AccessDeniedPath = "/Customer/Home/NotFoundPage";
-});
-
-builder.Services.AddTransient<IEmailSender, EmailSender>();
-
-builder.Services.AddScoped<IRepository<Category>, Repository<Category>>();
-builder.Services.AddScoped<IRepository<Brand>, Repository<Brand>>();
-
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IRepository<UserOTP>, Repository<UserOTP>>();
-builder.Services.AddScoped<IDBInitializer, DBInitializer>();
-builder.Services.AddScoped<IRepository<Cart>, Repository<Cart>>();
-builder.Services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
-builder.Services.AddScoped<IRepository<Order>, Repository<Order>>();
-builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-
-
-builder.Services.Configure<StripeSettings>(builder.Configuration.GetSection("Stripe"));
-StripeConfiguration.ApiKey = builder.Configuration["Stripe:SecretKey"];
+// Application services (DbContext, Identity, Repos, Stripe, Email)
+builder.Services.AddApplicationServices(builder.Configuration);
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Swagger UI
 if (app.Environment.IsDevelopment())
 {
-    //app.MapScalarApiReference();
-    //app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
-app.UseCors(MyAllowSpecificOrigins);
+
+// CORS
+app.UseCustomCors();
+
+// Auth
 app.UseAuthentication();
 app.UseAuthorization();
-//app.UseSession();
 
-var scope = app.Services.CreateScope();
-var service = scope.ServiceProvider.GetService<IDBInitializer>();
-service.Initialize();
+// DB Initializer
+using (var scope = app.Services.CreateScope())
+{
+    var service = scope.ServiceProvider.GetService<IDBInitializer>();
+    service?.Initialize();
+}
 
 app.MapControllers();
-
 app.Run();

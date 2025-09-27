@@ -12,5 +12,7 @@ namespace Booksy.Models
         public string? City { get; set; }
         public string? State { get; set; }
         public string? ZipCode { get; set; }
+        public ICollection<Cart>? Carts { get; set; }
+        public ICollection<Order>? Orders { get; set; }
     }
 }

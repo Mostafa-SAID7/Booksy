@@ -5,3 +5,4 @@ global using Booksy.Repositories;
 global using Booksy.Repositories.IRepositories;
 global using Booksy.DTOs.Request;
 global using Booksy.DTOs.Response;
+using System.ComponentModel.DataAnnotations;

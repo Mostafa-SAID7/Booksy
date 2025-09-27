@@ -1,14 +1,16 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 
 namespace Booksy.Models
 {
-    [PrimaryKey(nameof(ApplicationUserId), nameof(ProductId))]
     public class Cart
     {
-        public string ApplicationUserId { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
-        public int ProductId { get; set; }
-        public Product Product { get; set; }
-        public int Count { get; set; }
+        [Key]
+        public int Id { get; set; }
+
+        public string UserId { get; set; } = string.Empty; // FK to Identity User
+        public ApplicationUser User { get; set; } = null!;
+
+        public ICollection<CartItem> Items { get; set; } = new List<CartItem>();
     }
 }
