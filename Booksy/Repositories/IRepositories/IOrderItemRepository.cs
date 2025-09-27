@@ -1,4 +1,4 @@
-﻿using Booksy.Models;
+﻿using Booksy.Models.Entities.Orders;
 using System.Linq.Expressions;
 
 namespace Booksy.Repositories.IRepositories

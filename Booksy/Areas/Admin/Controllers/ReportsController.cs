@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Booksy.Models.Entities.Orders;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Booksy.Areas.Admin.Controllers
 {
@@ -19,11 +21,13 @@ namespace Booksy.Areas.Admin.Controllers
         [HttpGet("top-books")]
         public async Task<IActionResult> TopBooks(int top = 5)
         {
-            var orders = await _orderRepository.GetAsync(includes: new List<Func<IQueryable<Order>, IQueryable<Order>>>
-        { q => q.Include(o => o.Items).ThenInclude(i => i.Book) });
-
+            var orders = await _orderRepository.GetAsync(
+        includes: new Expression<Func<Order, object>>[]
+        {
+        o => o.OrderItems
+        });
             var topBooks = orders
-                .SelectMany(o => o.Items)
+                .SelectMany(o => o.OrderItems)
                 .GroupBy(i => i.BookId)
                 .Select(g => new { BookId = g.Key, QuantitySold = g.Sum(i => i.Quantity) })
                 .OrderByDescending(x => x.QuantitySold)
@@ -41,7 +45,7 @@ namespace Booksy.Areas.Admin.Controllers
             var revenue = orders
                 .Where(o => o.CreatedAt.Year == year)
                 .GroupBy(o => o.CreatedAt.Month)
-                .Select(g => new { Month = g.Key, TotalRevenue = g.Sum(o => o.Items.Sum(i => i.Price * i.Quantity)) })
+                .Select(g => new { Month = g.Key, TotalRevenue = g.Sum(o => o.OrderItems.Sum(i => i.Price * i.Quantity)) })
                 .ToList();
 
             return Ok(revenue);

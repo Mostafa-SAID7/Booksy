@@ -1,5 +1,5 @@
 ﻿using Booksy.DataAccess;
-using Booksy.Models;
+using Booksy.Models.Entities.Orders;
 using Booksy.Repositories.IRepositories;
 
 namespace Booksy.Repositories

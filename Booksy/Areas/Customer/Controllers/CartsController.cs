@@ -1,10 +1,12 @@
-﻿using Booksy.DTOs.Response.Carts;
+﻿using Booksy.Models.DTOs.Request.Carts;
+using Booksy.Models.DTOs.Response.Carts;
+using Booksy.Models.Entities.Users;
+using Mapster;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Stripe.Checkout;
+using System.Linq.Expressions;
 
 namespace Booksy.Areas.Customer.Controllers
 {
@@ -27,15 +29,16 @@ namespace Booksy.Areas.Customer.Controllers
             _cartRepository = cartRepository;
             _cartItemRepository = cartItemRepository;
         }
+
         // GET: api/customer/cart/{userId}
         [HttpGet("{userId}")]
         public async Task<IActionResult> GetCart(string userId)
         {
             var cart = (await _cartRepository.GetAsync(
                 c => c.UserId == userId,
-                includes: new List<Func<IQueryable<Cart>, IQueryable<Cart>>>
+                includes: new Expression<Func<Cart, object>>[]
                 {
-                    q => q.Include(c => c.Items).ThenInclude(i => i.Book)
+                    c => c.Items // Repository must support ThenInclude inside entity
                 }
             )).FirstOrDefault();
 
@@ -45,20 +48,23 @@ namespace Booksy.Areas.Customer.Controllers
             return Ok(cart.Adapt<CartResponse>());
         }
 
-
         // POST: api/customer/cart/{userId}
         [HttpPost("{userId}")]
-        public async Task<IActionResult> AddItem(string userId, [FromBody] CartItemCreateRequest request)
+        public async Task<IActionResult> AddItem(string userId, [FromBody] CartUpdateRequest request)
         {
             var cart = (await _cartRepository.GetAsync(
                 c => c.UserId == userId,
-                includes: new List<Func<IQueryable<Cart>, IQueryable<Cart>>> { q => q.Include(c => c.Items) }
+                includes: new Expression<Func<Cart, object>>[]
+                {
+                    c => c.Items
+                }
             )).FirstOrDefault();
 
             if (cart == null)
             {
                 cart = new Cart { UserId = userId };
                 await _cartRepository.CreateAsync(cart);
+                await _cartRepository.CommitAsync();
             }
 
             var existingItem = cart.Items.FirstOrDefault(i => i.BookId == request.BookId);
@@ -90,7 +96,10 @@ namespace Booksy.Areas.Customer.Controllers
         {
             var cart = (await _cartRepository.GetAsync(
                 c => c.UserId == userId,
-                includes: new List<Func<IQueryable<Cart>, IQueryable<Cart>>> { q => q.Include(c => c.Items) }
+                includes: new Expression<Func<Cart, object>>[]
+                {
+                    c => c.Items
+                }
             )).FirstOrDefault();
 
             if (cart == null)

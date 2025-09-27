@@ -1,4 +1,7 @@
-﻿using Mapster;
+﻿using Booksy.Models.DTOs.Request.Auth;
+using Booksy.Models.DTOs.Response.Auth;
+using Booksy.Models.Entities.Books;
+using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,4 +1,5 @@
-﻿using Booksy.Utility.Settings;
+﻿using Booksy.Models.Entities.Users;
+using Booksy.Utility.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

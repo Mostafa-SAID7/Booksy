@@ -1,4 +1,9 @@
-﻿using Booksy.Utility.DBInitializer;
+﻿using Booksy.Models.Entities.Books;
+using Booksy.Models.Entities.Orders;
+using Booksy.Models.Entities.Promotions;
+using Booksy.Models.Entities.Users;
+using Booksy.Services;
+using Booksy.Utility.DBInitializer;
 using Booksy.Utility.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;

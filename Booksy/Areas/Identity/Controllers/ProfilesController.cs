@@ -1,4 +1,6 @@
-﻿using Booksy.DTOs.Request.User;
+﻿using Booksy.Models.DTOs.Request.User;
+using Booksy.Models.DTOs.Response.User;
+using Booksy.Models.Entities.Users;
 using Mapster;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;

@@ -1,7 +1,10 @@
-﻿using Booksy.DTOs.Request.Books;
-using Booksy.DTOs.Response.Books;
-using Booksy.DTOs.Response.Carts;
-using Booksy.Models;
+﻿using Booksy.Models.DTOs.Request.Auth;
+using Booksy.Models.DTOs.Request.Books;
+using Booksy.Models.DTOs.Request.Category;
+using Booksy.Models.DTOs.Response.Auth;
+using Booksy.Models.DTOs.Response.Books;
+using Booksy.Models.DTOs.Response.Category;
+using Booksy.Models.Entities.Books;
 using Mapster;
 
 namespace Booksy.Utility.Mapping

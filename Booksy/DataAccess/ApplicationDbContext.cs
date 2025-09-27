@@ -1,4 +1,7 @@
-﻿using Booksy.Models;
+﻿using Booksy.Models.Entities.Books;
+using Booksy.Models.Entities.Orders;
+using Booksy.Models.Entities.Promotions;
+using Booksy.Models.Entities.Users;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,13 +15,15 @@ namespace Booksy.DataAccess
         }
 
         public DbSet<Category> Categories { get; set; }
-        public DbSet<Brand> Brands { get; set; }
-        public DbSet<Product> Products { get; set; }
+        public DbSet<Book> Books { get; set; }
+        public DbSet<Author> Authors { get; set; }
+        public DbSet<Review> Reviews { get; set; }
         public DbSet<UserOTP> UserOTPs { get; set; }
         public DbSet<Cart> Carts { get; set; }
         public DbSet<Promotion> Promotions { get; set; }
         public DbSet<Order> Orders { get; set; }
         public DbSet<OrderItem> OrderItems { get; set; }
+        public object AppSettings { get; internal set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

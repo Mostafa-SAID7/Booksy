@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Booksy.Models.Entities.Users;
+using Booksy.Repositories.IRepositories;
+using Booksy.Utility;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 
 namespace Booksy.Areas.Admin.Controllers
 {
@@ -8,30 +11,71 @@ namespace Booksy.Areas.Admin.Controllers
     [ApiController]
     public class SettingsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IRepository<Setting> _settingRepository;
 
-        public SettingsController(ApplicationDbContext context)
+        public SettingsController(IRepository<Setting> settingRepository)
         {
-            _context = context;
+            _settingRepository = settingRepository;
         }
 
+        // GET: api/admin/settings
         [HttpGet]
-        public IActionResult GetSettings()
+        public async Task<IActionResult> GetAll()
         {
-            var settings = _context.AppSettings.ToList(); // Example DbSet<AppSetting>
+            var settings = await _settingRepository.GetAsync();
             return Ok(settings);
         }
 
-        [HttpPut("{key}")]
-        public IActionResult UpdateSetting(string key, [FromBody] string value)
+        // GET: api/admin/settings/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
         {
-            var setting = _context.AppSettings.FirstOrDefault(s => s.Key == key);
+            var setting = await _settingRepository.GetOneAsync(s => s.Id == id);
+            if (setting == null) return NotFound();
+            return Ok(setting);
+        }
+
+        // POST: api/admin/settings
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] Setting setting)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            await _settingRepository.CreateAsync(setting);
+            await _settingRepository.CommitAsync();
+
+            return CreatedAtAction(nameof(Get), new { id = setting.Id }, setting);
+        }
+
+        // PUT: api/admin/settings/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] Setting setting)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var settingInDb = await _settingRepository.GetOneAsync(s => s.Id == id);
+            if (settingInDb == null) return NotFound();
+
+            settingInDb.Key = setting.Key;
+            settingInDb.Value = setting.Value;
+
+            _settingRepository.Update(settingInDb);
+            await _settingRepository.CommitAsync();
+
+            return NoContent();
+        }
+
+        // DELETE: api/admin/settings/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var setting = await _settingRepository.GetOneAsync(s => s.Id == id);
             if (setting == null) return NotFound();
 
-            setting.Value = value;
-            _context.SaveChanges();
+            _settingRepository.Delete(setting);
+            await _settingRepository.CommitAsync();
+
             return NoContent();
         }
     }
-
 }

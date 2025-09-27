@@ -1,7 +1,10 @@
-﻿using Booksy.Models;
+﻿using Booksy.Models.Entities.Books;
+using Booksy.Models.Entities.Orders;
+using Booksy.Models.Entities.Users;
 using Booksy.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Booksy.Areas.Admin.Controllers
 {
@@ -37,21 +40,24 @@ namespace Booksy.Areas.Admin.Controllers
             var books = await _bookRepository.GetAsync();
             var authors = await _authorRepository.GetAsync();
             var categories = await _categoryRepository.GetAsync();
-            var orders = await _orderRepository.GetAsync(includes: new List<Func<IQueryable<Order>, IQueryable<Order>>>
-            {
-                q => q.Include(o => o.Items)
-            });
             var users = await _userRepository.GetAsync();
 
-            decimal totalRevenue = orders.Sum(o => o.Items.Sum(i => i.Price * i.Quantity));
+            // Include OrderItems for revenue calculation
+            var orders = await _orderRepository.GetAsync(
+                includes: new Expression<Func<Order, object>>[]
+                {
+                    o => o.OrderItems
+                });
+
+            decimal totalRevenue = orders.Sum(o => o.OrderItems.Sum(i => i.Price * i.Quantity));
 
             var stats = new
             {
-                TotalBooks = books.Count,
-                TotalAuthors = authors.Count,
-                TotalCategories = categories.Count,
-                TotalOrders = orders.Count,
-                TotalUsers = users.Count,
+                TotalBooks = books.Count(),
+                TotalAuthors = authors.Count(),
+                TotalCategories = categories.Count(),
+                TotalOrders = orders.Count(),
+                TotalUsers = users.Count(),
                 TotalRevenue = totalRevenue
             };
 

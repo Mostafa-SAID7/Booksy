@@ -1,6 +1,6 @@
-﻿using Booksy.DTOs.Request.Books;
-using Booksy.DTOs.Response.Books;
-using Booksy.Models;
+﻿using Booksy.Models.DTOs.Request.Books;
+using Booksy.Models.DTOs.Response.Books;
+using Booksy.Models.Entities.Books;
 using Booksy.Utility;
 using Mapster;
 using Microsoft.AspNetCore.Mvc;

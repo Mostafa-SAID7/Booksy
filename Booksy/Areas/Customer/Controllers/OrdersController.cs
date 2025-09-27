@@ -1,9 +1,13 @@
-﻿using Booksy.Models;
+﻿using Booksy.Models.Entities.Orders;
+using Booksy.Models.Entities.Promotions;
+using Booksy.Models.Entities.Users;
+using Booksy.Models.Enums;
 using Booksy.Utility;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Booksy.Areas.Customer.Controllers
 {
@@ -37,10 +41,10 @@ namespace Booksy.Areas.Customer.Controllers
         public async Task<IActionResult> GetOrders(string userId)
         {
             var orders = await _orderRepository.GetAsync(
-                o => o.ApplicationUserId == userId,
-                includes: new List<Func<IQueryable<Order>, IQueryable<Order>>>
+                o => o.UserId == userId,
+                includes: new Expression<Func<Order, object>>[]
                 {
-                    q => q.Include(o => o.Items).ThenInclude(i => i.Book)
+                    o => o.OrderItems
                 }
             );
 
@@ -48,8 +52,14 @@ namespace Booksy.Areas.Customer.Controllers
             {
                 o.Id,
                 o.OrderDate,
-                TotalPrice = o.Items.Sum(i => i.Price * i.Quantity),
-                Items = o.Items.Adapt<List<OrderItemResponse>>()
+                TotalPrice = o.OrderItems.Sum(i => i.Price * i.Quantity),
+                Items = o.OrderItems.Select(i => new
+                {
+                    i.BookId,
+                    i.Book.Title,
+                    i.Quantity,
+                    i.Price
+                })
             });
 
             return Ok(response);
@@ -62,9 +72,9 @@ namespace Booksy.Areas.Customer.Controllers
             // Get cart
             var cart = (await _cartRepository.GetAsync(
                 c => c.UserId == userId,
-                includes: new List<Func<IQueryable<Cart>, IQueryable<Cart>>>
+                includes: new Expression<Func<Cart, object>>[]
                 {
-                    q => q.Include(c => c.Items).ThenInclude(i => i.Book)
+                    c => c.Items
                 }
             )).FirstOrDefault();
 
@@ -72,18 +82,27 @@ namespace Booksy.Areas.Customer.Controllers
                 return BadRequest(new { msg = "Cart is empty." });
 
             // Calculate total
-            decimal total = cart.Items.Sum(i => i.Quantity * i.Book.Price);
+            decimal total = 0;
+            foreach (var item in cart.Items)
+            {
+                total += item.Quantity * item.Book.Price;
+            }
 
             // Apply promotion
             Promotion? promo = null;
             if (!string.IsNullOrEmpty(promotionCode))
             {
                 promo = (await _promotionRepository.GetAsync(
-                    p => p.Code == promotionCode && p.IsActive)).FirstOrDefault();
+                    p => p.Code == promotionCode && p.IsActive
+                )).FirstOrDefault();
 
                 if (promo != null)
                 {
-                    total -= promo.DiscountAmount;
+                    decimal discount = promo.Type == PromotionType.Percentage
+                        ? total * (promo.Value / 100)
+                        : promo.Value;
+
+                    total -= discount;
                     if (total < 0) total = 0;
                 }
             }
@@ -92,12 +111,11 @@ namespace Booksy.Areas.Customer.Controllers
             var order = new Order
             {
                 UserId = userId,
-                OrderDate = DateTime.UtcNow,
-                PromotionId = promo?.Id
+                OrderDate = DateTime.UtcNow
             };
 
             await _orderRepository.CreateAsync(order);
-            await _orderRepository.CommitAsync(); // save to generate order.Id
+            await _orderRepository.CommitAsync(); // Save to get order.Id
 
             // Create order items
             foreach (var item in cart.Items)
@@ -107,21 +125,22 @@ namespace Booksy.Areas.Customer.Controllers
                     OrderId = order.Id,
                     BookId = item.BookId,
                     Quantity = item.Quantity,
-                    Price = item.Book.Price
+                    Price = (int)item.Book.Price,
+                    TotalPrice = item.Book.Price * item.Quantity
                 };
                 await _orderItemRepository.CreateAsync(orderItem);
             }
 
             await _orderItemRepository.CommitAsync();
 
-            // Clear cart
+            // Clear cart items
             foreach (var item in cart.Items.ToList())
             {
-                _cartRepository.Delete(item.Cart); // or _cartItemRepository.Delete(item)
+                _cartRepository.Delete(cart); // Remove cart itself after processing
             }
             await _cartRepository.CommitAsync();
 
-            return Ok(new { msg = "Order created successfully", orderId = order.Id });
+            return Ok(new { msg = "Order created successfully", orderId = order.Id, totalPrice = total });
         }
 
         // GET: api/customer/orders/details/{orderId}
@@ -130,9 +149,9 @@ namespace Booksy.Areas.Customer.Controllers
         {
             var order = (await _orderRepository.GetAsync(
                 o => o.Id == orderId,
-                includes: new List<Func<IQueryable<Order>, IQueryable<Order>>>
+                includes: new Expression<Func<Order, object>>[]
                 {
-                    q => q.Include(o => o.Items).ThenInclude(i => i.Book)
+                    o => o.OrderItems
                 }
             )).FirstOrDefault();
 
@@ -143,8 +162,8 @@ namespace Booksy.Areas.Customer.Controllers
             {
                 order.Id,
                 order.OrderDate,
-                TotalPrice = order.Items.Sum(i => i.Price * i.Quantity),
-                Items = order.Items.Select(i => new
+                TotalPrice = order.OrderItems.Sum(i => i.Price * i.Quantity),
+                Items = order.OrderItems.Select(i => new
                 {
                     i.BookId,
                     i.Book.Title,

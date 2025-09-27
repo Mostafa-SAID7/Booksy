@@ -1,9 +1,13 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Booksy.Models.Entities.Books;
+using Booksy.Models.Entities.Orders;
+using Booksy.Models.Entities.Users;
+using Booksy.Models.Enums;
+using Booksy.Utility;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Stripe.Checkout;
-using Booksy.Models;
-using Booksy.Utility;
+using System.Linq.Expressions;
 
 namespace Booksy.Areas.Customer.Controllers
 {
@@ -15,6 +19,7 @@ namespace Booksy.Areas.Customer.Controllers
         private readonly IRepository<Order> _orderRepository;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IRepository<Cart> _cartRepository;
+        private readonly IRepository<CartItem> _cartItemRepository;
         private readonly IRepository<OrderItem> _orderItemRepository;
         private readonly IRepository<Book> _bookRepository;
         private readonly ApplicationDbContext _context;
@@ -24,6 +29,7 @@ namespace Booksy.Areas.Customer.Controllers
             IRepository<Order> orderRepository,
             UserManager<ApplicationUser> userManager,
             IRepository<Cart> cartRepository,
+            IRepository<CartItem> cartItemRepository,
             IRepository<OrderItem> orderItemRepository,
             IRepository<Book> bookRepository,
             ApplicationDbContext context,
@@ -32,6 +38,7 @@ namespace Booksy.Areas.Customer.Controllers
             _orderRepository = orderRepository;
             _userManager = userManager;
             _cartRepository = cartRepository;
+            _cartItemRepository = cartItemRepository;
             _orderItemRepository = orderItemRepository;
             _bookRepository = bookRepository;
             _context = context;
@@ -45,58 +52,68 @@ namespace Booksy.Areas.Customer.Controllers
 
             try
             {
-                // 1️⃣ Update transaction info from Stripe
-                var order = await _orderRepository.GetOneAsync(o => o.Id == orderId);
+                // 1️⃣ Load order
+                var order = await _orderRepository.GetOneAsync(o => o.Id == orderId, tracked: true);
                 if (order == null)
-                    return NotFound();
+                    return NotFound(new { msg = "Order not found." });
 
+                // 2️⃣ Update Stripe transaction info
                 var sessionService = new SessionService();
                 var session = sessionService.Get(order.SessionId);
 
                 order.TransactionId = session.PaymentIntentId;
-                order.TransactionStatus = TransactionStatus.Confirmed;
+                order.TransactionStatus = TransactionStatus.Success;
                 order.OrderStatus = OrderStatus.UnShipped;
+                _orderRepository.Update(order);
                 await _orderRepository.CommitAsync();
 
-                // 2️⃣ Get user's cart items
+                // 3️⃣ Load user's cart with items and books
                 var user = await _userManager.GetUserAsync(User);
                 if (user == null)
-                    return NotFound();
+                    return NotFound(new { msg = "User not found." });
 
-                var carts = (await _cartRepository.GetAsync(
+                var cart = (await _cartRepository.GetAsync(
                     c => c.UserId == user.Id,
-                    includes: new List<Func<IQueryable<Cart>, IQueryable<Cart>>> { q => q.Include(c => c.Items).ThenInclude(i => i.Book) }
+                    includes: new Expression<Func<Cart, object>>[]
+                    {
+                        c => c.Items
+                    }
                 )).FirstOrDefault();
 
-                if (carts == null || !carts.Items.Any())
+                if (cart == null || cart.Items.Count == 0)
                     return BadRequest(new { msg = "Cart is empty." });
 
-                // 3️⃣ Convert CartItems to OrderItems
-                var orderItems = carts.Items.Select(i => new OrderItem
+                // 4️⃣ Convert CartItems to OrderItems and update stock
+                foreach (var item in cart.Items)
                 {
-                    OrderId = order.Id,
-                    BookId = i.BookId,
-                    Quantity = i.Quantity,
-                    Price = i.Book.Price
-                }).ToList();
+                    var book = await _bookRepository.GetOneAsync(b => b.Id == item.BookId);
+                    if (book == null) continue;
 
-                foreach (var item in orderItems)
-                    await _orderItemRepository.CreateAsync(item);
+                    var orderItem = new OrderItem
+                    {
+                        OrderId = order.Id,
+                        BookId = book.Id,
+                        Quantity = item.Quantity,
+                        TotalPrice = book.Price * item.Quantity
+                    };
+                    await _orderItemRepository.CreateAsync(orderItem);
+
+                    // Update book stock
+                    book.Quantity -= item.Quantity;
+                }
 
                 await _orderItemRepository.CommitAsync();
-
-                // 4️⃣ Update Book stock
-                foreach (var item in carts.Items)
-                {
-                    item.Book.Quantity -= item.Quantity;
-                }
                 await _bookRepository.CommitAsync();
 
-                // 5️⃣ Clear cart
-                foreach (var item in carts.Items.ToList())
+                // 5️⃣ Clear user's cart items
+                foreach (var item in cart.Items.ToList())
                 {
-                    _cartRepository.Delete(carts);
+                    _cartItemRepository.Delete(item);
                 }
+                await _cartItemRepository.CommitAsync();
+
+                // Optionally delete empty cart
+                _cartRepository.Delete(cart);
                 await _cartRepository.CommitAsync();
 
                 await transaction.CommitAsync();

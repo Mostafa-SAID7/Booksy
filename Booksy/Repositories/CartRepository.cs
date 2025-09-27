@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Booksy.Models.Entities.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace Booksy.Repositories
 {

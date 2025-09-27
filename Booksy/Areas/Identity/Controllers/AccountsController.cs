@@ -1,4 +1,6 @@
-﻿using Booksy.DTOs.Request.User;
+﻿using Booksy.Models.DTOs.Request.User;
+using Booksy.Models.DTOs.Response;
+using Booksy.Models.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;

@@ -1,9 +1,10 @@
-﻿using Booksy.DTOs.Request.Books;
-using Booksy.DTOs.Response.Books;
-using Booksy.Models;
+﻿using Booksy.Models.DTOs.Request.Books;
+using Booksy.Models.DTOs.Response.Books;
+using Booksy.Models.Entities.Books;
 using Booksy.Utility;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Booksy.Areas.Customer.Controllers
 {
@@ -26,9 +27,14 @@ namespace Booksy.Areas.Customer.Controllers
         {
             const double hotDiscountThreshold = 50;
 
-            var booksQuery = (await _bookRepository.GetAsync(includes: new List<Func<IQueryable<Book>, IQueryable<Book>>> { q => q.Include(b => b.Category) })).AsQueryable();
+            var booksQuery = (await _bookRepository.GetAsync(
+                includes: new Expression<Func<Book, object>>[]
+                {
+                    b => b.Category
+                }
+            )).AsQueryable();
 
-            // Filter
+            // Filters
             if (!string.IsNullOrEmpty(filterRequest.BookTitle))
                 booksQuery = booksQuery.Where(b => b.Title.Contains(filterRequest.BookTitle));
 
@@ -42,12 +48,11 @@ namespace Booksy.Areas.Customer.Controllers
                 booksQuery = booksQuery.Where(b => b.CategoryId == filterRequest.CategoryId);
 
             if (filterRequest.IsHot)
-                booksQuery = booksQuery.Where(b => b.Discount > hotDiscountThreshold);
+                booksQuery = booksQuery.Where(b => (double)b.Discount > hotDiscountThreshold);
 
             // Pagination
             int pageSize = 8;
             double totalPages = Math.Ceiling(booksQuery.Count() / (double)pageSize);
-            int currentPage = page;
 
             var pagedBooks = booksQuery.Skip((page - 1) * pageSize).Take(pageSize).ToList();
 
@@ -62,7 +67,7 @@ namespace Booksy.Areas.Customer.Controllers
                 filterRequest.CategoryId,
                 filterRequest.IsHot,
                 totalPages,
-                currentPage,
+                currentPage = page,
                 categories
             });
         }
@@ -72,11 +77,13 @@ namespace Booksy.Areas.Customer.Controllers
         {
             var book = await _bookRepository.GetOneAsync(
                 b => b.Id == id,
-                includes: new List<Func<IQueryable<Book>, IQueryable<Book>>> { q => q.Include(b => b.Category) }
+                includes: new Expression<Func<Book, object>>[]
+                {
+                    b => b.Category
+                }
             );
 
-            if (book == null)
-                return NotFound();
+            if (book == null) return NotFound();
 
             // Update Traffic
             book.Traffic++;
@@ -85,19 +92,28 @@ namespace Booksy.Areas.Customer.Controllers
             // Related Books (same category)
             var relatedBooks = (await _bookRepository.GetAsync(
                 b => b.CategoryId == book.CategoryId && b.Id != book.Id,
-                includes: new List<Func<IQueryable<Book>, IQueryable<Book>>> { q => q.Include(b => b.Category) }
+                includes: new Expression<Func<Book, object>>[]
+                {
+                    b => b.Category
+                }
             )).Take(4).ToList();
 
             // Top Traffic
             var topTraffic = (await _bookRepository.GetAsync(
                 b => b.Id != book.Id,
-                includes: new List<Func<IQueryable<Book>, IQueryable<Book>>> { q => q.Include(b => b.Category) }
+                includes: new Expression<Func<Book, object>>[]
+                {
+                    b => b.Category
+                }
             )).OrderByDescending(b => b.Traffic).Take(4).ToList();
 
             // Similar Books (title contains keyword)
             var similarBooks = (await _bookRepository.GetAsync(
-                b => b.Name.Contains(book.Name) && b.Id != book.Id,
-                includes: new List<Func<IQueryable<Book>, IQueryable<Book>>> { q => q.Include(b => b.Category) }
+                b => b.Title.Contains(book.Title) && b.Id != book.Id,
+                includes: new Expression<Func<Book, object>>[]
+                {
+                    b => b.Category
+                }
             )).Take(4).ToList();
 
             var response = new BookWithRelatedResponse

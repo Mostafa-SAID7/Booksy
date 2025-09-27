@@ -1,7 +1,8 @@
 ﻿using Mapster;
 using Microsoft.AspNetCore.Mvc;
-using Booksy.Models;
-using Booksy.DTOs.Response.Carts;
+using Booksy.Models.Entities.Books;
+using Booksy.Models.DTOs.Request.Category;
+using Booksy.Models.DTOs.Response.Category;
 
 
 namespace Booksy.Areas.Admin.Controllers

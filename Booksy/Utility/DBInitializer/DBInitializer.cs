@@ -1,5 +1,5 @@
 ﻿using Booksy.DataAccess;
-using Booksy.Models;
+using Booksy.Models.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

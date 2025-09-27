@@ -1,4 +1,6 @@
-﻿namespace Booksy.Repositories.IRepositories
+﻿using Booksy.Models.Entities.Books;
+
+namespace Booksy.Repositories.IRepositories
 {
     public interface IBookRepository
     {

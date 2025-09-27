@@ -7,66 +7,63 @@ namespace Booksy.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private ApplicationDbContext _context;// = new();
-        private DbSet<T> _db;
+        private readonly ApplicationDbContext _context;
+        private readonly DbSet<T> _dbSet;
 
         public Repository(ApplicationDbContext context)
         {
             _context = context;
-            _db = _context.Set<T>();
+            _dbSet = _context.Set<T>();
         }
 
-        // CRUD
+        public async Task<IEnumerable<T>> GetAsync(
+            Expression<Func<T, bool>>? filter = null,
+            Expression<Func<T, object>>[]? includes = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>>? orderBy = null)
+        {
+            IQueryable<T> query = _dbSet;
+
+            if (filter != null)
+                query = query.Where(filter);
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                    query = query.Include(include);
+            }
+
+            if (orderBy != null)
+                return await orderBy(query).ToListAsync();
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<T?> GetOneAsync(
+            Expression<Func<T, bool>> filter,
+            Expression<Func<T, object>>[]? includes = null,
+            bool tracked = true)
+        {
+            IQueryable<T> query = tracked ? _dbSet : _dbSet.AsNoTracking();
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                    query = query.Include(include);
+            }
+
+            return await query.FirstOrDefaultAsync(filter);
+        }
+
         public async Task<T> CreateAsync(T entity)
         {
-            await _db.AddAsync(entity);
+            await _dbSet.AddAsync(entity);
             return entity;
         }
 
-        public void Update(T entity)
-        {
-            _db.Update(entity);
-        }
+        public void Update(T entity) => _dbSet.Update(entity);
 
-        public void Delete(T entity)
-        {
-            _db.Remove(entity);
-        }
+        public void Delete(T entity) => _dbSet.Remove(entity);
 
-        public async Task CommitAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
-        public async Task<List<T>> GetAsync(Expression<Func<T, bool>>? expression = null,
-            Expression<Func<T, object>>[]? includes = null, bool tracked = true)
-        {
-            var entities = _db.AsQueryable();
-
-            if (expression is not null)
-            {
-                entities = entities.Where(expression);
-            }
-
-            if (includes is not null)
-            {
-                foreach (var item in includes)
-                {
-                    entities = entities.Include(item);
-                }
-            }
-
-            if (!tracked)
-            {
-                entities = entities.AsNoTracking();
-            }
-
-            return await entities.ToListAsync();
-        }
-
-        public async Task<T?> GetOneAsync(Expression<Func<T, bool>> expression, Expression<Func<T, object>>[]? includes = null, bool tracked = true)
-        {
-            return (await GetAsync(expression, includes, tracked)).FirstOrDefault();
-        }
+        public async Task CommitAsync() => await _context.SaveChangesAsync();
     }
 }
