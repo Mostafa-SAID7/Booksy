@@ -1,0 +1,74 @@
+﻿<!-- orders.html -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Booksy - My Orders</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-white shadow p-6 mb-6"><h1 class="text-3xl font-bold text-center text-blue-600">My Orders</h1></header>
+    <main class="max-w-5xl mx-auto px-4">
+        <section id="ordersList" class="space-y-4"><p class="text-center text-gray-500">Loading orders...</p></section>
+    </main>
+
+    <script>
+        const ORDERS_API = 'https://localhost:5001/api/customer/orders';
+        const IMAGE_BASE = 'https://localhost:5001/images/';
+        const USER_ID = 'USER_ID_HERE';
+
+        async function fetchWithTimeout(url, opts = {}, timeout = 8000, retries = 2) {
+            for (let attempt = 0; attempt <= retries; ++attempt) {
+                const ctrl = new AbortController(), id = setTimeout(() => ctrl.abort(), timeout);
+                try { const res = await fetch(url, { ...opts, signal: ctrl.signal }); clearTimeout(id); if (!res.ok) { if (res.status >= 500 && attempt < retries) { await new Promise(r => setTimeout(r, 200 * Math.pow(2, attempt))); continue; } throw new Error(await res.text()); } return res; } catch (err) { clearTimeout(id); if (err.name === 'AbortError') { if (attempt < retries) { await new Promise(r => setTimeout(r, 200 * Math.pow(2, attempt))); continue; } throw new Error('timeout'); } if (attempt < retries) { await new Promise(r => setTimeout(r, 200 * Math.pow(2, attempt))); continue; } throw err; }
+            }
+        }
+
+        async function loadOrders() {
+            const el = document.getElementById('ordersList'); el.innerHTML = '<p class="text-center text-gray-500">Loading orders...</p>';
+            try {
+                const res = await fetchWithTimeout(`${ORDERS_API}/${USER_ID}`, {}, 8000, 1);
+                if (!res.ok) { el.innerHTML = '<p class="text-center text-red-500">Failed to load orders.</p>'; return; }
+                const orders = await res.json();
+                if (!orders || orders.length === 0) { el.innerHTML = '<p class="text-center text-gray-500">No orders yet.</p>'; return; }
+                el.innerHTML = '';
+                orders.forEach(o => {
+                    const container = document.createElement('div'); container.className = 'bg-white p-4 rounded-lg shadow';
+                    const date = new Date(o.orderDate).toLocaleString();
+                    const total = (o.totalPrice || o.totalPrice === 0) ? (o.totalPrice) : (o.orderItems ? o.orderItems.reduce((s, it) => s + (it.price * it.quantity), 0) : 0);
+                    container.innerHTML = `
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="font-bold text-lg">Order #${o.id}</h3><span class="text-gray-600">${date}</span>
+            </div>
+            <p class="font-semibold mb-2">Total: $${(total || 0).toFixed(2)}</p>
+            <button class="text-blue-600 hover:underline" onclick="toggleDetails(${o.id})">View Items</button>
+            <div id="orderItems-${o.id}" class="hidden mt-3 space-y-2"></div>
+          `;
+                    el.appendChild(container);
+                });
+            } catch (err) { el.innerHTML = '<p class="text-center text-red-500">Error loading orders.</p>'; console.error(err); }
+        }
+
+        async function toggleDetails(orderId) {
+            const c = document.getElementById(`orderItems-${orderId}`);
+            if (!c) return;
+            if (!c.classList.contains('hidden')) { c.classList.add('hidden'); return; }
+            c.innerHTML = '<p class="text-gray-500">Loading...</p>'; c.classList.remove('hidden');
+            try {
+                const res = await fetchWithTimeout(`${ORDERS_API}/details/${orderId}`, {}, 7000, 1);
+                if (!res.ok) { c.innerHTML = '<p class="text-red-500">Failed to load items.</p>'; return; }
+                const order = await res.json();
+                c.innerHTML = '';
+                (order.items || []).forEach(item => {
+                    const div = document.createElement('div'); div.className = 'flex items-center gap-4 p-2 border rounded';
+                    div.innerHTML = `<img src="${IMAGE_BASE + (item.coverImageUrl ?? 'placeholder.png')}" class="w-16 h-20 object-cover rounded"><div class="flex-1"><p class="font-semibold">${item.title}</p><p class="text-gray-600">Price: $${(item.price || 0).toFixed(2)}</p><p class="text-gray-600">Quantity: ${item.quantity}</p><p class="text-green-600 font-semibold">Subtotal: $${((item.price || 0) * item.quantity).toFixed(2)}</p></div>`;
+                    c.appendChild(div);
+                });
+            } catch (err) { c.innerHTML = '<p class="text-red-500">Error loading items.</p>'; console.error(err); }
+        }
+
+        loadOrders();
+    </script>
+</body>
+</html>

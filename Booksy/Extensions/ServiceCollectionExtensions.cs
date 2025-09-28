@@ -59,8 +59,10 @@ namespace Booksy.Extensions
 
             // Repositories
             services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
             services.AddScoped<IAuthorRepository, AuthorRepository>();
             services.AddScoped<IRepository<Category>, Repository<Category>>();
+            services.AddScoped<IRepository<Author>, Repository<Author>>();
             services.AddScoped<IRepository<Book>, Repository<Book>>();
             services.AddScoped<IRepository<Cart>, Repository<Cart>>();
             services.AddScoped<IRepository<CartItem>, Repository<CartItem>>();
@@ -70,7 +72,6 @@ namespace Booksy.Extensions
             services.AddScoped<IRepository<ApplicationUser>, Repository<ApplicationUser>>();
             services.AddScoped<IRepository<UserOTP>, Repository<UserOTP>>();
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
 
             // Services
             services.AddScoped<ICategoryService, CategoryService>();

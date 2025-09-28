@@ -1,0 +1,406 @@
+﻿<!-- books.html -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Booksy — Browse Books</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 antialiased">
+    <header class="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <h1 class="text-xl font-bold text-sky-600">Booksy Library</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <a href="cart.html" id="cartLink" class="px-3 py-1 bg-amber-500 text-white rounded-md">Cart (<span id="cartCount">0</span>)</a>
+                <a href="orders.html" class="text-sm text-gray-600 underline">My Orders</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto p-4">
+        <section class="bg-white rounded-xl shadow-sm p-4 mb-6">
+            <form id="filters" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+                <div class="col-span-2">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Search title</label>
+                    <input id="titleFilter" type="search" placeholder="e.g. Clean Code" class="w-full p-2 border rounded-md" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Min price</label>
+                    <input id="minPrice" type="number" min="0" placeholder="0.00" class="w-full p-2 border rounded-md" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Max price</label>
+                    <input id="maxPrice" type="number" min="0" placeholder="100.00" class="w-full p-2 border rounded-md" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Category</label>
+                    <select id="categoryFilter" class="w-full p-2 border rounded-md">
+                        <option value="">All categories</option>
+                    </select>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input id="hotFilter" type="checkbox" class="h-4 w-4 text-red-600" />
+                    <label for="hotFilter" class="text-sm font-medium">Hot (>50%)</label>
+                </div>
+
+                <div class="flex items-center gap-2 justify-end lg:justify-start">
+                    <button id="clearBtn" type="button" class="px-4 py-2 rounded-md bg-white border">Clear</button>
+                    <button id="applyBtn" type="button" class="px-4 py-2 rounded-md bg-sky-600 text-white">Apply</button>
+                </div>
+            </form>
+        </section>
+
+        <section class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div class="lg:col-span-3">
+                <div class="flex items-center justify-between mb-3">
+                    <div class="text-sm text-gray-600" id="resultsInfo">Loading…</div>
+                    <div class="flex items-center gap-2">
+                        <div id="spinner" class="hidden animate-spin rounded-full h-5 w-5 border-b-2 border-sky-600"></div>
+                        <button id="prevPage" class="px-3 py-1 rounded-md bg-white border">Prev</button>
+                        <div id="pageIndicator" class="px-2 text-sm text-gray-700">1 / 1</div>
+                        <button id="nextPage" class="px-3 py-1 rounded-md bg-white border">Next</button>
+                    </div>
+                </div>
+
+                <div id="bookList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                <nav id="pagerNumbers" class="mt-6 flex gap-2 flex-wrap"></nav>
+            </div>
+
+            <aside class="lg:col-span-1 sticky top-24 space-y-4">
+                <div class="bg-white p-4 rounded-xl shadow-sm">
+                    <h3 class="font-semibold text-gray-700">Quick tips</h3>
+                    <p class="text-sm text-gray-500 mt-2">Click a card to view details + add to cart.</p>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <!-- Modal -->
+    <div id="bookModal" class="fixed inset-0 z-50 hidden items-center justify-center">
+        <div class="absolute inset-0 bg-black/40" data-close="backdrop"></div>
+        <div role="dialog" aria-modal="true" class="relative bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 overflow-auto max-h-[90vh]">
+            <div class="p-4 flex justify-between items-start border-b">
+                <h2 id="modalTitle" class="text-lg font-bold">Book details</h2>
+                <button id="modalClose" class="p-1 rounded-md hover:bg-gray-100">✕</button>
+            </div>
+            <div id="modalBody" class="p-4"></div>
+        </div>
+    </div>
+
+    <div id="toast" class="fixed right-4 bottom-6 z-50"></div>
+
+    <script>
+        /* CONFIG: change these values to match your backend */
+        const API_BASE = 'https://localhost:5001/api/customer/books';
+        const CART_API = 'https://localhost:5001/api/customer/cart';
+        const IMAGE_BASE = 'https://localhost:5001/images/';
+        const DEFAULT_IMG = IMAGE_BASE + 'placeholder.png';
+        const USER_ID = 'USER_ID_HERE';          // <- set actual user id
+        const AUTH_TOKEN = null;                 // <- set if you need Bearer token
+
+        /* Robust fetch with timeout+retry (same helper used across pages) */
+        async function fetchWithTimeout(url, opts = {}, timeout = 8000, retries = 2) {
+            for (let attempt = 0; attempt <= retries; ++attempt) {
+                const controller = new AbortController();
+                const id = setTimeout(() => controller.abort(), timeout);
+                try {
+                    const headers = opts.headers || {};
+                    if (AUTH_TOKEN) headers['Authorization'] = 'Bearer ' + AUTH_TOKEN;
+                    const res = await fetch(url, { ...opts, signal: controller.signal, headers });
+                    clearTimeout(id);
+                    if (!res.ok) {
+                        if (res.status >= 500 && attempt < retries) { await sleep(200 * Math.pow(2, attempt)); continue; }
+                        const txt = await res.text();
+                        throw new Error(txt || `HTTP ${res.status}`);
+                    }
+                    return res;
+                } catch (err) {
+                    clearTimeout(id);
+                    if (err.name === 'AbortError') {
+                        if (attempt < retries) { await sleep(200 * Math.pow(2, attempt)); continue; }
+                        throw new Error('Request timed out');
+                    }
+                    if (attempt < retries) { await sleep(200 * Math.pow(2, attempt)); continue; }
+                    throw err;
+                }
+            }
+        }
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+        function toast(msg, type = 'info', ms = 3000) {
+            const el = document.createElement('div');
+            el.className = `mb-2 px-4 py-2 rounded-md shadow ${type === 'error' ? 'bg-red-600 text-white' : type === 'success' ? 'bg-green-600 text-white' : 'bg-gray-800 text-white'}`;
+            el.textContent = msg; document.getElementById('toast').appendChild(el);
+            setTimeout(() => el.remove(), ms);
+        }
+
+        /* DOM refs */
+        const refs = {
+            bookList: document.getElementById('bookList'),
+            categoryFilter: document.getElementById('categoryFilter'),
+            titleFilter: document.getElementById('titleFilter'),
+            minPrice: document.getElementById('minPrice'),
+            maxPrice: document.getElementById('maxPrice'),
+            hotFilter: document.getElementById('hotFilter'),
+            spinner: document.getElementById('spinner'),
+            resultsInfo: document.getElementById('resultsInfo'),
+            prevPage: document.getElementById('prevPage'),
+            nextPage: document.getElementById('nextPage'),
+            pageIndicator: document.getElementById('pageIndicator'),
+            pagerNumbers: document.getElementById('pagerNumbers'),
+            applyBtn: document.getElementById('applyBtn'),
+            clearBtn: document.getElementById('clearBtn'),
+            refreshBtn: document.getElementById('refreshBtn'),
+            modal: document.getElementById('bookModal'),
+            modalBody: document.getElementById('modalBody'),
+            modalClose: document.getElementById('modalClose'),
+            cartCount: document.getElementById('cartCount')
+        };
+
+        let meta = { totalPages: 1, currentPage: 1 };
+        let lastQuery = '';
+
+        /* small helpers */
+        const fmt = (v) => new Intl.NumberFormat(undefined, { style: 'currency', currency: 'USD' }).format(v);
+        function escapeHtml(s) { return String(s || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+        function debounce(fn, wait = 350) { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), wait); }; }
+
+        /* load categories from books index result */
+        async function loadCategories() {
+            try {
+                const res = await fetchWithTimeout(API_BASE, {}, 6000, 1);
+                const data = await res.json();
+                const cats = data.categories || [];
+                refs.categoryFilter.innerHTML = '<option value="">All categories</option>';
+                cats.forEach(c => { const o = document.createElement('option'); o.value = c.id; o.textContent = c.name; refs.categoryFilter.appendChild(o); });
+            } catch (e) { console.warn('categories failed', e); }
+        }
+
+        /* skeleton */
+        function renderSkeletons(n = 6) {
+            refs.bookList.innerHTML = '';
+            for (let i = 0; i < n; i++) {
+                const s = document.createElement('div'); s.className = 'bg-white rounded-lg p-4 shadow animate-pulse';
+                s.innerHTML = `<div class="h-48 bg-gray-200 rounded mb-3"></div><div class="h-4 bg-gray-200 rounded w-3/4 mb-2"></div><div class="h-3 bg-gray-200 rounded w-1/2 mb-1"></div><div class="h-3 bg-gray-200 rounded w-1/4"></div>`;
+                refs.bookList.appendChild(s);
+            }
+        }
+
+        /* build query */
+        function buildQuery(page = 1) {
+            const q = new URLSearchParams();
+            const title = refs.titleFilter.value.trim();
+            if (title) q.set('BookTitle', title);
+            const min = refs.minPrice.value; if (min) q.set('MinPrice', min);
+            const max = refs.maxPrice.value; if (max) q.set('MaxPrice', max);
+            const cat = refs.categoryFilter.value; if (cat) q.set('CategoryId', cat);
+            if (refs.hotFilter.checked) q.set('IsHot', 'true');
+            q.set('page', page);
+            const qs = q.toString();
+            history.replaceState({}, '', qs ? `?${qs}` : location.pathname);
+            return qs;
+        }
+
+        /* main loadBooks */
+        async function loadBooks(page = 1) {
+            const qs = buildQuery(page);
+            if (qs === lastQuery && page === meta.currentPage) return;
+            lastQuery = qs;
+            refs.spinner.classList.remove('hidden');
+            refs.resultsInfo.textContent = 'Loading books…';
+            renderSkeletons(9);
+            try {
+                const url = `${API_BASE}${qs ? '?' + qs : ''}`;
+                const res = await fetchWithTimeout(url, {}, 9000, 2);
+                const data = await res.json();
+                const books = data.books || [];
+                meta.totalPages = Math.max(1, Number(data.totalPages) || 1);
+                meta.currentPage = Number(data.currentPage) || page || 1;
+                renderBooks(books);
+                updatePager(meta.currentPage, meta.totalPages);
+                refs.resultsInfo.textContent = `Showing ${books.length} book${books.length !== 1 ? 's' : ''}`;
+            } catch (err) {
+                console.error(err);
+                refs.bookList.innerHTML = `<div class="col-span-full text-center p-6 bg-white rounded shadow">Failed to load books — <button id="retry" class="text-sky-600 underline">retry</button></div>`;
+                document.getElementById('retry')?.addEventListener('click', () => loadBooks(page));
+                refs.resultsInfo.textContent = 'Error';
+                toast('Failed to load books', 'error');
+            } finally { refs.spinner.classList.add('hidden'); }
+        }
+
+        /* render book cards */
+        function renderBooks(books) {
+            refs.bookList.innerHTML = '';
+            if (!books.length) { refs.bookList.innerHTML = `<div class="col-span-full text-center p-8 bg-white rounded shadow">No books found.</div>`; refs.pageIndicator.textContent = '0 / 0'; refs.pagerNumbers.innerHTML = ''; return; }
+            for (const book of books) {
+                const priceAfter = Number(book.price) - (Number(book.price) * (Number(book.discount || 0) / 100));
+                const article = document.createElement('article'); article.className = 'bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition relative cursor-pointer';
+                article.tabIndex = 0; article.setAttribute('role', 'button'); article.setAttribute('aria-label', book.title);
+                article.innerHTML = `
+          <div class="relative">
+            <img data-src="${book.coverImageUrl ? IMAGE_BASE + book.coverImageUrl : DEFAULT_IMG}" alt="${escapeHtml(book.title)}" class="w-full h-48 object-cover lazy">
+            ${book.discount > 0 ? `<div class="absolute left-3 top-3 bg-red-600 text-white text-xs font-semibold px-2 py-1 rounded-md">${Number(book.discount).toFixed(0)}% OFF</div>` : ''}
+          </div>
+          <div class="p-3">
+            <h3 class="font-semibold text-sm mb-1 line-clamp-2">${escapeHtml(book.title)}</h3>
+            <p class="text-xs text-gray-500 mb-1">Author: ${escapeHtml(book.author?.name ?? book.authorName ?? '—')}</p>
+            <p class="text-xs text-gray-500 mb-1">Category: ${escapeHtml(book.category?.name ?? book.categoryName ?? '—')}</p>
+            <div class="flex items-center justify-between mt-2">
+              <div>
+                <div class="text-sm font-bold text-emerald-600">${fmt(priceAfter)}</div>
+                ${book.discount ? `<div class="text-xs text-gray-400 line-through">${fmt(Number(book.price))}</div>` : ''}
+              </div>
+              <div class="text-xs text-gray-500">Stock: ${Number(book.stock || 0)}</div>
+            </div>
+          </div>`;
+                article.addEventListener('click', () => openModal(book.id));
+                article.addEventListener('keypress', (e) => { if (e.key === 'Enter' || e.key === ' ') openModal(book.id); });
+                refs.bookList.appendChild(article);
+            }
+            initLazyImages();
+        }
+
+        /* lazy image loader */
+        function initLazyImages() {
+            const imgs = document.querySelectorAll('img.lazy');
+            if (!('IntersectionObserver' in window)) { imgs.forEach(i => i.src = i.dataset.src); return; }
+            const io = new IntersectionObserver((entries, obs) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    const img = entry.target; img.src = img.dataset.src; img.classList.remove('lazy'); obs.unobserve(img);
+                });
+            }, { threshold: 0.1 });
+            imgs.forEach(i => io.observe(i));
+        }
+
+        /* modal logic + fetch book details */
+        const modal = document.getElementById('bookModal'), modalBody = document.getElementById('modalBody'), modalClose = document.getElementById('modalClose');
+        modalClose.addEventListener('click', closeModal);
+        modal.addEventListener('click', (e) => { if (e.target.dataset?.close === 'backdrop' || e.target.matches('[data-close="backdrop"]')) closeModal(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+        async function openModal(bookId) {
+            showModal();
+            modalBody.innerHTML = '<div class="p-6 text-center">Loading…</div>';
+            try {
+                const res = await fetchWithTimeout(`${API_BASE}/${bookId}`, {}, 9000, 2);
+                const book = await res.json();
+                const imgUrl = book.coverImageUrl ? IMAGE_BASE + book.coverImageUrl : DEFAULT_IMG;
+                const priceAfter = Number(book.price) - (Number(book.price) * (Number(book.discount || 0) / 100));
+                modalBody.innerHTML = `
+          <div class="p-4 md:p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="md:col-span-1"><img src="${imgUrl}" alt="${escapeHtml(book.title)}" class="w-full h-64 object-cover rounded" /></div>
+            <div class="md:col-span-2">
+              <h3 class="text-2xl font-bold mb-1">${escapeHtml(book.title)}</h3>
+              <p class="text-sm text-gray-600 mb-3">By <strong>${escapeHtml(book.authorName || (book.author?.name || '—'))}</strong> • ${escapeHtml(book.categoryName || (book.category?.name || '—'))}</p>
+              <div class="flex items-center gap-4 mb-3">
+                <div class="text-2xl font-bold text-emerald-600">${fmt(priceAfter)}</div>
+                ${book.discount ? `<div class="text-sm text-gray-400 line-through">${fmt(Number(book.price))}</div>` : ''}
+                ${book.discount ? `<div class="px-2 py-1 text-xs bg-red-600 text-white rounded">${Number(book.discount).toFixed(0)}% OFF</div>` : ''}
+              </div>
+              <p class="text-gray-700 mb-3">${escapeHtml(book.description || 'No description available.')}</p>
+
+              <div class="flex gap-3 items-center mt-4">
+                <input id="qtyInput" type="number" min="1" value="1" class="w-20 border rounded px-2 py-1" />
+                <button id="addCartBtn" class="px-4 py-2 bg-sky-600 text-white rounded-md">Add to cart</button>
+                <div class="text-sm text-gray-500">Stock: <strong>${Number(book.stock || 0)}</strong></div>
+              </div>
+
+              <hr class="my-4" />
+              <h4 class="font-semibold mb-2">Reviews</h4>
+              <div class="space-y-3">${(book.reviews && book.reviews.length) ? book.reviews.map(r => `
+                <div class="bg-gray-50 p-3 rounded">
+                  <div class="text-sm font-semibold">${escapeHtml(r.reviewerName || 'Anonymous')}</div>
+                  <div class="text-xs text-gray-500">${escapeHtml(r.comment || '')}</div>
+                  <div class="text-xs text-gray-400 mt-1">Rating: ${Number(r.rating || 0)}/5</div>
+                </div>`).join('') : '<div class="text-sm text-gray-500">No reviews yet.</div>'}</div>
+            </div>
+          </div>
+        `;
+                document.getElementById('addCartBtn').addEventListener('click', async () => {
+                    const qty = Number(document.getElementById('qtyInput').value || 1);
+                    await addToCart(book.id, qty);
+                });
+            } catch (err) { modalBody.innerHTML = `<div class="p-6 text-center text-red-600">Failed to load book.</div>`; console.error(err); }
+        }
+        function showModal() { modal.classList.remove('hidden'); modalClose.focus(); }
+        function closeModal() { modal.classList.add('hidden'); modalBody.innerHTML = ''; }
+
+        /* Add to cart API call */
+        async function addToCart(bookId, quantity = 1) {
+            try {
+                const res = await fetchWithTimeout(`${CART_API}/${USER_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookId: bookId, quantity })
+                }, 7000, 2);
+                const data = await res.json();
+                toast(data.msg || 'Added to cart', 'success');
+                await refreshCartCount();
+            } catch (err) {
+                console.error('addToCart', err);
+                toast('Failed to add to cart', 'error');
+            }
+        }
+
+        /* cart count fetch (calls GET cart endpoint and counts items) */
+        async function refreshCartCount() {
+            try {
+                const res = await fetchWithTimeout(`${CART_API}/${USER_ID}`, {}, 7000, 1);
+                if (!res.ok) return;
+                const cart = await res.json();
+                const count = (cart.items || []).reduce((s, i) => s + (i.quantity || 0), 0);
+                document.getElementById('cartCount').textContent = count;
+            } catch (e) { console.warn('cart count failed', e); }
+        }
+
+        /* pager UI */
+        function updatePager(current, total) {
+            refs.pageIndicator.textContent = `${current} / ${total}`;
+            refs.prevPage.disabled = current <= 1;
+            refs.nextPage.disabled = current >= total;
+            const range = 3; const start = Math.max(1, current - range); const end = Math.min(total, current + range);
+            refs.pagerNumbers.innerHTML = '';
+            for (let i = start; i <= end; i++) {
+                const b = document.createElement('button'); b.className = `px-3 py-1 rounded ${i === current ? 'bg-sky-600 text-white' : 'bg-white border'}`; b.textContent = i;
+                b.addEventListener('click', () => loadBooks(i));
+                refs.pagerNumbers.appendChild(b);
+            }
+            meta.currentPage = current; meta.totalPages = total;
+        }
+
+        /* bindings */
+        refs.applyBtn.addEventListener('click', () => loadBooks(1));
+        refs.clearBtn.addEventListener('click', () => {
+            refs.titleFilter.value = ''; refs.minPrice.value = ''; refs.maxPrice.value = ''; refs.categoryFilter.value = ''; refs.hotFilter.checked = false; loadBooks(1);
+        });
+        refs.prevPage.addEventListener('click', () => loadBooks(Math.max(1, meta.currentPage - 1)));
+        refs.nextPage.addEventListener('click', () => loadBooks(Math.min(meta.totalPages, meta.currentPage + 1)));
+        refs.refreshBtn.addEventListener('click', () => loadBooks(meta.currentPage));
+        refs.titleFilter.addEventListener('input', debounce(() => loadBooks(1), 500));
+        document.getElementById('filters').addEventListener('submit', (e) => { e.preventDefault(); loadBooks(1); });
+
+        /* hydrate from URL */
+        function hydrateFromUrl() {
+            const qs = new URLSearchParams(location.search);
+            if (qs.get('BookTitle')) refs.titleFilter.value = qs.get('BookTitle');
+            if (qs.get('MinPrice')) refs.minPrice.value = qs.get('MinPrice');
+            if (qs.get('MaxPrice')) refs.maxPrice.value = qs.get('MaxPrice');
+            if (qs.get('CategoryId')) refs.categoryFilter.value = qs.get('CategoryId');
+            if (qs.get('IsHot')) refs.hotFilter.checked = true;
+            return qs.get('page') ? Number(qs.get('page')) : 1;
+        }
+
+        /* init */
+        (async function init() {
+            renderSkeletons(9);
+            await loadCategories();
+            await refreshCartCount();
+            const initial = hydrateFromUrl();
+            await loadBooks(initial);
+        })();
+    </script>
+</body>
+</html>

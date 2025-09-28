@@ -8,6 +8,11 @@ using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Booksy.Areas.Admin.Controllers
 {
@@ -17,10 +22,17 @@ namespace Booksy.Areas.Admin.Controllers
     public class BooksController : ControllerBase
     {
         private readonly IBookRepository _bookRepository;
+        private readonly IRepository<Category> _categoryRepository;
+        private readonly IRepository<Author> _authorRepository;
 
-        public BooksController(IBookRepository bookRepository)
+        public BooksController(
+            IBookRepository bookRepository,
+            IRepository<Category> categoryRepository,
+            IRepository<Author> authorRepository)
         {
             _bookRepository = bookRepository;
+            _categoryRepository = categoryRepository;
+            _authorRepository = authorRepository;
         }
 
         // GET: api/admin/books
@@ -47,142 +59,185 @@ namespace Booksy.Areas.Admin.Controllers
         [SwaggerResponse(404, "Book not found")]
         public async Task<IActionResult> Details(int id)
         {
-            // Include Author and Category
             var book = await _bookRepository.GetOneAsync(
                 b => b.Id == id,
                 includes: new List<Func<IQueryable<Book>, IQueryable<Book>>>
                 {
-            q => q.Include(b => b.Category),
-            q => q.Include(b => b.Author)
+                    q => q.Include(b => b.Category),
+                    q => q.Include(b => b.Author)
                 });
 
             if (book is null)
-                return NotFound();
+                return NotFound(new { msg = "Book not found." });
 
-            // Map to BookResponse and include nested objects explicitly
             var bookResponse = new BookResponse
             {
                 Id = book.Id,
                 Title = book.Title,
+                Price = book.Price,
+                Stock = book.Stock,
                 CoverImageUrl = book.CoverImageUrl,
-                Author = book.Author != null
-                    ? new AuthorResponse { Id = book.Author.Id, Name = book.Author.Name }
-                    : null,
-              
+                Author = book.Author != null ? new AuthorResponse { Id = book.Author.Id, Name = book.Author.Name } : null,
+                Category = book.Category != null ? new CategoryResponse { Id = book.Category.Id, Name = book.Category.Name } : null
             };
 
             return Ok(bookResponse);
         }
 
-
         // POST: api/admin/books
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] BookCreateRequest request)
         {
-            if (request.CoverImage is not null && request.CoverImage.Length > 0)
+            if (request == null)
+                return BadRequest(new { msg = "Invalid request." });
+
+            // Validate FK: Author
+            var author = await _authorRepository.GetOneAsync(a => a.Id == request.AuthorId);
+            if (author == null)
+                return BadRequest(new { msg = "Invalid AuthorId." });
+
+            // Validate FK: Category
+            var category = await _categoryRepository.GetOneAsync(c => c.Id == request.CategoryId);
+            if (category == null)
+                return BadRequest(new { msg = "Invalid CategoryId." });
+
+            if (request.CoverImage is null || request.CoverImage.Length == 0)
+                return BadRequest(new { msg = "Cover image is required." });
+
+            // Save image
+            var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            Directory.CreateDirectory(imagesFolder);
+
+            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.CoverImage.FileName)}";
+            var filePath = Path.Combine(imagesFolder, fileName);
+            using (var stream = System.IO.File.Create(filePath))
             {
-                // Save the image
-                var fileName = Guid.NewGuid() + Path.GetExtension(request.CoverImage.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", fileName);
-
-                using var stream = System.IO.File.Create(filePath);
                 await request.CoverImage.CopyToAsync(stream);
-
-                // Map request to Book entity
-                var book = request.Adapt<Book>();
-                book.CoverImageUrl = fileName;
-
-                // Save to repository
-                var bookReturned = await _bookRepository.CreateAsync(book);
-                await _bookRepository.CommitAsync();
-
-                // Fetch the saved book including Author and Category
-                var savedBook = await _bookRepository.GetOneAsync(
-                    b => b.Id == bookReturned.Id,
-                    includes: new List<Func<IQueryable<Book>, IQueryable<Book>>>
-                    {
-                q => q.Include(b => b.Author),
-                q => q.Include(b => b.Category)
-                    });
-
-                // Map to BookResponse including nested objects
-                var bookResponse = new BookResponse
-                {
-                    Id = savedBook.Id,
-                    Title = savedBook.Title,
-                    CoverImageUrl = savedBook.CoverImageUrl,
-                    Author = savedBook.Author != null
-                        ? new AuthorResponse { Id = savedBook.Author.Id, Name = savedBook.Author.Name }
-                        : null,
-                   
-                };
-
-                return CreatedAtAction(nameof(Details), new { id = bookResponse.Id }, bookResponse);
             }
 
-            return BadRequest("Cover image is required.");
-        }
+            // Map and set server-side fields
+            var book = request.Adapt<Book>();
+            book.CoverImageUrl = fileName;
 
+            // Persist
+            var created = await _bookRepository.CreateAsync(book);
+            await _bookRepository.CommitAsync();
+
+            // Reload with includes for DTO
+            var saved = await _bookRepository.GetOneAsync(
+                b => b.Id == created.Id,
+                includes: new List<Func<IQueryable<Book>, IQueryable<Book>>>
+                {
+                    q => q.Include(b => b.Author),
+                    q => q.Include(b => b.Category)
+                });
+
+            var response = new BookResponse
+            {
+                Id = saved.Id,
+                Title = saved.Title,
+                Price = saved.Price,
+                Stock = saved.Stock,
+                CoverImageUrl = saved.CoverImageUrl,
+                Author = saved.Author != null ? new AuthorResponse { Id = saved.Author.Id, Name = saved.Author.Name } : null,
+                Category = saved.Category != null ? new CategoryResponse { Id = saved.Category.Id, Name = saved.Category.Name } : null
+            };
+
+            return CreatedAtAction(nameof(Details), new { id = response.Id }, response);
+        }
 
         // PUT: api/admin/books/5
         [HttpPut("{id}")]
         public async Task<IActionResult> Edit(int id, [FromForm] BookUpdateRequest request)
         {
-            var bookInDB = await _bookRepository.GetOneAsync(b => b.Id == id, tracked: false);
-            if (bookInDB is null)
-                return BadRequest("Book not found.");
+            if (request == null)
+                return BadRequest(new { msg = "Invalid request." });
 
-            // Map incoming request to Book entity
-            var book = request.Adapt<Book>();
-            book.Id = id;
-
-            // Handle cover image
-            if (request.CoverImage is not null && request.CoverImage.Length > 0)
-            {
-                var fileName = Guid.NewGuid() + Path.GetExtension(request.CoverImage.FileName);
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", fileName);
-
-                using var stream = System.IO.File.Create(filePath);
-                await request.CoverImage.CopyToAsync(stream);
-
-                // Delete old image
-                var oldFilePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", bookInDB.CoverImageUrl ?? string.Empty);
-                if (System.IO.File.Exists(oldFilePath))
-                    System.IO.File.Delete(oldFilePath);
-
-                book.CoverImageUrl = fileName;
-            }
-            else
-            {
-                book.CoverImageUrl = bookInDB.CoverImageUrl;
-            }
-
-            // Update in repository
-            _bookRepository.Update(book);
-            await _bookRepository.CommitAsync();
-
-            // Fetch updated book including Author and Category
-            var updatedBook = await _bookRepository.GetOneAsync(
+            // Load existing entity tracked by context (tracked: true). This avoids duplicate tracking.
+            var existing = await _bookRepository.GetOneAsync(
                 b => b.Id == id,
                 includes: new List<Func<IQueryable<Book>, IQueryable<Book>>>
                 {
-            q => q.Include(b => b.Author),
-            q => q.Include(b => b.Category)
+                    q => q.Include(b => b.Author),
+                    q => q.Include(b => b.Category)
+                },
+                tracked: true);
+
+            if (existing is null)
+                return NotFound(new { msg = "Book not found." });
+
+            // Validate FK: Author
+            var author = await _authorRepository.GetOneAsync(a => a.Id == request.AuthorId);
+            if (author == null)
+                return BadRequest(new { msg = "Invalid AuthorId." });
+
+            // Validate FK: Category
+            var category = await _categoryRepository.GetOneAsync(c => c.Id == request.CategoryId);
+            if (category == null)
+                return BadRequest(new { msg = "Invalid CategoryId." });
+
+            // Update only allowed fields on the tracked entity (do not attach a new Book instance)
+            existing.Title = request.Title ?? existing.Title;
+            existing.Price = request.Price;
+            existing.Description = request.Description ?? existing.Description;
+            existing.Stock = request.Stock;
+            existing.AuthorId = request.AuthorId;
+            existing.CategoryId = request.CategoryId;
+            existing.ISBN = request.ISBN ?? existing.ISBN;
+            // Do not overwrite Traffic or IsDeleted here unless explicitly intended
+
+            // Handle cover image update
+            var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            Directory.CreateDirectory(imagesFolder);
+
+            if (request.CoverImage is not null && request.CoverImage.Length > 0)
+            {
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(request.CoverImage.FileName)}";
+                var filePath = Path.Combine(imagesFolder, fileName);
+
+                using (var stream = System.IO.File.Create(filePath))
+                {
+                    await request.CoverImage.CopyToAsync(stream);
+                }
+
+                // delete old image if exists
+                if (!string.IsNullOrEmpty(existing.CoverImageUrl))
+                {
+                    var oldPath = Path.Combine(imagesFolder, existing.CoverImageUrl);
+                    if (System.IO.File.Exists(oldPath))
+                    {
+                        try { System.IO.File.Delete(oldPath); } catch { /* ignore */ }
+                    }
+                }
+
+                existing.CoverImageUrl = fileName;
+            }
+            // else keep existing.CoverImageUrl
+
+            // Commit changes (EF is tracking 'existing' so just save)
+            await _bookRepository.CommitAsync();
+
+            // Reload updated entity to include nested relations for response
+            var updated = await _bookRepository.GetOneAsync(
+                b => b.Id == id,
+                includes: new List<Func<IQueryable<Book>, IQueryable<Book>>>
+                {
+                    q => q.Include(b => b.Author),
+                    q => q.Include(b => b.Category)
                 });
 
-            // Map to BookResponse with nested objects
-            var bookResponse = new BookResponse
+            var response = new BookResponse
             {
-                Id = updatedBook.Id,
-                Title = updatedBook.Title,
-                CoverImageUrl = updatedBook.CoverImageUrl,
-                Author = updatedBook.Author != null
-                    ? new AuthorResponse { Id = updatedBook.Author.Id, Name = updatedBook.Author.Name }
-                    : null,
-                
+                Id = updated.Id,
+                Title = updated.Title,
+                Price = updated.Price,
+                Stock = updated.Stock,
+                CoverImageUrl = updated.CoverImageUrl,
+                Author = updated.Author != null ? new AuthorResponse { Id = updated.Author.Id, Name = updated.Author.Name } : null,
+                Category = updated.Category != null ? new CategoryResponse { Id = updated.Category.Id, Name = updated.Category.Name } : null
             };
 
-            return Ok(bookResponse); // return updated book
+            return Ok(response);
         }
 
         // DELETE: api/admin/books/5
@@ -191,14 +246,17 @@ namespace Booksy.Areas.Admin.Controllers
         {
             var book = await _bookRepository.GetOneAsync(b => b.Id == id);
             if (book is null)
-                return NotFound();
+                return NotFound(new { msg = "Book not found." });
 
-            // Delete cover image
+            // Delete cover image file if present
             if (!string.IsNullOrEmpty(book.CoverImageUrl))
             {
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot\\images", book.CoverImageUrl);
+                var imagesFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+                var filePath = Path.Combine(imagesFolder, book.CoverImageUrl);
                 if (System.IO.File.Exists(filePath))
-                    System.IO.File.Delete(filePath);
+                {
+                    try { System.IO.File.Delete(filePath); } catch { /* ignore */ }
+                }
             }
 
             _bookRepository.Delete(book);

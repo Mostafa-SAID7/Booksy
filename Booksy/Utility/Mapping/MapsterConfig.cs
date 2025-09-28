@@ -18,9 +18,7 @@ namespace Booksy.Utility.Mapping
             TypeAdapterConfig<Category, CategoryResponse>
         .NewConfig()
         .Map(dest => dest.Id, src => src.Id)
-        .Map(dest => dest.Name, src => src.Name)
-        .Map(dest => dest.IsDeleted, src => src.IsDeleted)
-        .Map(dest => dest.Books, src => src.Books.Adapt<List<BookResponse>>());
+        .Map(dest => dest.Name, src => src.Name);
 
             // CategoryRequest -> Category
             TypeAdapterConfig<CategoryCreateRequest, Category>

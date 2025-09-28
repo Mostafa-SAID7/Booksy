@@ -1,0 +1,128 @@
+﻿<!-- cart.html -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Booksy - Cart</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-white shadow p-6 mb-6">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-blue-600">Your Shopping Cart</h1>
+            <a href="books.html" class="text-sm text-sky-600 underline">Continue Shopping</a>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-4">
+        <section id="cartList" class="space-y-4 mb-6"></section>
+        <section class="bg-white p-6 rounded-lg shadow flex justify-between items-center">
+            <p class="text-xl font-semibold">Total: $<span id="cartTotal">0.00</span></p>
+            <div>
+                <button id="checkoutBtn" class="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700">Checkout</button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const CART_API = 'https://localhost:5001/api/customer/cart';
+        const ORDERS_API = 'https://localhost:5001/api/customer/orders';
+        const USER_ID = 'USER_ID_HERE';
+        const IMAGE_BASE = 'https://localhost:5001/images/';
+        const AUTH_TOKEN = null;
+
+        async function fetchWithTimeout(url, opts = {}, timeout = 8000, retries = 2) {
+            for (let attempt = 0; attempt <= retries; ++attempt) {
+                const ctrl = new AbortController(); const id = setTimeout(() => ctrl.abort(), timeout);
+                try {
+                    const headers = opts.headers || {}; if (AUTH_TOKEN) headers['Authorization'] = 'Bearer ' + AUTH_TOKEN;
+                    const res = await fetch(url, { ...opts, signal: ctrl.signal, headers });
+                    clearTimeout(id);
+                    if (!res.ok) { if (res.status >= 500 && attempt < retries) { await sleep(200 * Math.pow(2, attempt)); continue; } const txt = await res.text(); throw new Error(txt || `HTTP ${res.status}`); }
+                    return res;
+                } catch (err) {
+                    clearTimeout(id);
+                    if (err.name === 'AbortError') { if (attempt < retries) { await sleep(200 * Math.pow(2, attempt)); continue; } throw new Error('Request timed out'); }
+                    if (attempt < retries) { await sleep(200 * Math.pow(2, attempt)); continue; }
+                    throw err;
+                }
+            }
+        }
+        function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+        async function loadCart() {
+            const cartList = document.getElementById('cartList'); cartList.innerHTML = '<p class="text-center text-gray-500">Loading cart...</p>';
+            try {
+                const res = await fetchWithTimeout(`${CART_API}/${USER_ID}`, {}, 7000, 1);
+                if (!res.ok) { cartList.innerHTML = '<p class="text-center text-red-500">Cart not found.</p>'; return; }
+                const cart = await res.json();
+                renderCart(cart);
+            } catch (err) { cartList.innerHTML = '<p class="text-center text-red-500">Failed to load cart.</p>'; console.error(err); }
+        }
+
+        function renderCart(cart) {
+            const cartList = document.getElementById('cartList'); cartList.innerHTML = '';
+            let total = 0;
+            (cart.items || []).forEach(item => {
+                const priceAfter = (item.book.priceAfterDiscount ?? (item.book.price - (item.book.price * (item.book.discount || 0) / 100)));
+                const itemTotal = item.quantity * priceAfter;
+                total += itemTotal;
+                const div = document.createElement('div'); div.className = 'bg-white p-4 rounded-lg shadow flex items-center gap-4';
+                div.innerHTML = `
+          <img src="${item.book.coverImageUrl ? IMAGE_BASE + item.book.coverImageUrl : 'https://via.placeholder.com/80'}" alt="${item.book.title}" class="w-20 h-28 object-cover rounded">
+          <div class="flex-1">
+            <h3 class="font-bold text-lg">${item.book.title}</h3>
+            <p class="text-gray-600">Author: ${item.book.authorName}</p>
+            <p class="text-gray-600">Price: $${priceAfter.toFixed(2)}</p>
+            <p class="text-gray-600">Quantity:
+              <input onchange="updateQuantity(${item.book.id}, this.value)" type="number" min="1" value="${item.quantity}" class="w-20 border rounded px-2 py-1">
+            </p>
+            <p class="text-red-500 font-semibold">Subtotal: $${itemTotal.toFixed(2)}</p>
+          </div>
+          <button onclick="removeItem(${item.book.id})" class="text-white bg-red-600 px-3 py-1 rounded">Remove</button>
+        `;
+                cartList.appendChild(div);
+            });
+            document.getElementById('cartTotal').textContent = total.toFixed(2);
+        }
+
+        async function updateQuantity(bookId, qty) {
+            try {
+                const res = await fetchWithTimeout(`${CART_API}/${USER_ID}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ bookId: bookId, quantity: parseInt(qty) })
+                }, 7000, 1);
+                if (!res.ok) throw new Error('Failed to update');
+                await loadCart();
+            } catch (e) { alert('Error updating quantity'); console.error(e); }
+        }
+
+        async function removeItem(bookId) {
+            if (!confirm('Remove item?')) return;
+            try {
+                const res = await fetchWithTimeout(`${CART_API}/${USER_ID}/${bookId}`, { method: 'DELETE' }, 7000, 1);
+                if (res.status === 204) { await loadCart(); } else { throw new Error('Remove failed'); }
+            } catch (e) { alert('Error removing'); console.error(e); }
+        }
+
+        /* Checkout: create order from cart using OrdersController.Create, then redirect to success page */
+        document.getElementById('checkoutBtn').addEventListener('click', async () => {
+            if (!confirm('Proceed to checkout?')) return;
+            try {
+                const res = await fetchWithTimeout(`${ORDERS_API}/${USER_ID}`, { method: 'POST' }, 10000, 1);
+                if (!res.ok) { const t = await res.text(); alert('Checkout failed: ' + t); return; }
+                const data = await res.json();
+                // redirect to success page and pass orderId
+                const orderId = data.orderId || data.OrderId || (data && data.orderId);
+                if (orderId) window.location.href = `checkout-success.html?orderId=${orderId}`;
+                else { alert('Order created but missing orderId in response'); }
+            } catch (err) { alert('Checkout failed'); console.error(err); }
+        });
+
+        /* init */
+        loadCart();
+    </script>
+</body>
+</html>

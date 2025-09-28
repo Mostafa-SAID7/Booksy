@@ -29,10 +29,7 @@ namespace Booksy.Areas.Customer.Controllers
             const double hotDiscountThreshold = 50;
 
             var booksQuery = (await _bookRepository.GetAsync(
-                includes: new Expression<Func<Book, object>>[]
-                {
-                    b => b.Category
-                }
+                includes: new Expression<Func<Book, object>>[] { b => b.Category, b => b.Author }
             )).AsQueryable();
 
             // Filters
@@ -54,14 +51,33 @@ namespace Booksy.Areas.Customer.Controllers
             // Pagination
             int pageSize = 8;
             double totalPages = Math.Ceiling(booksQuery.Count() / (double)pageSize);
-
             var pagedBooks = booksQuery.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // Map to DTO
+            var booksDto = pagedBooks.Select(b => new BookResponse
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Price = b.Price,
+                Stock = b.Stock,
+                CoverImageUrl = b.CoverImageUrl,
+                Author = new Models.DTOs.Response.Auth.AuthorResponse
+                {
+                    Id = b.Author.Id,
+                    Name = b.Author.Name
+                },
+                Category = new Models.DTOs.Response.Category.CategoryResponse
+                {
+                    Id = b.Category.Id,
+                    Name = b.Category.Name
+                }
+            }).ToList();
 
             var categories = await _categoryRepository.GetAsync();
 
             return Ok(new
             {
-                books = pagedBooks,
+                books = booksDto,
                 filterRequest.BookTitle,
                 filterRequest.MinPrice,
                 filterRequest.MaxPrice,
@@ -75,60 +91,48 @@ namespace Booksy.Areas.Customer.Controllers
 
         [HttpGet("{id}")]
         [SwaggerOperation(
-    Summary = "Get a book by its ID",
-    Description = "Returns a single book object based on the provided ID"
-)]
-        [SwaggerResponse(200, "Book found successfully", typeof(Book))]
+            Summary = "Get a book by its ID",
+            Description = "Returns a single book object based on the provided ID"
+        )]
+        [SwaggerResponse(200, "Book found successfully", typeof(BookDetailResponse))]
         [SwaggerResponse(404, "Book not found")]
         public async Task<IActionResult> Details(int id)
         {
             var book = await _bookRepository.GetOneAsync(
                 b => b.Id == id,
-                includes: new Expression<Func<Book, object>>[]
-                {
-                    b => b.Category
-                }
+                includes: new Expression<Func<Book, object>>[] { b => b.Category, b => b.Author, b => b.Reviews }
             );
 
             if (book == null) return NotFound();
 
-            // Update Traffic
+            // Update traffic
             book.Traffic++;
             await _bookRepository.CommitAsync();
 
-            // Related Books (same category)
-            var relatedBooks = (await _bookRepository.GetAsync(
-                b => b.CategoryId == book.CategoryId && b.Id != book.Id,
-                includes: new Expression<Func<Book, object>>[]
-                {
-                    b => b.Category
-                }
-            )).Take(4).ToList();
-
-            // Top Traffic
-            var topTraffic = (await _bookRepository.GetAsync(
-                b => b.Id != book.Id,
-                includes: new Expression<Func<Book, object>>[]
-                {
-                    b => b.Category
-                }
-            )).OrderByDescending(b => b.Traffic).Take(4).ToList();
-
-            // Similar Books (title contains keyword)
-            var similarBooks = (await _bookRepository.GetAsync(
-                b => b.Title.Contains(book.Title) && b.Id != book.Id,
-                includes: new Expression<Func<Book, object>>[]
-                {
-                    b => b.Category
-                }
-            )).Take(4).ToList();
-
-            var response = new BookWithRelatedResponse
+            // Map to BookDetailResponse
+            var response = new BookDetailResponse
             {
-                Book = book,
-                RelatedBooks = relatedBooks,
-                TopTraffic = topTraffic,
-                SimilarBooks = similarBooks
+                Id = book.Id,
+                Title = book.Title,
+                Price = book.Price,
+                Discount = book.Discount,
+                Description = book.Description,
+                Stock = book.Stock,
+                CoverImageUrl = book.CoverImageUrl,
+                Traffic = book.Traffic,
+                ISBN = book.ISBN,
+                Quantity = book.Quantity,
+                CategoryId = book.CategoryId,
+                CategoryName = book.Category.Name,
+                AuthorId = book.AuthorId,
+                AuthorName = book.Author.Name,
+                Reviews = book.Reviews.Select(r => new Models.DTOs.Response.Reviews.ReviewResponse
+                {
+                    Id = r.Id,
+                    Comment = r.Comment,
+                    Rating = r.Rating,
+                    ReviewerName = r.ReviewerName
+                }).ToList()
             };
 
             return Ok(response);

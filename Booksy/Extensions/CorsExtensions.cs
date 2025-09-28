@@ -8,13 +8,16 @@ namespace Booksy.Extensions
 
         public static IServiceCollection AddCustomCors(this IServiceCollection services)
         {
+            var allowedOrigins = new[] { "http://localhost:5500" };
             services.AddCors(options =>
             {
                 options.AddPolicy(name: PolicyName, policy =>
                 {
-                    policy.AllowAnyOrigin()
+                    // Specify your frontend origin(s)
+                    policy.WithOrigins(allowedOrigins) 
                           .AllowAnyMethod()
-                          .AllowAnyHeader();
+                          .AllowAnyHeader()
+                          .AllowCredentials(); // now allowed
                 });
             });
 

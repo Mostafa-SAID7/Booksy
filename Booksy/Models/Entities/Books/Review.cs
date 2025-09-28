@@ -28,5 +28,6 @@ namespace Booksy.Models.Entities.Books
 
         // Optional: Review status, e.g., Pending, Approved, Rejected
         public ReviewStatus Status { get; set; } = ReviewStatus.Pending;
+        public string? ReviewerName { get;  set; }
     }
 }

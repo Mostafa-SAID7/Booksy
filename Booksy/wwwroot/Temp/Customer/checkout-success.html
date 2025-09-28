@@ -1,0 +1,62 @@
+﻿<!-- checkout-success.html -->
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Booksy - Order Success</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-white shadow p-6 mb-6"><h1 class="text-3xl font-bold text-center text-green-600">Order Confirmation</h1></header>
+    <main class="max-w-5xl mx-auto px-4">
+        <section id="successMessage" class="bg-white p-6 rounded-lg shadow text-center mb-6"><p class="text-xl text-gray-700">Processing your order...</p></section>
+        <section id="orderItems" class="space-y-4 mb-6"></section>
+        <section id="orderSummary" class="bg-white p-6 rounded-lg shadow flex justify-between items-center"><p class="text-xl font-semibold">Total: $<span id="orderTotal">0.00</span></p><a href="books.html" class="bg-blue-600 text-white px-6 py-2 rounded">Continue Shopping</a></section>
+    </main>
+
+    <script>
+        const ORDERS_API = 'https://localhost:5001/api/customer/orders';
+        const IMAGE_BASE = 'https://localhost:5001/images/';
+
+        function qs(name) { return new URLSearchParams(location.search).get(name); }
+
+        async function fetchWithTimeout(url, opts = {}, timeout = 8000, retries = 2) {
+            for (let attempt = 0; attempt <= retries; ++attempt) {
+                const ctrl = new AbortController(), id = setTimeout(() => ctrl.abort(), timeout);
+                try {
+                    const res = await fetch(url, { ...opts, signal: ctrl.signal });
+                    clearTimeout(id); if (!res.ok) { if (res.status >= 500 && attempt < retries) { await new Promise(r => setTimeout(r, 200 * Math.pow(2, attempt))); continue; } throw new Error(await res.text()); }
+                    return res;
+                } catch (err) { clearTimeout(id); if (err.name === 'AbortError') { if (attempt < retries) { await new Promise(r => setTimeout(r, 200 * Math.pow(2, attempt))); continue; } throw new Error('timeout'); } if (attempt < retries) { await new Promise(r => setTimeout(r, 200 * Math.pow(2, attempt))); continue; } throw err; }
+            }
+        }
+
+        async function loadOrder() {
+            const orderId = qs('orderId');
+            const successMsg = document.getElementById('successMessage');
+            const itemsHolder = document.getElementById('orderItems');
+            const totalEl = document.getElementById('orderTotal');
+            if (!orderId) { successMsg.innerHTML = '<p class="text-red-600">Order id missing.</p>'; return; }
+            try {
+                const res = await fetchWithTimeout(`${ORDERS_API}/details/${orderId}`, {}, 8000, 1);
+                if (!res.ok) { successMsg.innerHTML = '<p class="text-red-600">Failed to load order.</p>'; return; }
+                const order = await res.json();
+                successMsg.innerHTML = '<p class="text-green-600 text-2xl font-bold">🎉 Your order was placed successfully!</p>';
+                if (!order.items || order.items.length === 0) { itemsHolder.innerHTML = '<p class="text-center text-gray-500">No items found.</p>'; return; }
+                let total = 0; itemsHolder.innerHTML = '';
+                order.items.forEach(i => {
+                    const itemTotal = (i.price || 0) * (i.quantity || 0);
+                    total += itemTotal;
+                    const div = document.createElement('div'); div.className = 'bg-white p-4 rounded-lg shadow flex items-center gap-4';
+                    div.innerHTML = `<img src="${IMAGE_BASE + (i.coverImageUrl || 'placeholder.png')}" class="w-20 h-28 object-cover rounded" alt="${i.title}">
+            <div class="flex-1"><h3 class="font-bold">${i.title}</h3><p class="text-gray-600">Price: $${(i.price || 0).toFixed(2)}</p><p class="text-gray-600">Quantity: ${i.quantity}</p><p class="text-green-600 font-semibold">Subtotal: $${itemTotal.toFixed(2)}</p></div>`;
+                    itemsHolder.appendChild(div);
+                });
+                totalEl.textContent = total.toFixed(2);
+            } catch (err) { successMsg.innerHTML = '<p class="text-red-600">Error loading order details.</p>'; console.error(err); }
+        }
+        loadOrder();
+    </script>
+</body>
+</html>

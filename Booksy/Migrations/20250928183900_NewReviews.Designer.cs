@@ -4,6 +4,7 @@ using Booksy.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Booksy.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250928183900_NewReviews")]
+    partial class NewReviews
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,7 +59,7 @@ namespace Booksy.Migrations
                         {
                             Id = 1,
                             Bio = "Author of Harry Potter",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(5301),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(3779),
                             IsDeleted = false,
                             Name = "J.K. Rowling"
                         },
@@ -64,7 +67,7 @@ namespace Booksy.Migrations
                         {
                             Id = 2,
                             Bio = "Author of Game of Thrones",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7182),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5085),
                             IsDeleted = false,
                             Name = "George R.R. Martin"
                         },
@@ -72,7 +75,7 @@ namespace Booksy.Migrations
                         {
                             Id = 3,
                             Bio = "Author of The Lord of the Rings",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7189),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5089),
                             IsDeleted = false,
                             Name = "J.R.R. Tolkien"
                         },
@@ -80,7 +83,7 @@ namespace Booksy.Migrations
                         {
                             Id = 4,
                             Bio = "Famous mystery writer",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7192),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5091),
                             IsDeleted = false,
                             Name = "Agatha Christie"
                         },
@@ -88,7 +91,7 @@ namespace Booksy.Migrations
                         {
                             Id = 5,
                             Bio = "Horror and thriller author",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7208),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5101),
                             IsDeleted = false,
                             Name = "Stephen King"
                         },
@@ -96,7 +99,7 @@ namespace Booksy.Migrations
                         {
                             Id = 6,
                             Bio = "Author of Da Vinci Code",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7228),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5113),
                             IsDeleted = false,
                             Name = "Dan Brown"
                         },
@@ -104,7 +107,7 @@ namespace Booksy.Migrations
                         {
                             Id = 7,
                             Bio = "Author of Hunger Games",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7230),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5115),
                             IsDeleted = false,
                             Name = "Suzanne Collins"
                         },
@@ -112,7 +115,7 @@ namespace Booksy.Migrations
                         {
                             Id = 8,
                             Bio = "American novelist",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7233),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5118),
                             IsDeleted = false,
                             Name = "Ernest Hemingway"
                         },
@@ -120,7 +123,7 @@ namespace Booksy.Migrations
                         {
                             Id = 9,
                             Bio = "Famous American writer",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7235),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5120),
                             IsDeleted = false,
                             Name = "Mark Twain"
                         },
@@ -128,7 +131,7 @@ namespace Booksy.Migrations
                         {
                             Id = 10,
                             Bio = "Science fiction author",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 52, DateTimeKind.Utc).AddTicks(7241),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 480, DateTimeKind.Utc).AddTicks(5125),
                             IsDeleted = false,
                             Name = "Isaac Asimov"
                         });
@@ -206,7 +209,7 @@ namespace Booksy.Migrations
                             Id = 1,
                             AuthorId = 1,
                             CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 55, DateTimeKind.Utc).AddTicks(9104),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(4350),
                             Discount = 0m,
                             ISBN = "9780747532699",
                             IsDeleted = false,
@@ -221,7 +224,7 @@ namespace Booksy.Migrations
                             Id = 2,
                             AuthorId = 1,
                             CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5329),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8791),
                             Discount = 0m,
                             ISBN = "9780747538493",
                             IsDeleted = false,
@@ -236,7 +239,7 @@ namespace Booksy.Migrations
                             Id = 3,
                             AuthorId = 2,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5349),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8802),
                             Discount = 0m,
                             ISBN = "9780553103540",
                             IsDeleted = false,
@@ -251,7 +254,7 @@ namespace Booksy.Migrations
                             Id = 4,
                             AuthorId = 2,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5356),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8807),
                             Discount = 0m,
                             ISBN = "9780553108033",
                             IsDeleted = false,
@@ -266,7 +269,7 @@ namespace Booksy.Migrations
                             Id = 5,
                             AuthorId = 5,
                             CategoryId = 9,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5361),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8811),
                             Discount = 0m,
                             ISBN = "9780385121675",
                             IsDeleted = false,
@@ -281,7 +284,7 @@ namespace Booksy.Migrations
                             Id = 6,
                             AuthorId = 5,
                             CategoryId = 9,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5402),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8871),
                             Discount = 0m,
                             ISBN = "9780450411434",
                             IsDeleted = false,
@@ -296,7 +299,7 @@ namespace Booksy.Migrations
                             Id = 7,
                             AuthorId = 3,
                             CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5410),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8879),
                             Discount = 0m,
                             ISBN = "9780547928210",
                             IsDeleted = false,
@@ -311,7 +314,7 @@ namespace Booksy.Migrations
                             Id = 8,
                             AuthorId = 4,
                             CategoryId = 6,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5417),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8883),
                             Discount = 0m,
                             ISBN = "9780062073501",
                             IsDeleted = false,
@@ -326,7 +329,7 @@ namespace Booksy.Migrations
                             Id = 9,
                             AuthorId = 6,
                             CategoryId = 7,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5472),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8888),
                             Discount = 0m,
                             ISBN = "9780307474278",
                             IsDeleted = false,
@@ -341,7 +344,7 @@ namespace Booksy.Migrations
                             Id = 10,
                             AuthorId = 7,
                             CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5483),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8898),
                             Discount = 0m,
                             ISBN = "9780439023481",
                             IsDeleted = false,
@@ -356,7 +359,7 @@ namespace Booksy.Migrations
                             Id = 11,
                             AuthorId = 7,
                             CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5490),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8902),
                             Discount = 0m,
                             ISBN = "9780439023498",
                             IsDeleted = false,
@@ -371,7 +374,7 @@ namespace Booksy.Migrations
                             Id = 12,
                             AuthorId = 7,
                             CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5493),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8905),
                             Discount = 0m,
                             ISBN = "9780439023511",
                             IsDeleted = false,
@@ -386,7 +389,7 @@ namespace Booksy.Migrations
                             Id = 13,
                             AuthorId = 10,
                             CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5496),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8908),
                             Discount = 0m,
                             ISBN = "9780553293357",
                             IsDeleted = false,
@@ -401,7 +404,7 @@ namespace Booksy.Migrations
                             Id = 14,
                             AuthorId = 10,
                             CategoryId = 14,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5501),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8912),
                             Discount = 0m,
                             ISBN = "9780553294385",
                             IsDeleted = false,
@@ -416,7 +419,7 @@ namespace Booksy.Migrations
                             Id = 15,
                             AuthorId = 8,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5505),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8915),
                             Discount = 0m,
                             ISBN = "9780684801223",
                             IsDeleted = false,
@@ -431,7 +434,7 @@ namespace Booksy.Migrations
                             Id = 16,
                             AuthorId = 9,
                             CategoryId = 1,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 56, DateTimeKind.Utc).AddTicks(5508),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 482, DateTimeKind.Utc).AddTicks(8919),
                             Discount = 0m,
                             ISBN = "9780486280615",
                             IsDeleted = false,
@@ -473,98 +476,98 @@ namespace Booksy.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 50, DateTimeKind.Utc).AddTicks(8118),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(3249),
                             IsDeleted = false,
                             Name = "Fiction"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(462),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4956),
                             IsDeleted = false,
                             Name = "Non-Fiction"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(470),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4961),
                             IsDeleted = false,
                             Name = "Science"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(472),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4964),
                             IsDeleted = false,
                             Name = "Children"
                         },
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(475),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4967),
                             IsDeleted = false,
                             Name = "Fantasy"
                         },
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(498),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4985),
                             IsDeleted = false,
                             Name = "Mystery"
                         },
                         new
                         {
                             Id = 7,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(501),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4988),
                             IsDeleted = false,
                             Name = "Thriller"
                         },
                         new
                         {
                             Id = 8,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(506),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4991),
                             IsDeleted = false,
                             Name = "Romance"
                         },
                         new
                         {
                             Id = 9,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(509),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4993),
                             IsDeleted = false,
                             Name = "Horror"
                         },
                         new
                         {
                             Id = 10,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(515),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(4998),
                             IsDeleted = false,
                             Name = "Biography"
                         },
                         new
                         {
                             Id = 11,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(520),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(5017),
                             IsDeleted = false,
                             Name = "Self-Help"
                         },
                         new
                         {
                             Id = 12,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(550),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(5018),
                             IsDeleted = false,
                             Name = "History"
                         },
                         new
                         {
                             Id = 13,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(555),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(5020),
                             IsDeleted = false,
                             Name = "Poetry"
                         },
                         new
                         {
                             Id = 14,
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 51, DateTimeKind.Utc).AddTicks(557),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 479, DateTimeKind.Utc).AddTicks(5021),
                             IsDeleted = false,
                             Name = "Science Fiction"
                         });
@@ -621,7 +624,7 @@ namespace Booksy.Migrations
                             Id = 1,
                             BookId = 1,
                             Comment = "Loved this book!",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 58, DateTimeKind.Utc).AddTicks(47),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 483, DateTimeKind.Utc).AddTicks(7753),
                             IsDeleted = false,
                             Rating = 5,
                             Status = 1,
@@ -632,7 +635,7 @@ namespace Booksy.Migrations
                             Id = 2,
                             BookId = 3,
                             Comment = "Great story.",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 58, DateTimeKind.Utc).AddTicks(4689),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 484, DateTimeKind.Utc).AddTicks(1097),
                             IsDeleted = false,
                             Rating = 4,
                             Status = 1,
@@ -643,7 +646,7 @@ namespace Booksy.Migrations
                             Id = 3,
                             BookId = 5,
                             Comment = "Terrifying but amazing.",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 58, DateTimeKind.Utc).AddTicks(4699),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 484, DateTimeKind.Utc).AddTicks(1104),
                             IsDeleted = false,
                             Rating = 5,
                             Status = 1,
@@ -654,7 +657,7 @@ namespace Booksy.Migrations
                             Id = 4,
                             BookId = 10,
                             Comment = "Could not put it down!",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 58, DateTimeKind.Utc).AddTicks(4706),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 484, DateTimeKind.Utc).AddTicks(1107),
                             IsDeleted = false,
                             Rating = 5,
                             Status = 1,
@@ -665,7 +668,7 @@ namespace Booksy.Migrations
                             Id = 5,
                             BookId = 7,
                             Comment = "Classic fantasy!",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 58, DateTimeKind.Utc).AddTicks(4712),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 484, DateTimeKind.Utc).AddTicks(1108),
                             IsDeleted = false,
                             Rating = 5,
                             Status = 1,
@@ -676,7 +679,7 @@ namespace Booksy.Migrations
                             Id = 6,
                             BookId = 13,
                             Comment = "Interesting sci-fi.",
-                            CreatedAt = new DateTime(2025, 9, 28, 21, 44, 44, 58, DateTimeKind.Utc).AddTicks(4737),
+                            CreatedAt = new DateTime(2025, 9, 28, 18, 38, 58, 484, DateTimeKind.Utc).AddTicks(1120),
                             IsDeleted = false,
                             Rating = 4,
                             Status = 1,
@@ -953,19 +956,11 @@ namespace Booksy.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("City")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Country")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -973,24 +968,6 @@ namespace Booksy.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
-
-                    b.Property<string>("FirstName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Gender")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("LastName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -1000,8 +977,7 @@ namespace Booksy.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -1020,37 +996,14 @@ namespace Booksy.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("PreferredLanguage")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<string>("ProfilePictureUrl")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<bool>("ReceiveNewsletter")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("RegisteredDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("State")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Street")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("ThemePreference")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("TimeZone")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                    b.Property<string>("Street")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -1060,8 +1013,7 @@ namespace Booksy.Migrations
                         .HasColumnType("nvarchar(256)");
 
                     b.Property<string>("ZipCode")
-                        .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -1080,20 +1032,16 @@ namespace Booksy.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000001",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "12d00e07-676f-4164-abee-2826302446d6",
+                            ConcurrencyStamp = "f6d24adb-6318-4e4c-b290-7e49e08a6010",
                             Email = "admin@booksy.com",
                             EmailConfirmed = true,
-                            IsActive = true,
                             LockoutEnabled = false,
                             Name = "System Admin",
                             NormalizedEmail = "ADMIN@BOOKSY.COM",
                             NormalizedUserName = "ADMIN@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEDtbeFEqBEYegxhJil3L1ZTLPtC9k3rHe8MQdbEGPl8yCtNgtyGM1rJp/S4U2Z56ng==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEKu41fO8q6swgXSU5GrjkCqoSgqxqJ/gVQ+S0gFjs7XWbgGTpsooLH2rDIXg98QQ3A==",
                             PhoneNumberConfirmed = false,
-                            PreferredLanguage = "en",
-                            ReceiveNewsletter = true,
-                            RegisteredDate = new DateTime(2025, 9, 28, 21, 44, 43, 701, DateTimeKind.Utc).AddTicks(9723),
-                            SecurityStamp = "6a43a8cf-1700-4119-8d83-112082a0d30e",
+                            SecurityStamp = "a37c47c8-e9d2-4133-8ab6-521948b9fca5",
                             TwoFactorEnabled = false,
                             UserName = "admin@booksy.com"
                         },
@@ -1101,20 +1049,16 @@ namespace Booksy.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000002",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "5a00dbdc-510c-4664-b51c-ae4bd2b1e926",
+                            ConcurrencyStamp = "cd3086b3-95d0-4ef7-8b6b-69a1b0aab96d",
                             Email = "customer1@booksy.com",
                             EmailConfirmed = true,
-                            IsActive = true,
                             LockoutEnabled = false,
                             Name = "Alice",
                             NormalizedEmail = "CUSTOMER1@BOOKSY.COM",
                             NormalizedUserName = "CUSTOMER1@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAELBhze3CZob2mgzWAaIYu6cuMOaerE3MWifT41W3+WXYIW0lY91lsrEuYGHLFgBEow==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEF35fCepg9Arj+h5nCxruC02n7vBgoE7XB+BUnnE2tbUbEudFY1630/qEX5+9FUOxQ==",
                             PhoneNumberConfirmed = false,
-                            PreferredLanguage = "en",
-                            ReceiveNewsletter = true,
-                            RegisteredDate = new DateTime(2025, 9, 28, 21, 44, 43, 812, DateTimeKind.Utc).AddTicks(7094),
-                            SecurityStamp = "c51ae7ce-c3a5-4b01-9270-f3c4c83e612c",
+                            SecurityStamp = "1da4277a-c6cd-4c8d-8cff-6ebecde49f67",
                             TwoFactorEnabled = false,
                             UserName = "customer1@booksy.com"
                         },
@@ -1122,20 +1066,16 @@ namespace Booksy.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000003",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "e2f91d1a-4c1b-42ae-97a2-7ee913a2064a",
+                            ConcurrencyStamp = "f6c58d32-f5c4-4211-9a81-4f39311bf6bf",
                             Email = "customer2@booksy.com",
                             EmailConfirmed = true,
-                            IsActive = true,
                             LockoutEnabled = false,
                             Name = "Bob",
                             NormalizedEmail = "CUSTOMER2@BOOKSY.COM",
                             NormalizedUserName = "CUSTOMER2@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEKsERPYFsD67V5hnU550r01VEZ/8hGvPLFMQgmkAhfDwGlYTNYZY0897jjsaMfV/xA==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEExarm+MDvrSNQca0r/ql4lHra+Xc5XmrH5tRIA4XnTVqC/vemUCvROKGMR5DUxk7g==",
                             PhoneNumberConfirmed = false,
-                            PreferredLanguage = "en",
-                            ReceiveNewsletter = true,
-                            RegisteredDate = new DateTime(2025, 9, 28, 21, 44, 43, 914, DateTimeKind.Utc).AddTicks(6573),
-                            SecurityStamp = "a3788f1c-ef84-4718-9669-8057abb976a7",
+                            SecurityStamp = "06e40e00-6548-4be2-9b12-c6ab6edd8b2d",
                             TwoFactorEnabled = false,
                             UserName = "customer2@booksy.com"
                         });
