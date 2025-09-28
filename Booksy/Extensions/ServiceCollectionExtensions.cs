@@ -1,10 +1,14 @@
-﻿using Booksy.Models.Entities.Books;
+﻿using Booksy.Areas.Admin.Services;
+using Booksy.Areas.Admin.Services.IServices;
+using Booksy.Models.Entities.Books;
 using Booksy.Models.Entities.Orders;
 using Booksy.Models.Entities.Promotions;
 using Booksy.Models.Entities.Users;
 using Booksy.Services;
 using Booksy.Utility.DBInitializer;
+using Booksy.Utility.Mapping;
 using Booksy.Utility.Settings;
+using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -66,6 +70,10 @@ namespace Booksy.Extensions
             services.AddScoped<IRepository<ApplicationUser>, Repository<ApplicationUser>>();
             services.AddScoped<IRepository<UserOTP>, Repository<UserOTP>>();
             services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+            services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+            // Services
+            services.AddScoped<ICategoryService, CategoryService>();
 
 
 
@@ -79,6 +87,8 @@ namespace Booksy.Extensions
             // Stripe Config
             services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
             StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
+            // mapster config
+            MapsterConfig.RegisterMappings();
 
             return services;
         }

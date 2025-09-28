@@ -1,8 +1,9 @@
-﻿using Mapster;
-using Microsoft.AspNetCore.Mvc;
-using Booksy.Models.Entities.Books;
+﻿using Booksy.Areas.Admin.Services.IServices;
 using Booksy.Models.DTOs.Request.Category;
 using Booksy.Models.DTOs.Response.Category;
+using Booksy.Models.Entities.Books;
+using Mapster;
+using Microsoft.AspNetCore.Mvc;
 
 
 namespace Booksy.Areas.Admin.Controllers
@@ -12,69 +13,74 @@ namespace Booksy.Areas.Admin.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly ICategoryRepository _categoryRepository;
+        private readonly ICategoryService _categoryService;
 
-        public CategoriesController(ICategoryRepository categoryRepository)
+        public CategoriesController(ICategoryService categoryService)
         {
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
 
-        // GET: api/admin/categories
+        /// <summary>
+        /// Get all categories.
+        /// </summary>
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<ActionResult<IEnumerable<CategoryResponse>>> GetAll()
         {
-            var categories = await _categoryRepository.GetAllAsync();
-            var response = categories.Adapt<List<CategoryResponse>>();
-            return Ok(response);
+            var categories = await _categoryService.GetAllAsync();
+            return Ok(categories);
         }
 
-        // GET: api/admin/categories/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Details(int id)
+        /// <summary>
+        /// Get a single category by ID.
+        /// </summary>
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<CategoryResponse>> GetById(int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
+            var category = await _categoryService.GetByIdAsync(id);
             if (category is null)
-                return NotFound();
+                return NotFound(new { message = $"Category with ID {id} not found." });
 
-            return Ok(category.Adapt<CategoryResponse>());
+            return Ok(category);
         }
 
-        // POST: api/admin/categories
+        /// <summary>
+        /// Create a new category.
+        /// </summary>
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CategoryCreateRequest request)
+        public async Task<ActionResult<CategoryResponse>> Create([FromBody] CategoryCreateRequest request)
         {
-            var category = request.Adapt<Category>();
-            var createdCategory = await _categoryRepository.CreateAsync(category);
-            await _categoryRepository.CommitAsync();
+            if (!ModelState.IsValid)
+                return ValidationProblem(ModelState);
 
-            return CreatedAtAction(nameof(Details), new { id = createdCategory.Id }, new { msg = "Category created successfully" });
+            var category = await _categoryService.CreateAsync(request);
+            return CreatedAtAction(nameof(GetById), new { id = category.Id }, category);
         }
 
-        // PUT: api/admin/categories/5
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Edit(int id, [FromBody] CategoryCreateRequest request)
+        /// <summary>
+        /// Update an existing category by ID.
+        /// </summary>
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] CategoryCreateRequest request)
         {
-            var categoryInDB = await _categoryRepository.GetByIdAsync(id);
-            if (categoryInDB is null)
-                return NotFound();
+            if (!ModelState.IsValid)
+                return ValidationProblem(ModelState);
 
-            var updatedCategory = request.Adapt(categoryInDB);
-            _categoryRepository.Update(updatedCategory);
-            await _categoryRepository.CommitAsync();
+            var success = await _categoryService.UpdateAsync(id, request);
+            if (!success)
+                return NotFound(new { message = $"Category with ID {id} not found." });
 
             return NoContent();
         }
 
-        // DELETE: api/admin/categories/5
-        [HttpDelete("{id}")]
+        /// <summary>
+        /// Delete a category by ID.
+        /// </summary>
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var category = await _categoryRepository.GetByIdAsync(id);
-            if (category is null)
-                return NotFound();
-
-            _categoryRepository.Delete(category);
-            await _categoryRepository.CommitAsync();
+            var success = await _categoryService.DeleteAsync(id);
+            if (!success)
+                return NotFound(new { message = $"Category with ID {id} not found." });
 
             return NoContent();
         }

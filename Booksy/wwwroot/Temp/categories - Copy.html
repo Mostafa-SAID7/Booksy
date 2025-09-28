@@ -1,0 +1,615 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Categories - Admin UI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Custom animations */
+        @keyframes slideIn {
+            from {
+                transform: translateY(-10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        /* Custom gradient button */
+        .btn-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+        }
+
+            .btn-gradient:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            }
+
+        /* Glass effect */
+        .glass {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white/80 backdrop-blur-sm shadow-lg border-b border-slate-200/50 sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <div class="w-10 h-10 bg-gradient-to-r from-purple-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-800">Categories Admin</h1>
+                        <p class="text-sm text-slate-500">Manage your application categories</p>
+                    </div>
+                </div>
+                <div class="text-xs bg-slate-100 px-3 py-2 rounded-full text-slate-600 font-mono">
+                    API: <span class="text-indigo-600">/api/admin/categories</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <!-- Left column: List + single fetch -->
+            <div class="lg:col-span-7">
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                    <!-- Card Header -->
+                    <div class="bg-gradient-to-r from-slate-50 to-slate-100 px-6 py-4 border-b border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-lg font-semibold text-slate-800 flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+                                </svg>
+                                Categories List
+                            </h2>
+                            <div class="flex items-center space-x-3">
+                                <input id="tokenInput"
+                                       placeholder="Bearer token (optional)"
+                                       class="px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-white/50 min-w-[240px]" />
+                                <button id="refreshBtn"
+                                        class="btn-gradient text-white px-4 py-2 rounded-lg text-sm font-medium hover:shadow-lg transition-all duration-200 flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                    </svg>
+                                    Refresh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Get by ID Section -->
+                    <div class="px-6 py-4 bg-slate-50/50 border-b border-slate-200">
+                        <label for="getId" class="block text-sm font-medium text-slate-700 mb-2">Get category by ID</label>
+                        <div class="flex items-center space-x-3">
+                            <input id="getId"
+                                   placeholder="Enter category ID"
+                                   class="flex-1 px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200" />
+                            <button id="getByIdBtn"
+                                    class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors duration-200 flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                Get
+                            </button>
+                            <button id="clearSelectedBtn"
+                                    class="px-4 py-2 bg-slate-500 text-white rounded-lg text-sm font-medium hover:bg-slate-600 transition-colors duration-200">
+                                Clear
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="px-6 py-3 bg-slate-50/30">
+                        <div id="status" class="text-sm text-slate-600"></div>
+                    </div>
+
+                    <!-- List Container -->
+                    <div class="p-6">
+                        <div id="listContainer" class="max-h-96 overflow-y-auto custom-scrollbar">
+                            <ul id="list" class="space-y-3" aria-live="polite"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right column: Create / Update / Delete forms -->
+            <div class="lg:col-span-5">
+                <div class="bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
+                    <!-- Form Header -->
+                    <div class="bg-gradient-to-r from-indigo-50 to-purple-50 px-6 py-4 border-b border-slate-200">
+                        <h2 class="text-lg font-semibold text-slate-800 flex items-center">
+                            <svg class="w-5 h-5 mr-2 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                            Create / Update Category
+                        </h2>
+                        <p class="text-sm text-slate-600 mt-1">Enter category details below. Leave ID empty to create new.</p>
+                    </div>
+
+                    <!-- Form Body -->
+                    <div class="p-6 space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="formId" class="block text-sm font-medium text-slate-700 mb-2">
+                                    ID (for update)
+                                </label>
+                                <input id="formId"
+                                       type="number"
+                                       placeholder="Auto-generated"
+                                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200 bg-slate-50" />
+                            </div>
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-slate-700 mb-2">
+                                    Category Name *
+                                </label>
+                                <input id="name"
+                                       placeholder="Enter category name"
+                                       maxlength="100"
+                                       class="w-full px-3 py-2.5 border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all duration-200" />
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex items-center space-x-3 pt-4">
+                            <button id="submitBtn"
+                                    class="flex-1 btn-gradient text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-200 flex items-center justify-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                </svg>
+                                Save Category
+                            </button>
+                            <button id="deleteBtn"
+                                    class="px-6 py-3 bg-red-500 text-white rounded-lg font-medium hover:bg-red-600 transition-colors duration-200 flex items-center">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete
+                            </button>
+                        </div>
+
+                        <!-- Form Messages -->
+                        <div id="formMsg" class="text-sm mt-4 p-3 rounded-lg hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Config
+        const API_BASE = 'https://localhost:5001/api/admin/categories';
+
+        // DOM Elements
+        const refreshBtn = document.getElementById('refreshBtn');
+        const listEl = document.getElementById('list');
+        const statusEl = document.getElementById('status');
+        const getByIdBtn = document.getElementById('getByIdBtn');
+        const getIdInput = document.getElementById('getId');
+        const tokenInput = document.getElementById('tokenInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const formId = document.getElementById('formId');
+        const nameInput = document.getElementById('name');
+        const formMsg = document.getElementById('formMsg');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const clearSelectedBtn = document.getElementById('clearSelectedBtn');
+
+        // Helper: build headers (with optional bearer token)
+        function buildHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            const token = tokenInput.value.trim();
+            if (token) {
+                headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+            }
+            return headers;
+        }
+
+        // Enhanced API fetch with better error handling
+        async function apiFetch(url, opts = {}) {
+            opts.headers = { ...(opts.headers || {}), ...buildHeaders() };
+            try {
+                const res = await fetch(url, opts);
+                const contentType = res.headers.get('Content-Type') || '';
+                const body = contentType.includes('application/json') ? await res.json() : await res.text();
+                if (!res.ok) {
+                    throw { status: res.status, body };
+                }
+                return { ok: true, status: res.status, body };
+            } catch (err) {
+                return { ok: false, err };
+            }
+        }
+
+        // Enhanced UI helpers
+        function showStatus(msg, isError = false) {
+            statusEl.innerHTML = `
+                    <div class="flex items-center ${isError ? 'text-red-600' : 'text-emerald-600'}">
+                        ${isError
+                    ? '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                    : '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                }
+                        ${msg}
+                    </div>
+                `;
+        }
+
+        function showFormMsg(msg, isError = false) {
+            formMsg.className = `text-sm mt-4 p-3 rounded-lg ${isError ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-emerald-50 text-emerald-700 border border-emerald-200'}`;
+            formMsg.innerHTML = `
+                    <div class="flex items-center">
+                        ${isError
+                    ? '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                    : '<svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>'
+                }
+                        ${msg}
+                    </div>
+                `;
+            formMsg.classList.remove('hidden');
+            setTimeout(() => formMsg.classList.add('hidden'), 5000);
+        }
+
+        // Enhanced list loading with better UI
+        async function loadAll() {
+            listEl.innerHTML = `
+                    <li class="flex items-center justify-center p-8">
+                        <div class="animate-pulse flex items-center text-slate-500">
+                            <svg class="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Loading categories...
+                        </div>
+                    </li>
+                `;
+
+            const r = await apiFetch(API_BASE, { method: 'GET' });
+            if (!r.ok) {
+                listEl.innerHTML = `
+                        <li class="p-6 bg-red-50 border border-red-200 rounded-lg">
+                            <div class="flex items-center text-red-700">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                Failed to load categories: ${r.err.status || ''} ${JSON.stringify(r.err.body || r.err)}
+                            </div>
+                        </li>
+                    `;
+                showStatus('Failed to fetch categories', true);
+                return;
+            }
+
+            const categories = r.body;
+            listEl.innerHTML = '';
+
+            if (!categories || categories.length === 0) {
+                listEl.innerHTML = `
+                        <li class="p-8 text-center">
+                            <div class="text-slate-400">
+                                <svg class="w-12 h-12 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+                                </svg>
+                                <p class="text-lg font-medium">No categories found</p>
+                                <p class="text-sm">Create your first category using the form on the right.</p>
+                            </div>
+                        </li>
+                    `;
+                showStatus('0 categories found', false);
+                return;
+            }
+
+            categories.forEach((cat, index) => {
+                const li = document.createElement('li');
+                li.className = 'bg-white rounded-lg border border-slate-200 p-4 hover:shadow-md transition-all duration-200 animate-slide-in';
+                li.style.animationDelay = `${index * 0.1}s`;
+
+                li.innerHTML = `
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="flex items-center space-x-3">
+                                    <div class="w-8 h-8 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                                        ${cat.id}
+                                    </div>
+                                    <div>
+                                        <h3 class="font-semibold text-slate-800">${escapeHtml(cat.name)}</h3>
+                                        <div class="flex items-center space-x-2 text-xs text-slate-500">
+                                            <span>ID: #${cat.id}</span>
+                                            <span class="w-1 h-1 bg-slate-400 rounded-full"></span>
+                                            <span class="px-2 py-1 rounded-full ${cat.isDeleted ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}">
+                                                ${cat.isDeleted ? 'Deleted' : 'Active'}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button
+                                    data-id="${cat.id}"
+                                    class="editBtn px-3 py-2 bg-indigo-100 text-indigo-700 rounded-lg text-sm font-medium hover:bg-indigo-200 transition-colors duration-200 flex items-center"
+                                >
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                    </svg>
+                                    Edit
+                                </button>
+                                <button
+                                    data-id="${cat.id}"
+                                    class="delBtn px-3 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors duration-200 flex items-center"
+                                >
+                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                listEl.appendChild(li);
+            });
+
+            attachListButtons();
+            showStatus(`${categories.length} categories loaded successfully`);
+        }
+
+        // Get by id with enhanced UI feedback
+        async function getById() {
+            const id = getIdInput.value.trim();
+            if (!id) {
+                showStatus('Please enter an ID to fetch', true);
+                return;
+            }
+
+            showStatus('Loading category...');
+            const r = await apiFetch(`${API_BASE}/${id}`, { method: 'GET' });
+
+            if (!r.ok) {
+                showStatus(`Category not found (${r.err.status})`, true);
+                return;
+            }
+
+            const cat = r.body;
+            formId.value = cat.id;
+            nameInput.value = cat.name || '';
+            showStatus(`Category #${cat.id} loaded successfully`);
+
+            // Smooth scroll to form
+            nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            nameInput.focus();
+        }
+
+        // Enhanced save function
+        async function save() {
+            const id = formId.value.trim();
+            const name = nameInput.value.trim();
+
+            formMsg.classList.add('hidden');
+
+            if (!name) {
+                showFormMsg('Category name is required', true);
+                nameInput.focus();
+                return;
+            }
+
+            const payload = { name };
+
+            // Add loading state to button
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = `
+                    <svg class="animate-spin w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    ${id ? 'Updating...' : 'Creating...'}
+                `;
+            submitBtn.disabled = true;
+
+            try {
+                if (!id) {
+                    // Create
+                    const r = await apiFetch(API_BASE, { method: 'POST', body: JSON.stringify(payload) });
+                    if (!r.ok) {
+                        showFormMsg(`Create failed: ${r.err.status || ''} ${JSON.stringify(r.err.body)}`, true);
+                        return;
+                    }
+                    showFormMsg('Category created successfully!');
+                    clearDraft();
+                    formId.value = '';
+                    nameInput.value = '';
+                } else {
+                    // Update
+                    const r = await apiFetch(`${API_BASE}/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+                    if (!r.ok) {
+                        showFormMsg(`Update failed: ${r.err.status || ''} ${JSON.stringify(r.err.body)}`, true);
+                        return;
+                    }
+                    showFormMsg('Category updated successfully!');
+                    clearDraft();
+                }
+
+                await loadAll();
+            } finally {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+        }
+
+        // Enhanced delete function
+        async function deleteByFormId() {
+            const id = formId.value.trim();
+            if (!id) {
+                showFormMsg('Please enter an ID to delete', true);
+                return;
+            }
+
+            if (!confirm(`Are you sure you want to delete category #${id}? This action cannot be undone.`)) return;
+
+            const r = await apiFetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+            if (!r.ok) {
+                showFormMsg(`Delete failed: ${r.err.status || ''} ${JSON.stringify(r.err.body)}`, true);
+                return;
+            }
+
+            showFormMsg('Category deleted successfully!');
+            clearDraft();
+            nameInput.value = '';
+            formId.value = '';
+            await loadAll();
+        }
+
+        // Attach edit/delete buttons for each list item
+        function attachListButtons() {
+            document.querySelectorAll('.editBtn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    getIdInput.value = id;
+                    getById();
+                });
+            });
+
+            document.querySelectorAll('.delBtn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    if (!confirm(`Are you sure you want to delete category #${id}?`)) return;
+
+                    const r = await apiFetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+                    if (!r.ok) {
+                        showStatus(`Delete failed: ${r.err.status || ''}`, true);
+                        return;
+                    }
+
+                    showStatus(`Category #${id} deleted successfully`);
+                    await loadAll();
+                });
+            });
+        }
+
+        // HTML escape helper
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[c]));
+        }
+
+        // Enhanced clear function
+        function clearForm() {
+            formId.value = '';
+            nameInput.value = '';
+            getIdInput.value = '';
+            showStatus('');
+            formMsg.classList.add('hidden');
+        }
+
+        // Event listeners
+        refreshBtn.addEventListener('click', loadAll);
+        getByIdBtn.addEventListener('click', getById);
+        clearSelectedBtn.addEventListener('click', clearForm);
+        submitBtn.addEventListener('click', save);
+        deleteBtn.addEventListener('click', deleteByFormId);
+
+        // Enhanced keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        loadAll();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        save();
+                        break;
+                    case 'Escape':
+                        clearForm();
+                        break;
+                }
+            }
+        });
+
+        // Auto-save draft to prevent data loss
+        let saveTimeout;
+        nameInput.addEventListener('input', () => {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(() => {
+                if (nameInput.value.trim()) {
+                    localStorage.setItem('categoryDraft', JSON.stringify({
+                        id: formId.value.trim(),
+                        name: nameInput.value.trim()
+                    }));
+                }
+            }, 1000);
+        });
+
+        // Restore draft on load
+        function restoreDraft() {
+            try {
+                const draft = localStorage.getItem('categoryDraft');
+                if (draft) {
+                    const parsed = JSON.parse(draft);
+                    if (parsed.name && !formId.value && !nameInput.value) {
+                        formId.value = parsed.id || '';
+                        nameInput.value = parsed.name || '';
+                        showFormMsg('Draft restored', false);
+                    }
+                }
+            } catch (e) {
+                // Ignore draft restore errors
+            }
+        }
+
+        // Clear draft after successful save
+        function clearDraft() {
+            localStorage.removeItem('categoryDraft');
+        }
+
+        // Initialize the application
+        async function init() {
+            try {
+                restoreDraft();
+                await loadAll();
+            } catch (error) {
+                showStatus('Failed to initialize application', true);
+                console.error('Initialization error:', error);
+            }
+        }
+
+        // Start the application
+        init();
+</script>

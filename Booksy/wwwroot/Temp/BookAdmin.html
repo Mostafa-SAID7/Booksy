@@ -1,0 +1,799 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Enhanced Book Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        /* --- visual styles (kept from your previous file) --- */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --success-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --warning-gradient: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            --danger-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .main-container {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            margin-top: 2rem;
+            margin-bottom: 2rem;
+            overflow: hidden;
+        }
+
+        .header-section {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: none;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--primary-gradient);
+            -webkit-text-fill-color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            margin-bottom: .5rem;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+            border: none;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .card-header-custom {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem;
+            border: none;
+        }
+
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            transition: all .3s;
+            font-size: 1rem;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #667eea;
+                box-shadow: 0 0 0 .25rem rgba(102,126,234,0.25);
+                transform: translateY(-2px);
+            }
+
+        .btn-gradient {
+            background: var(--primary-gradient);
+            border: none;
+            padding: .75rem 2rem;
+            border-radius: 25px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .btn-warning-gradient {
+            background: var(--warning-gradient);
+            color: #000;
+        }
+
+        .btn-danger-gradient {
+            background: var(--danger-gradient);
+            color: #000;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 1.5rem;
+        }
+
+        .book-cover {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all .3s;
+        }
+
+        .book-cover-placeholder {
+            width: 60px;
+            height: 80px;
+            background: linear-gradient(145deg,#f0f2f5,#e4e7ea);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-size: 1.5rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: .5rem;
+        }
+
+        .btn-sm-custom {
+            padding: .375rem .75rem;
+            font-size: .875rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .search-input {
+            border-radius: 25px;
+            padding: .75rem 1.5rem;
+            border: 2px solid #e9ecef;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0)
+            }
+
+            100% {
+                transform: rotate(360deg)
+            }
+        }
+
+        .file-upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            background: linear-gradient(145deg,#f8f9ff,#e8ecff);
+        }
+
+            .file-upload-area.dragover {
+                border-color: #4c51bf;
+                background: var(--primary-gradient);
+                color: white;
+            }
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        .toast-custom {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: none;
+            overflow: hidden;
+            margin-bottom: .5rem;
+        }
+
+        .toast-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .toast-error {
+            border-left: 4px solid #dc3545;
+        }
+
+        @media (max-width:768px) {
+            .main-container {
+                margin: 1rem;
+                border-radius: 15px
+            }
+
+            .action-buttons {
+                flex-direction: column
+            }
+
+            .table-responsive {
+                font-size: .875rem
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast-container"></div>
+
+    <div class="container">
+        <div class="main-container">
+            <div class="header-section">
+                <h1 class="display-4 mb-0"><i class="fas fa-book-open me-3"></i>Enhanced Book Management</h1>
+                <p class="lead mb-0 mt-2">Manage your library with style and efficiency</p>
+            </div>
+
+            <div class="p-4">
+                <div class="row stats-row mb-4">
+                    <div class="col-md-3 col-sm-6 mb-3"><div class="stat-card"><div class="stat-number" id="totalBooks">0</div><div class="stat-label">Total Books</div></div></div>
+                    <div class="col-md-3 col-sm-6 mb-3"><div class="stat-card"><div class="stat-number" id="totalAuthors">0</div><div class="stat-label">Authors</div></div></div>
+                    <div class="col-md-3 col-sm-6 mb-3"><div class="stat-card"><div class="stat-number" id="totalCategories">0</div><div class="stat-label">Categories</div></div></div>
+                    <div class="col-md-3 col-sm-6 mb-3"><div class="stat-card"><div class="stat-number" id="booksWithCovers">0</div><div class="stat-label">With Covers</div></div></div>
+                </div>
+
+                <div class="card form-card mb-4">
+                    <div class="card-header-custom"><h5><i class="fas fa-plus-circle me-2"></i><span id="formTitle">Add New Book</span></h5></div>
+                    <div class="card-body p-4">
+                        <form id="createBookForm" autocomplete="off">
+                            <input type="hidden" id="bookId" value="">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="titleInput" name="title" placeholder="Book Title" required>
+                                        <label for="titleInput"><i class="fas fa-book me-2"></i>Book Title *</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control" id="isbnInput" name="isbn" placeholder="ISBN" required>
+                                        <label for="isbnInput"><i class="fas fa-barcode me-2"></i>ISBN *</label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" id="authorSelect" name="authorId" required>
+                                            <option value="">Loading authors...</option>
+                                        </select>
+                                        <label for="authorSelect"><i class="fas fa-user-edit me-2"></i>Author *</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating mb-3">
+                                        <select class="form-select" id="categorySelect" name="categoryId" required>
+                                            <option value="">Loading categories...</option>
+                                        </select>
+                                        <label for="categorySelect"><i class="fas fa-tags me-2"></i>Category *</label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-image me-2"></i>Cover Image</label>
+                                <div class="file-upload-area" id="fileUploadArea">
+                                    <input type="file" class="d-none" id="coverImageInput" name="coverImage" accept="image/*">
+                                    <div id="uploadPrompt">
+                                        <i class="fas fa-cloud-upload-alt fa-3x mb-3 text-primary"></i>
+                                        <p class="mb-2 fw-bold">Click to upload or drag & drop</p>
+                                        <p class="text-muted small">PNG, JPG, GIF up to 10MB</p>
+                                    </div>
+                                    <div id="imagePreview" class="d-none">
+                                        <img id="previewImg" src="" alt="Preview" class="img-fluid rounded mb-3" style="max-height:200px">
+                                        <div>
+                                            <button type="button" class="btn btn-sm btn-warning-gradient me-2" onclick="changeImage()"><i class="fas fa-edit me-1"></i>Change</button>
+                                            <button type="button" class="btn btn-sm btn-danger-gradient" onclick="removeImage()"><i class="fas fa-trash me-1"></i>Remove</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-end gap-3">
+                                <button type="button" class="btn btn-outline-secondary" id="cancelBtn" onclick="resetForm()"><i class="fas fa-times me-2"></i>Cancel</button>
+                                <button type="submit" class="btn btn-gradient" id="submitBtn"><i class="fas fa-save me-2"></i><span id="submitBtnText">Create Book</span></button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-container fade-in">
+                    <div class="table-header">
+                        <div class="row align-items-center">
+                            <div class="col-md-6"><h5 class="mb-0"><i class="fas fa-list me-2"></i>Books Library</h5></div>
+                            <div class="col-md-6">
+                                <div class="search-container">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-white border-end-0"><i class="fas fa-search text-muted"></i></span>
+                                        <input type="text" class="form-control search-input border-start-0" id="searchInput" placeholder="Search books...">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="booksTable">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-hashtag me-2"></i>ID</th>
+                                    <th><i class="fas fa-image me-2"></i>Cover</th>
+                                    <th><i class="fas fa-book me-2"></i>Title</th>
+                                    <th><i class="fas fa-barcode me-2"></i>ISBN</th>
+                                    <th><i class="fas fa-user me-2"></i>Author</th>
+                                    <th><i class="fas fa-tag me-2"></i>Category</th>
+                                    <th><i class="fas fa-cogs me-2"></i>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr id="loadingRow">
+                                    <td colspan="7" class="text-center py-5">
+                                        <div class="loading-spinner me-3"></div>Loading books...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="modal fade modal-custom" id="editModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Book</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editBookForm">
+                        <input type="hidden" id="editBookId">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="editTitle" required>
+                                    <label for="editTitle">Book Title</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="editIsbn" required>
+                                    <label for="editIsbn">ISBN</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="editAuthor" required><option value="">Select Author</option></select>
+                                    <label for="editAuthor">Author</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="editCategory" required><option value="">Select Category</option></select>
+                                    <label for="editCategory">Category</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-3">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                            <button type="submit" class="btn btn-gradient"><i class="fas fa-save me-2"></i>Update Book</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade modal-custom" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white"><i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this book?</p>
+                    <p class="fw-bold text-danger mb-0" id="deleteBookTitle"></p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"><i class="fas fa-times me-2"></i>Cancel</button>
+                    <button type="button" class="btn btn-danger-gradient" id="confirmDeleteBtn"><i class="fas fa-trash me-2"></i>Delete Book</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- bootstrap bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        /* ----------------------------
+           Configuration (edit endpoints if needed)
+           ---------------------------- */
+        const apiBase = 'https://localhost:5001/api/admin/books';
+        const authorsApi = 'https://localhost:5001/api/admin/authors';
+        const categoriesApi = 'https://localhost:5001/api/admin/categories';
+        const imageBase = 'https://localhost:5001/images/';
+
+        /* state */
+        let authors = [];
+        let categories = [];
+        let allBooks = [];
+        let bookToDelete = null;
+        let editModal, deleteModal;
+
+        /* bootstrap modals init */
+        document.addEventListener('DOMContentLoaded', () => {
+            editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+            setupEventListeners();
+            fetchAuthorsAndCategories().then(() => fetchBooks());
+        });
+
+        function setupEventListeners() {
+            // file upload area
+            const uploadArea = document.getElementById('fileUploadArea');
+            uploadArea.addEventListener('click', () => document.getElementById('coverImageInput').click());
+            document.getElementById('coverImageInput').addEventListener('change', handleFileSelect);
+
+            // drag/drop
+            uploadArea.addEventListener('dragover', (e) => { e.preventDefault(); uploadArea.classList.add('dragover'); });
+            uploadArea.addEventListener('dragleave', (e) => { e.preventDefault(); uploadArea.classList.remove('dragover'); });
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault(); uploadArea.classList.remove('dragover');
+                const files = e.dataTransfer.files; if (files.length > 0) {
+                    document.getElementById('coverImageInput').files = files;
+                    handleFileSelect({ target: { files } });
+                }
+            });
+
+            document.getElementById('searchInput').addEventListener('input', handleSearch);
+            document.getElementById('createBookForm').addEventListener('submit', handleCreateSubmit);
+            document.getElementById('editBookForm').addEventListener('submit', handleEditSubmit);
+            document.getElementById('confirmDeleteBtn').addEventListener('click', confirmDelete);
+        }
+
+        /* ---------- utility helpers ---------- */
+        function showToast(message, type = 'success') {
+            const container = document.querySelector('.toast-container');
+            const id = 'toast-' + Date.now();
+            const iconClass = type === 'success' ? 'fa-check-circle text-success' : (type === 'error' ? 'fa-exclamation-circle text-danger' : 'fa-exclamation-triangle text-warning');
+            const html = `
+                <div class="toast toast-custom toast-${type} show" id="${id}" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex align-items-start p-3">
+                        <i class="fas ${iconClass} me-2 fs-4"></i>
+                        <div class="flex-grow-1">
+                            <strong class="d-block">${type.charAt(0).toUpperCase() + type.slice(1)}</strong>
+                            <div class="small text-muted">${message}</div>
+                        </div>
+                        <button type="button" class="btn-close ms-3" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            // auto remove
+            setTimeout(() => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.remove();
+                }
+            }, 5000);
+        }
+
+        function getCategoryName(categoryId) {
+            if (categoryId == null) return null;
+            const cat = categories.find(c => String(c.id) === String(categoryId));
+            return cat ? cat.name : null;
+        }
+        function getAuthorName(authorId) {
+            if (authorId == null) return null;
+            const a = authors.find(x => String(x.id) === String(authorId));
+            return a ? a.name : null;
+        }
+
+        /* ---------- fetch authors & categories ---------- */
+        async function fetchAuthorsAndCategories() {
+            try {
+                const [aRes, cRes] = await Promise.all([fetch(authorsApi), fetch(categoriesApi)]);
+                if (aRes.ok) {
+                    authors = await aRes.json();
+                    populateSelect('authorSelect', authors, 'Select Author');
+                    populateSelect('editAuthor', authors, 'Select Author');
+                    document.getElementById('totalAuthors').textContent = authors.length;
+                } else {
+                    showToast('Failed to load authors', 'error');
+                }
+                if (cRes.ok) {
+                    categories = await cRes.json();
+                    populateSelect('categorySelect', categories, 'Select Category');
+                    populateSelect('editCategory', categories, 'Select Category');
+                    document.getElementById('totalCategories').textContent = categories.length;
+                } else {
+                    showToast('Failed to load categories', 'error');
+                }
+            } catch (err) {
+                console.error(err); showToast('Error loading authors/categories', 'error');
+            }
+        }
+        async function fetchCategories() {
+            try {
+                const res = await fetch('https://localhost:5001/api/admin/categories');
+                if (!res.ok) {
+                    const text = await res.text();
+                    console.error('Categories API error:', res.status, text);
+                    alert('Categories API error: ' + (text || res.status));
+                    return [];
+                }
+                return await res.json();
+            } catch (err) {
+                console.error('Fetch failed:', err);
+                alert('Network error: ' + err.message);
+                return [];
+            }
+        }
+
+        function populateSelect(selectId, items, placeholder) {
+            const sel = document.getElementById(selectId);
+            sel.innerHTML = `<option value="">${placeholder}</option>`;
+            items.forEach(it => {
+                const opt = document.createElement('option');
+                opt.value = it.id;
+                opt.textContent = it.name;
+                sel.appendChild(opt);
+            });
+        }
+
+        /* ---------- fetch books & render ---------- */
+        async function fetchBooks() {
+            try {
+                const res = await fetch(apiBase);
+                if (!res.ok) throw new Error('Failed to fetch books');
+                allBooks = await res.json();
+                renderBooksTable(allBooks);
+                updateStats();
+            } catch (err) {
+                console.error(err);
+                showToast('Error loading books', 'error');
+                renderEmptyTable();
+            }
+        }
+
+        function renderEmptyTable() {
+            const tbody = document.querySelector('#booksTable tbody');
+            tbody.innerHTML = `
+                <tr><td colspan="7" class="text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-exclamation-triangle text-warning"></i>
+                    <h5 class="text-danger">No books found</h5>
+                    <p class="text-muted">Start by adding your first book to the library.</p>
+                </div></td></tr>`;
+        }
+
+        function renderBooksTable(books) {
+            const tbody = document.querySelector('#booksTable tbody');
+            if (!books || books.length === 0) {
+                renderEmptyTable(); return;
+            }
+            tbody.innerHTML = books.map(book => {
+                // safe values & fallbacks
+                const authorName = (book.author && book.author.name) || getAuthorName(book.authorId) || 'Unknown Author';
+                const categoryName = (book.category && book.category.name) || getCategoryName(book.categoryId) || 'Uncategorized';
+                const coverHtml = book.coverImageUrl ? `<img src="${imageBase}${book.coverImageUrl}" class="book-cover" alt="${escapeHtml(book.title)}" onclick="showImageModal('${imageBase}${encodeURIComponent(book.coverImageUrl)}','${escapeJs(book.title)}')" style="cursor:pointer">` : `<div class="book-cover-placeholder"><i class="fas fa-image"></i></div>`;
+                return `
+                    <tr class="animate__animated animate__fadeIn">
+                        <td class="fw-bold text-primary">#${book.id}</td>
+                        <td>${coverHtml}</td>
+                        <td><div class="fw-bold text-dark">${escapeHtml(book.title)}</div><small class="text-muted">Book ID: ${book.id}</small></td>
+                        <td><code class="bg-light p-1 rounded">${escapeHtml(book.isbn || '')}</code></td>
+                        <td><div class="d-flex align-items-center"><i class="fas fa-user-circle text-primary me-2"></i><span class="fw-medium">${escapeHtml(authorName)}</span></div></td>
+                        <td><span class="badge bg-primary rounded-pill">${escapeHtml(categoryName)}</span></td>
+                        <td><div class="action-buttons">
+                            <button class="btn btn-sm-custom btn-warning-gradient" onclick="editBook(${book.id})" title="Edit Book"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm-custom btn-danger-gradient" onclick="showDeleteModal(${book.id})" title="Delete Book"><i class="fas fa-trash"></i></button>
+                        </div></td>
+                    </tr>`;
+            }).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalBooks').textContent = allBooks.length;
+            document.getElementById('booksWithCovers').textContent = allBooks.filter(b => b.coverImageUrl).length;
+        }
+
+        /* ---------- create book ---------- */
+        function handleFileSelect(event) {
+            const files = event.target.files || event.files;
+            const file = files && files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) { showToast('Please select image file', 'error'); return; }
+            if (file.size > 10 * 1024 * 1024) { showToast('File size must be < 10MB', 'error'); return; }
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('uploadPrompt').classList.add('d-none');
+                document.getElementById('imagePreview').classList.remove('d-none');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function changeImage() { document.getElementById('coverImageInput').click(); }
+        function removeImage() {
+            document.getElementById('coverImageInput').value = '';
+            document.getElementById('uploadPrompt').classList.remove('d-none');
+            document.getElementById('imagePreview').classList.add('d-none');
+        }
+
+        async function handleCreateSubmit(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+
+            const submitBtn = document.getElementById('submitBtn');
+            const submitBtnText = document.getElementById('submitBtnText');
+            submitBtn.disabled = true; submitBtnText.innerHTML = '<span class="loading-spinner me-2"></span>Creating...';
+
+            try {
+                const res = await fetch(apiBase, { method: 'POST', body: formData });
+                if (!res.ok) {
+                    const txt = await res.text(); throw new Error(txt || 'Failed to create book');
+                }
+                showToast('Book created successfully!', 'success');
+                resetForm(); await fetchBooks();
+            } catch (err) {
+                console.error(err); showToast('Error creating book: ' + (err.message || err), 'error');
+            } finally {
+                submitBtn.disabled = false; submitBtnText.textContent = 'Create Book';
+            }
+        }
+
+        /* ---------- edit book ---------- */
+        async function editBook(id) {
+            try {
+                const res = await fetch(`${apiBase}/${id}`);
+                if (!res.ok) throw new Error('Failed to fetch book');
+                const book = await res.json();
+                document.getElementById('editBookId').value = book.id;
+                document.getElementById('editTitle').value = book.title || '';
+                document.getElementById('editIsbn').value = book.isbn || '';
+                // preselect author/category by nested object or by id fallback
+                document.getElementById('editAuthor').value = (book.author && book.author.id) || book.authorId || '';
+                document.getElementById('editCategory').value = (book.category && book.category.id) || book.categoryId || '';
+                editModal.show();
+            } catch (err) {
+                console.error(err); showToast('Error loading book details', 'error');
+            }
+        }
+
+        async function handleEditSubmit(e) {
+            e.preventDefault();
+            const bookId = document.getElementById('editBookId').value;
+            const formData = new FormData();
+            formData.append('title', document.getElementById('editTitle').value);
+            formData.append('isbn', document.getElementById('editIsbn').value);
+            formData.append('authorId', document.getElementById('editAuthor').value);
+            formData.append('categoryId', document.getElementById('editCategory').value);
+
+            try {
+                const res = await fetch(`${apiBase}/${bookId}`, { method: 'PUT', body: formData });
+                if (!res.ok) {
+                    const txt = await res.text(); throw new Error(txt || 'Failed to update book');
+                }
+                showToast('Book updated successfully!', 'success');
+                editModal.hide(); fetchBooks();
+            } catch (err) {
+                console.error(err); showToast('Error updating book: ' + (err.message || err), 'error');
+            }
+        }
+
+        /* ---------- delete ---------- */
+        function showDeleteModal(id) {
+            bookToDelete = id;
+            const book = allBooks.find(b => String(b.id) === String(id));
+            document.getElementById('deleteBookTitle').textContent = book ? book.title : `#${id}`;
+            deleteModal.show();
+        }
+
+        async function confirmDelete() {
+            if (!bookToDelete) return;
+            const btn = document.getElementById('confirmDeleteBtn');
+            btn.disabled = true; btn.innerHTML = '<span class="loading-spinner me-2"></span>Deleting...';
+            try {
+                const res = await fetch(`${apiBase}/${bookToDelete}`, { method: 'DELETE' });
+                if (!res.ok) { const t = await res.text(); throw new Error(t || 'Failed to delete'); }
+                showToast('Book deleted successfully!', 'success');
+                deleteModal.hide(); await fetchBooks();
+            } catch (err) {
+                console.error(err); showToast('Error deleting book: ' + (err.message || err), 'error');
+            } finally {
+                btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash me-2"></i>Delete Book';
+                bookToDelete = null;
+            }
+        }
+
+        /* ---------- search & utility ---------- */
+        function handleSearch(e) {
+            const q = (e.target.value || '').toLowerCase();
+            const filtered = allBooks.filter(b =>
+                (b.title || '').toLowerCase().includes(q) ||
+                (b.isbn || '').toLowerCase().includes(q) ||
+                ((b.author && (b.author.name || '')) || getAuthorName(b.authorId) || '').toLowerCase().includes(q) ||
+                ((b.category && (b.category.name || '')) || getCategoryName(b.categoryId) || '').toLowerCase().includes(q)
+            );
+            renderBooksTable(filtered);
+        }
+
+        function resetForm() {
+            document.getElementById('createBookForm').reset();
+            document.getElementById('bookId').value = '';
+            document.getElementById('formTitle').textContent = 'Add New Book';
+            document.getElementById('submitBtnText').textContent = 'Create Book';
+            removeImage();
+        }
+
+        function escapeHtml(str) {
+            if (str == null) return '';
+            return String(str).replace(/[&<>"']/g, s => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[s]));
+        }
+        function escapeJs(str) { return escapeHtml(str).replace(/'/g, "\\'").replace(/"/g, '\\"'); }
+
+        function showImageModal(imageSrc, title) {
+            // small modal that will be removed after hide
+            const modalId = 'imageModal_' + Date.now();
+            const html = `
+                <div class="modal fade" id="${modalId}" tabindex="-1">
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content bg-transparent border-0">
+                            <div class="modal-header border-0">
+                                <h5 class="modal-title text-white">${escapeHtml(title)}</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body text-center p-0">
+                                <img src="${imageSrc}" class="img-fluid rounded" alt="${escapeHtml(title)}" style="max-height:70vh;">
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            document.body.insertAdjacentHTML('beforeend', html);
+            const modalEl = document.getElementById(modalId);
+            const bs = new bootstrap.Modal(modalEl);
+            bs.show();
+            modalEl.addEventListener('hidden.bs.modal', () => modalEl.remove());
+        }
+
+        // keyboard shorcuts
+        document.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') { e.preventDefault(); document.getElementById('titleInput').focus(); }
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') { e.preventDefault(); document.getElementById('searchInput').focus(); }
+        });
+
+    </script>
+</body>
+</html>

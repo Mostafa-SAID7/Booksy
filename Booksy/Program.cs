@@ -51,7 +51,8 @@ builder.Services.AddApplicationServices(configuration);
 var app = builder.Build();
 
 // ------------------------- Middleware -------------------------
-
+// Serve static files
+app.UseStaticFiles();
 // Enable CORS
 app.UseCustomCors();
 // Cookie settings
@@ -59,6 +60,7 @@ app.UseCustomCors();
 // Enable Swagger (for dev environment)
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {

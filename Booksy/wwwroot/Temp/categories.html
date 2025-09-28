@@ -1,0 +1,355 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Categories - Admin UI</title>
+    <style>
+        /* Simple, clean styling */
+        :root {
+            font-family: Inter,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+        }
+
+        body {
+            max-width: 1000px;
+            margin: 24px auto;
+            padding: 16px;
+            color: #111;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px
+        }
+
+        h1 {
+            font-size: 20px;
+            margin: 0
+        }
+
+        .row {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start
+        }
+
+        .card {
+            border: 1px solid #e2e8f0;
+            padding: 14px;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04)
+        }
+
+        .col {
+            flex: 1;
+            min-width: 250px
+        }
+
+        input, button, textarea, select {
+            font: inherit;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #cbd5e1
+        }
+
+        button {
+            cursor: pointer
+        }
+
+        ul {
+            padding-left: 16px
+        }
+
+        .small {
+            font-size: 13px;
+            color: #6b7280
+        }
+
+        .error {
+            color: #b91c1c
+        }
+
+        .success {
+            color: #064e3b
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px
+        }
+
+        .form-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            margin-bottom: 6px
+        }
+
+        .hidden {
+            display: none
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Admin — Categories</h1>
+        <div class="small">API base: <code>/api/admin/categories</code></div>
+    </header>
+
+    <div class="row" style="gap:16px">
+        <!-- Left column: List + single fetch -->
+        <div class="col card" style="flex:1.2">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                <strong>Categories</strong>
+                <div class="controls">
+                    <input id="tokenInput" placeholder="Bearer token (optional)" style="min-width:240px" />
+                    <button id="refreshBtn">Refresh</button>
+                </div>
+            </div>
+
+            <div style="margin-bottom:8px">
+                <label for="getId">Get category by ID</label>
+                <div style="display:flex;gap:8px">
+                    <input id="getId" placeholder="Id (int)" />
+                    <button id="getByIdBtn">Get</button>
+                    <button id="clearSelectedBtn">Clear</button>
+                </div>
+            </div>
+
+            <div id="status" class="small"></div>
+            <hr />
+
+            <div style="margin-top:12px">
+                <ul id="list" aria-live="polite"></ul>
+            </div>
+        </div>
+
+        <!-- Right column: Create / Update / Delete forms -->
+        <div class="col card">
+            <strong>Create / Update</strong>
+            <div class="small" style="margin-bottom:10px">Use the form to create a new category or update an existing one (enter ID to update).</div>
+
+            <div class="form-row">
+                <div style="flex:0 0 80px">
+                    <label for="formId">Id (for update)</label>
+                    <input id="formId" type="number" placeholder="leave empty to create" />
+                </div>
+                <div style="flex:1">
+                    <label for="name">Name</label>
+                    <input id="name" placeholder="Category name (max 100)" maxlength="100" />
+                </div>
+            </div>
+
+            <div style="display:flex;gap:8px">
+                <button id="submitBtn">Save</button>
+                <button id="deleteBtn" style="background:#fee2e2">Delete by Id</button>
+            </div>
+
+            <div id="formMsg" class="small" style="margin-top:10px"></div>
+        </div>
+    </div>
+
+    <script>
+        // Config
+        const API_BASE = 'https://localhost:5001/api/admin/categories';
+        // DOM
+        const refreshBtn = document.getElementById('refreshBtn');
+        const listEl = document.getElementById('list');
+        const statusEl = document.getElementById('status');
+        const getByIdBtn = document.getElementById('getByIdBtn');
+        const getIdInput = document.getElementById('getId');
+        const tokenInput = document.getElementById('tokenInput');
+        const submitBtn = document.getElementById('submitBtn');
+        const formId = document.getElementById('formId');
+        const nameInput = document.getElementById('name');
+        const formMsg = document.getElementById('formMsg');
+        const deleteBtn = document.getElementById('deleteBtn');
+        const clearSelectedBtn = document.getElementById('clearSelectedBtn');
+
+        // helper: build headers (with optional bearer token)
+        function buildHeaders() {
+            const headers = { 'Content-Type': 'application/json' };
+            const token = tokenInput.value.trim();
+            if (token) {
+                // If user pasted only token, allow both "token" or "Bearer token"
+                headers['Authorization'] = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+            }
+            return headers;
+        }
+
+        async function apiFetch(url, opts = {}) {
+            opts.headers = { ...(opts.headers || {}), ...buildHeaders() };
+            try {
+                const res = await fetch(url, opts);
+                const contentType = res.headers.get('Content-Type') || '';
+                const body = contentType.includes('application/json') ? await res.json() : await res.text();
+                if (!res.ok) {
+                    throw { status: res.status, body };
+                }
+                return { ok: true, status: res.status, body };
+            } catch (err) {
+                return { ok: false, err };
+            }
+        }
+
+        // UI helpers
+        function showStatus(msg, isError = false) {
+            statusEl.textContent = msg;
+            statusEl.className = isError ? 'small error' : 'small success';
+        }
+        function showFormMsg(msg, isError = false) {
+            formMsg.textContent = msg;
+            formMsg.className = isError ? 'small error' : 'small success';
+        }
+
+        // List all categories
+        async function loadAll() {
+            listEl.innerHTML = '<li class="small">Loading…</li>';
+            const r = await apiFetch(API_BASE, { method: 'GET' });
+            if (!r.ok) {
+                listEl.innerHTML = `<li class="error">Failed to load categories: ${r.err.status || ''} ${JSON.stringify(r.err.body || r.err)}</li>`;
+                showStatus('Failed to fetch categories', true);
+                return;
+            }
+            const categories = r.body;
+            listEl.innerHTML = '';
+            if (!categories || categories.length === 0) {
+                listEl.innerHTML = '<li class="small">No categories found.</li>';
+                showStatus('0 categories', false);
+                return;
+            }
+            categories.forEach(cat => {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${escapeHtml(cat.name)}</strong> <span class="small">(#${cat.id})</span>
+                            <div class="small">IsDeleted: ${cat.isDeleted}</div>
+                            <div style="margin-top:6px">
+                              <button data-id="${cat.id}" class="editBtn">Edit</button>
+                              <button data-id="${cat.id}" class="delBtn" style="margin-left:6px">Delete</button>
+                            </div>`;
+                listEl.appendChild(li);
+            });
+            attachListButtons();
+            showStatus(`${categories.length} categories loaded`);
+        }
+
+        // Get by id
+        async function getById() {
+            const id = getIdInput.value.trim();
+            if (!id) { showStatus('Enter an id to fetch', true); return; }
+            showStatus('Loading…');
+            const r = await apiFetch(`${API_BASE}/${id}`, { method: 'GET' });
+            if (!r.ok) {
+                showStatus(`Not found or error (${r.err.status})`, true);
+                return;
+            }
+            const cat = r.body;
+            // Fill form for editing
+            formId.value = cat.id;
+            nameInput.value = cat.name || '';
+            showStatus(`Loaded category #${cat.id}`);
+            // scroll to form area
+            nameInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Create or Update
+        async function save() {
+            const id = formId.value.trim();
+            const name = nameInput.value.trim();
+            formMsg.textContent = '';
+            if (!name) { showFormMsg('Name is required', true); return; }
+            const payload = { name };
+            if (!id) {
+                // Create
+                const r = await apiFetch(API_BASE, { method: 'POST', body: JSON.stringify(payload) });
+                if (!r.ok) {
+                    showFormMsg(`Create failed: ${r.err.status || ''} ${JSON.stringify(r.err.body)}`, true);
+                    return;
+                }
+                showFormMsg('Created successfully');
+                // API returns created entity in our service; if not, user will still see message
+                await loadAll();
+                // clear form
+                formId.value = '';
+                nameInput.value = '';
+            } else {
+                // Update
+                const r = await apiFetch(`${API_BASE}/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+                if (!r.ok) {
+                    showFormMsg(`Update failed: ${r.err.status || ''} ${JSON.stringify(r.err.body)}`, true);
+                    return;
+                }
+                showFormMsg('Updated successfully');
+                await loadAll();
+            }
+        }
+
+        // Delete by form id
+        async function deleteByFormId() {
+            const id = formId.value.trim();
+            if (!id) { showFormMsg('Enter an id to delete', true); return; }
+            if (!confirm(`Delete category ${id}? This action cannot be undone.`)) return;
+            const r = await apiFetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+            if (!r.ok) {
+                showFormMsg(`Delete failed: ${r.err.status || ''} ${JSON.stringify(r.err.body)}`, true);
+                return;
+            }
+            showFormMsg('Deleted successfully');
+            nameInput.value = '';
+            formId.value = '';
+            await loadAll();
+        }
+
+        // Attach edit/delete buttons for each list item
+        function attachListButtons() {
+            document.querySelectorAll('.editBtn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    getIdInput.value = id;
+                    getById(); // load and populate
+                });
+            });
+            document.querySelectorAll('.delBtn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.currentTarget.dataset.id;
+                    if (!confirm(`Delete category ${id}?`)) return;
+                    const r = await apiFetch(`${API_BASE}/${id}`, { method: 'DELETE' });
+                    if (!r.ok) {
+                        showStatus(`Delete failed: ${r.err.status || ''}`, true);
+                        return;
+                    }
+                    showStatus(`Deleted #${id}`);
+                    await loadAll();
+                });
+            });
+        }
+
+        // small helper to escape HTML
+        function escapeHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+        // event wiring
+        refreshBtn.addEventListener('click', loadAll);
+        getByIdBtn.addEventListener('click', getById);
+        clearSelectedBtn.addEventListener('click', () => {
+            formId.value = '';
+            nameInput.value = '';
+            getIdInput.value = '';
+            showStatus('');
+            formMsg.textContent = '';
+        });
+        submitBtn.addEventListener('click', save);
+        deleteBtn.addEventListener('click', deleteByFormId);
+
+        // init
+        loadAll();
+    </script>
+</body>
+</html>

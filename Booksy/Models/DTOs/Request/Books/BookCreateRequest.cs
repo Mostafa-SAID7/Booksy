@@ -21,5 +21,7 @@ namespace Booksy.Models.DTOs.Request.Books
         public int AuthorId { get; set; }
 
         public IFormFile? CoverImage { get; set; }
+        public string ISBN { get; set; } // <- Add this
+
     }
 }

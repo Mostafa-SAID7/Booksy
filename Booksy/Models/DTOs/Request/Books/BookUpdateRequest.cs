@@ -1,8 +1,27 @@
-﻿namespace Booksy.Models.DTOs.Request.Books
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Booksy.Models.DTOs.Request.Books
 {
-    public class BookUpdateRequest : BookCreateRequest
+    public class BookUpdateRequest 
     {
-        // Inherits all properties from BookCreateRequest
-        // Optional: Add extra fields if needed
+        [Required, MaxLength(200)]
+        public string Title { get; set; } = string.Empty;
+
+        [Required]
+        public decimal Price { get; set; }
+
+        public int Stock { get; set; } = 0;
+
+        public string? Description { get; set; }
+
+        [Required]
+        public int CategoryId { get; set; }
+
+        [Required]
+        public int AuthorId { get; set; }
+
+        public IFormFile? CoverImage { get; set; }
+        public string ISBN { get; set; } // <- Add this
+
     }
 }

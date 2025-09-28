@@ -11,38 +11,37 @@ namespace Booksy.Utility.Mapping
 {
     public static class MapsterConfig
     {
+     
         public static void RegisterMappings()
         {
-            TypeAdapterConfig<Book, BookResponse>.NewConfig()
-                .Map(dest => dest.CategoryName, src => src.Category.Name)
-                .Map(dest => dest.AuthorName, src => src.Author.Name)
-                .Map(dest => dest.CoverImageUrl, src => src.CoverImageUrl);
+            // Category -> CategoryResponse
+            TypeAdapterConfig<Category, CategoryResponse>
+        .NewConfig()
+        .Map(dest => dest.Id, src => src.Id)
+        .Map(dest => dest.Name, src => src.Name)
+        .Map(dest => dest.IsDeleted, src => src.IsDeleted)
+        .Map(dest => dest.Books, src => src.Books.Adapt<List<BookResponse>>());
 
-            TypeAdapterConfig<BookCreateRequest, Book>.NewConfig()
-                .Ignore(dest => dest.Id); // Id is generated in DB
+            // CategoryRequest -> Category
+            TypeAdapterConfig<CategoryCreateRequest, Category>
+                .NewConfig()
+                .Map(dest => dest.Name, src => src.Name);
 
-            TypeAdapterConfig<BookUpdateRequest, Book>.NewConfig()
-                .Ignore(dest => dest.Id); // Set manually in controller
-        }
-        public static void RegisterAuthorMappings()
-        {
-            TypeAdapterConfig<Author, AuthorResponse>.NewConfig()
-                .Map(dest => dest.BookCount, src => src.Books.Count);
+            TypeAdapterConfig<Book, BookResponse>
+                .NewConfig()
+                .Map(dest => dest.Id, src => src.Id)
+                .Map(dest => dest.Title, src => src.Title)
+                .Map(dest => dest.Author, src => src.Author)
+                .Map(dest => dest.CoverImageUrl, src => src.CoverImageUrl)
+                .Ignore(dest => dest.Category); // avoid circular reference
 
-            TypeAdapterConfig<AuthorCreateRequest, Author>.NewConfig()
-                .Ignore(dest => dest.Id)
-                .Ignore(dest => dest.Books);
-        }
-        public static void RegisterCategoryMappings()
-        {
-            TypeAdapterConfig<Category, CategoryResponse>.NewConfig()
-                .Map(dest => dest.BookCount, src => src.Books.Count);
+            TypeAdapterConfig<BookCreateRequest, Book>
+                .NewConfig()
+                .Ignore(dest => dest.Id); // Id generated in DB
 
-            TypeAdapterConfig<CategoryCreateRequest, Category>.NewConfig()
-                .Ignore(dest => dest.Id)
-                .Ignore(dest => dest.Books);
-
-         
+            TypeAdapterConfig<BookUpdateRequest, Book>
+                .NewConfig()
+                .Ignore(dest => dest.Id);
         }
     }
 }
