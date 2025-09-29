@@ -13,7 +13,6 @@ namespace Booksy.Extensions
             {
                 options.AddPolicy(name: PolicyName, policy =>
                 {
-                    // Specify your frontend origin(s)
                     policy.WithOrigins(allowedOrigins) 
                           .AllowAnyMethod()
                           .AllowAnyHeader()
