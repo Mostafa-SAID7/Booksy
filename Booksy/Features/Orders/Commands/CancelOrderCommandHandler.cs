@@ -3,7 +3,7 @@ using Booksy.Core.Interfaces;
 using Booksy.Models.Entities.Orders;
 using Booksy.Models.Enums;
 using Booksy.Repositories.IRepositories;
-using Booksy.Common.Services;
+using Booksy.Security;
 using Microsoft.Extensions.Logging;
 using MediatR;
 
@@ -46,7 +46,7 @@ public class CancelOrderCommandHandler : ICommandHandler<CancelOrderCommand, Uni
                 "Unauthorized cancel attempt: User {UserId} tried to cancel Order {OrderId}",
                 request.UserId,
                 request.OrderId);
-            throw new AuthorizationException($"You are not authorized to cancel this order");
+            throw new Booksy.Core.Exceptions.AuthorizationException($"You are not authorized to cancel this order");
         }
 
         // Verify order can be canceled

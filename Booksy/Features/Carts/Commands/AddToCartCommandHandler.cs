@@ -3,7 +3,7 @@ using Booksy.Core.Interfaces;
 using Booksy.Models.Entities.Books;
 using Booksy.Models.Entities.Users;
 using Booksy.Repositories.IRepositories;
-using Booksy.Common.Services;
+using Booksy.Security;
 using Microsoft.Extensions.Logging;
 using MediatR;
 

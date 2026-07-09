@@ -3,10 +3,14 @@ using Booksy.Models.Entities.Users;
 using Booksy.Utility.DBInitializer;
 using Booksy.Utility.Settings;
 using Booksy.Common.Extensions;
+using Booksy.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Threading.RateLimiting;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,12 +45,7 @@ builder.Services.AddControllers(options =>
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
 // Request size limits
-builder.Services.Configure<Microsoft.AspNetCore.Server.IISServerOptions>(options =>
-{
-    options.MaxRequestBodySize = 10 * 1024 * 1024;  // 10 MB
-});
-
-builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
+builder.Services.Configure<KestrelServerOptions>(options =>
 {
     options.Limits.MaxRequestBodySize = 10 * 1024 * 1024;  // 10 MB
 });
@@ -57,30 +56,30 @@ builder.Services.AddMemoryCache();
 // Rate limiting
 builder.Services.AddRateLimiter(options =>
 {
-    options.GlobalLimiter = Microsoft.AspNetCore.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        Microsoft.AspNetCore.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.User.Identity?.Name 
-                ?? context.Connection.RemoteIpAddress?.ToString() 
-                ?? "anonymous",
-            factory: _ => new Microsoft.AspNetCore.RateLimiting.FixedWindowRateLimiterOptions
-            {
-                AutoReplenishment = true,
-                PermitLimit = 100,
-                Window = TimeSpan.FromMinutes(1)
-            }));
-
-    // Strict limits for authentication endpoints (prevent brute force)
-    options.AddPolicy("auth-limit", context =>
-        Microsoft.AspNetCore.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-            factory: _ => new Microsoft.AspNetCore.RateLimiting.FixedWindowRateLimiterOptions
-            {
-                AutoReplenishment = true,
-                PermitLimit = 5,
-                Window = TimeSpan.FromMinutes(1)
-            }));
+    // Global limiter - 100 requests per minute per user/IP
+    options.OnRejected = async (context, _) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        await context.HttpContext.Response.WriteAsync("Rate limit exceeded");
+    };
 
     options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    
+    // Add default fixed window limiter
+    options.AddFixedWindowLimiter(policyName: "fixed", options =>
+    {
+        options.PermitLimit = 100;
+        options.Window = TimeSpan.FromMinutes(1);
+        options.AutoReplenishment = true;
+    });
+
+    // Strict policy for auth endpoints
+    options.AddFixedWindowLimiter(policyName: "auth-limit", options =>
+    {
+        options.PermitLimit = 5;
+        options.Window = TimeSpan.FromMinutes(1);
+        options.AutoReplenishment = true;
+    });
 });
 
 // Add Custom CORS

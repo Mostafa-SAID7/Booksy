@@ -21,7 +21,6 @@ namespace Booksy.Extensions
                           .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
                           .WithHeaders("Content-Type", "Authorization", "X-Requested-With")
                           .WithExposedHeaders("X-Total-Count", "X-Total-Pages")
-                          .WithMaxAge(3600)
                           .AllowCredentials();
                 });
             });

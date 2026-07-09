@@ -1,3 +1,6 @@
+using Booksy.Core.Exceptions;
+using Microsoft.Extensions.Logging;
+
 namespace Booksy.Security
 {
     /// <summary>
@@ -34,7 +37,7 @@ namespace Booksy.Security
             if (string.IsNullOrWhiteSpace(value))
             {
                 logger?.LogWarning("{FieldName} is empty or null", fieldName);
-                throw new ValidationException(fieldName, $"{fieldName} cannot be empty");
+                throw new ValidationException(new Dictionary<string, string[]> { { fieldName, new[] { $"{fieldName} cannot be empty" } } });
             }
             return value;
         }
@@ -52,15 +55,14 @@ namespace Booksy.Security
             if (string.IsNullOrWhiteSpace(value))
             {
                 logger?.LogWarning("{FieldName} is empty", fieldName);
-                throw new ValidationException(fieldName, $"{fieldName} cannot be empty");
+                throw new ValidationException(new Dictionary<string, string[]> { { fieldName, new[] { $"{fieldName} cannot be empty" } } });
             }
 
             if (value.Length < minLength || value.Length > maxLength)
             {
                 logger?.LogWarning("{FieldName} length {Length} not in range [{Min}, {Max}]",
                     fieldName, value.Length, minLength, maxLength);
-                throw new ValidationException(fieldName,
-                    $"{fieldName} must be between {minLength} and {maxLength} characters");
+                throw new ValidationException(new Dictionary<string, string[]> { { fieldName, new[] { $"{fieldName} must be between {minLength} and {maxLength} characters" } } });
             }
             return value;
         }
@@ -76,7 +78,7 @@ namespace Booksy.Security
             if (id == Guid.Empty)
             {
                 logger?.LogWarning("{FieldName} is empty GUID", fieldName);
-                throw new ValidationException(fieldName, $"{fieldName} cannot be empty");
+                throw new ValidationException(new Dictionary<string, string[]> { { fieldName, new[] { $"{fieldName} cannot be empty" } } });
             }
             return id;
         }
@@ -109,7 +111,7 @@ namespace Booksy.Security
             if (value <= 0)
             {
                 logger?.LogWarning("{FieldName} value {Value} is not positive", fieldName, value);
-                throw new ValidationException(fieldName, $"{fieldName} must be greater than 0");
+                throw new ValidationException(new Dictionary<string, string[]> { { fieldName, new[] { $"{fieldName} must be greater than 0" } } });
             }
             return value;
         }
@@ -128,8 +130,7 @@ namespace Booksy.Security
             {
                 logger?.LogWarning("{FieldName} value {Value} not in range [{Min}, {Max}]",
                     fieldName, value, min, max);
-                throw new ValidationException(fieldName,
-                    $"{fieldName} must be between {min} and {max}");
+                throw new ValidationException(new Dictionary<string, string[]> { { fieldName, new[] { $"{fieldName} must be between {min} and {max}" } } });
             }
             return value;
         }

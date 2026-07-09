@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.Logging;
 
 namespace Booksy.Security
 {
@@ -11,7 +12,6 @@ namespace Booksy.Security
     public class IpRestrictionAttribute : Attribute, IAsyncAuthorizationFilter
     {
         private readonly string[] _allowedIps;
-        private readonly ILogger<IpRestrictionAttribute> _logger;
 
         public IpRestrictionAttribute(params string[] allowedIps)
         {
@@ -20,14 +20,14 @@ namespace Booksy.Security
 
         public async Task OnAuthorizationAsync(AuthorizationFilterContext context)
         {
-            _logger = context.HttpContext.RequestServices
+            var logger = context.HttpContext.RequestServices
                 .GetRequiredService<ILogger<IpRestrictionAttribute>>();
 
             var remoteIp = context.HttpContext.Connection.RemoteIpAddress?.ToString();
 
             if (string.IsNullOrEmpty(remoteIp) || !IsIpAllowed(remoteIp))
             {
-                _logger.LogWarning(
+                logger.LogWarning(
                     "IP restriction violation: Request from {RemoteIp} blocked from accessing {Path}",
                     remoteIp, context.HttpContext.Request.Path);
 
@@ -35,7 +35,7 @@ namespace Booksy.Security
                 return;
             }
 
-            _logger.LogInformation(
+            logger.LogInformation(
                 "IP restriction check passed: {RemoteIp} allowed to access {Path}",
                 remoteIp, context.HttpContext.Request.Path);
 

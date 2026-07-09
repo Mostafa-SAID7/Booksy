@@ -4,7 +4,7 @@ using Booksy.Core.Exceptions;
 using Booksy.Core.Interfaces;
 using Booksy.Models.Entities.Books;
 using Booksy.Repositories.IRepositories;
-using Booksy.Common.Services;
+using Booksy.Security;
 using Microsoft.Extensions.Logging;
 
 namespace Booksy.Features.Reviews.Commands;
@@ -49,7 +49,7 @@ public class UpdateReviewCommandHandler : ICommandHandler<UpdateReviewCommand, U
                 "Unauthorized review update attempt: User {UserId} tried to update Review {ReviewId}",
                 request.UserId,
                 request.Id);
-            throw new AuthorizationException($"You are not authorized to update this review");
+            throw new Booksy.Core.Exceptions.AuthorizationException($"You are not authorized to update this review");
         }
 
         // Update review fields

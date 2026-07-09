@@ -2,7 +2,7 @@
 using Booksy.Core.Interfaces;
 using Booksy.Models.Entities.Orders;
 using Booksy.Repositories.IRepositories;
-using Booksy.Common.Services;
+using Booksy.Security;
 using Microsoft.Extensions.Logging;
 using MediatR;
 
@@ -45,7 +45,7 @@ public class UpdateOrderStatusCommandHandler : ICommandHandler<UpdateOrderStatus
                 "Unauthorized status update attempt: User {UserId} tried to update Order {OrderId}",
                 request.UserId,
                 request.OrderId);
-            throw new AuthorizationException($"You are not authorized to update this order");
+            throw new Booksy.Core.Exceptions.AuthorizationException($"You are not authorized to update this order");
         }
 
         // Update order status

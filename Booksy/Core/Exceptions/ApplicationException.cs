@@ -77,6 +77,14 @@ public class UnauthorizedException : ApplicationException
 }
 
 /// <summary>
+/// Exception thrown when user lacks permission for operation
+/// </summary>
+public class AuthorizationException : ApplicationException
+{
+    public AuthorizationException(string message) : base(message) { }
+}
+
+/// <summary>
 /// Exception thrown for forbidden operations
 /// </summary>
 public class ForbiddenException : ApplicationException

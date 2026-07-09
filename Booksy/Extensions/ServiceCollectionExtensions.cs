@@ -102,7 +102,7 @@ namespace Booksy.Extensions
             services.AddScoped<ISlugService, SlugService>();
             
             // Authorization Service - Security & access control
-            services.AddScoped<Booksy.Common.Services.IAuthorizationService, Booksy.Common.Services.AuthorizationService>();
+            services.AddScoped<Booksy.Security.IAuthorizationService, Booksy.Security.AuthorizationService>();
             
             // File Upload Service
             services.AddScoped<IFileUploadService, FileUploadService>();

@@ -16,13 +16,15 @@
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
 		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.9" />
 
-		<!-- JSON / Patch / MVC -->
-		<PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="9.0.9" />
+		<!-- JSON / MVC -->
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.9" />
 
+		<!-- Rate Limiting -->
+		<PackageReference Include="Microsoft.AspNetCore.RateLimiting" Version="9.0.9" />
+
 		<!-- OpenAPI / Swagger -->
-		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.2" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
+		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
 
 		<!-- Entity Framework Core -->
 		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.9" />
@@ -33,19 +35,11 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 
-		<!-- Third-Party Libraries -->
+		<!-- Payment & Third-Party -->
 		<PackageReference Include="Stripe.net" Version="48.5.0" />
-		<PackageReference Include="Mapster" Version="7.4.0" />
-		<PackageReference Include="Scalar.AspNetCore" Version="2.8.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="9.0.4" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Areas\Customer\Mappers\" />
-		<Folder Include="Areas\Customer\Services\" />
-		<Folder Include="Areas\Identity\Mappers\" />
-		<Folder Include="Areas\Identity\Services\" />
-		<Folder Include="Mappers\" />
 		<Folder Include="wwwroot\images\" />
 		<Folder Include="wwwroot\css\" />
 		<Folder Include="wwwroot\js\" />

@@ -3,7 +3,7 @@ using Booksy.Core.Exceptions;
 using Booksy.Core.Interfaces;
 using Booksy.Models.Entities.Books;
 using Booksy.Repositories.IRepositories;
-using Booksy.Common.Services;
+using Booksy.Security;
 using Microsoft.Extensions.Logging;
 
 namespace Booksy.Features.Reviews.Commands;
@@ -45,7 +45,7 @@ public class DeleteReviewCommandHandler : ICommandHandler<DeleteReviewCommand, U
                 "Unauthorized review delete attempt: User {UserId} tried to delete Review {ReviewId}",
                 request.UserId,
                 request.Id);
-            throw new AuthorizationException($"You are not authorized to delete this review");
+            throw new Booksy.Core.Exceptions.AuthorizationException($"You are not authorized to delete this review");
         }
 
         // Delete from repository
