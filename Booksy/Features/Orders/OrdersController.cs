@@ -97,7 +97,7 @@ public class OrdersController : ControllerBase
     /// <param name="id">Order ID</param>
     /// <param name="command">Update command</param>
     /// <returns>No content on success</returns>
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpPut("{id:guid}/status")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
@@ -106,12 +106,21 @@ public class OrdersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateOrderStatusCommand command)
     {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
         command.OrderId = id;
+        command.UserId = userId;
 
         try
         {
             await _mediator.Send(command);
             return NoContent();
+        }
+        catch (Core.Exceptions.AuthorizationException ex)
+        {
+            return Forbid();
         }
         catch (Core.Exceptions.NotFoundException ex)
         {
@@ -138,10 +147,18 @@ public class OrdersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Cancel(Guid id)
     {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
         try
         {
-            await _mediator.Send(new CancelOrderCommand { OrderId = id });
+            await _mediator.Send(new CancelOrderCommand { OrderId = id, UserId = userId });
             return NoContent();
+        }
+        catch (Core.Exceptions.AuthorizationException ex)
+        {
+            return Forbid();
         }
         catch (Core.Exceptions.NotFoundException ex)
         {

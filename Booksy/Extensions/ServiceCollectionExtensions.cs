@@ -47,8 +47,20 @@ namespace Booksy.Extensions
             // Identity
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
             {
-                option.Password.RequiredLength = 6;
-                option.Password.RequireNonAlphanumeric = false;
+                // Password requirements - stronger policy
+                option.Password.RequiredLength = 12;
+                option.Password.RequireDigit = true;
+                option.Password.RequireLowercase = true;
+                option.Password.RequireUppercase = true;
+                option.Password.RequireNonAlphanumeric = true;
+                option.Password.RequiredUniqueChars = 4;
+                
+                // Lockout policy - prevent brute force
+                option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+                option.Lockout.MaxFailedAccessAttempts = 5;
+                option.Lockout.AllowedForNewUsers = true;
+                
+                // User requirements
                 option.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -89,6 +101,9 @@ namespace Booksy.Extensions
             // Slug Service - Centralized slug generation
             services.AddScoped<ISlugService, SlugService>();
             
+            // Authorization Service - Security & access control
+            services.AddScoped<Booksy.Common.Services.IAuthorizationService, Booksy.Common.Services.AuthorizationService>();
+            
             // File Upload Service
             services.AddScoped<IFileUploadService, FileUploadService>();
 
@@ -98,6 +113,12 @@ namespace Booksy.Extensions
 
             // Email Sender
             services.AddTransient<IEmailSender, EmailSender>();
+
+            // Monitoring Service
+            services.AddScoped<Booksy.Infrastructure.Monitoring.IMonitoringService, Booksy.Infrastructure.Monitoring.MonitoringService>();
+            
+            // Alerting Service
+            services.AddScoped<Booksy.Infrastructure.Monitoring.IAlertingService, Booksy.Infrastructure.Monitoring.AlertingService>();
 
             // Stripe Config
             services.Configure<StripeSettings>(configuration.GetSection("Stripe"));

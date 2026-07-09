@@ -26,7 +26,8 @@ namespace Booksy.Extensions
             })
             .AddJwtBearer(o =>
             {
-                o.RequireHttpsMetadata = false;
+                // Only require HTTPS in production (safe in dev with self-signed certs)
+                o.RequireHttpsMetadata = !Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Equals("Development", StringComparison.OrdinalIgnoreCase) ?? true;
                 o.SaveToken = true;
                 o.TokenValidationParameters = new TokenValidationParameters()
                 {

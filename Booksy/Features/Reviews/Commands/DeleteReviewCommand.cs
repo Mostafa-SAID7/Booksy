@@ -9,4 +9,10 @@ namespace Booksy.Features.Reviews.Commands;
 public class DeleteReviewCommand : ICommand<Unit>
 {
     public Guid Id { get; set; }
+
+    /// <summary>
+    /// The ID of the user deleting the review
+    /// Used for ownership validation
+    /// </summary>
+    public string UserId { get; set; }
 }

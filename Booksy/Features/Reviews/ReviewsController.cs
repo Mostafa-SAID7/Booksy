@@ -167,12 +167,21 @@ public class ReviewsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Update(Guid id, [FromBody] UpdateReviewCommand command)
     {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
         command.Id = id;
+        command.UserId = userId;
 
         try
         {
             await _mediator.Send(command);
             return NoContent();
+        }
+        catch (Core.Exceptions.AuthorizationException ex)
+        {
+            return Forbid();
         }
         catch (Core.Exceptions.NotFoundException ex)
         {
@@ -190,7 +199,7 @@ public class ReviewsController : ControllerBase
     /// </summary>
     /// <param name="id">Review ID</param>
     /// <returns>No content on success</returns>
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     [HttpDelete("{id:guid}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(Result), StatusCodes.Status404NotFound)]
@@ -199,10 +208,18 @@ public class ReviewsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> Delete(Guid id)
     {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
         try
         {
-            await _mediator.Send(new DeleteReviewCommand { Id = id });
+            await _mediator.Send(new DeleteReviewCommand { Id = id, UserId = userId });
             return NoContent();
+        }
+        catch (Core.Exceptions.AuthorizationException ex)
+        {
+            return Forbid();
         }
         catch (Core.Exceptions.NotFoundException ex)
         {

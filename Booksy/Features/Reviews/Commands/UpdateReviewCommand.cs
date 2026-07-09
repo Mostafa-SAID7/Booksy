@@ -13,4 +13,10 @@ public class UpdateReviewCommand : ICommand<Unit>
     public int Rating { get; set; }
 
     public string? Comment { get; set; }
+
+    /// <summary>
+    /// The ID of the user updating the review
+    /// Used for ownership validation
+    /// </summary>
+    public string UserId { get; set; }
 }

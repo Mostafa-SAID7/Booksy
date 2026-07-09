@@ -80,6 +80,14 @@ public class CartsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<IActionResult> AddToCart([FromBody] AddToCartCommand command)
     {
+        var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+            return Unauthorized();
+
+        // Verify user is adding to their own cart
+        if (command.UserId != userId)
+            return Forbid();
+
         try
         {
             await _mediator.Send(command);

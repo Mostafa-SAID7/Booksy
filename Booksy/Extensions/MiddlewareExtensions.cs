@@ -1,4 +1,5 @@
 using Booksy.Middleware;
+using Booksy.Security;
 
 namespace Booksy.Extensions
 {
@@ -35,6 +36,9 @@ namespace Booksy.Extensions
         {
             // Exception handling first (outermost) - global safety net
             app.UseExceptionHandling();
+            
+            // Security headers must be early in the pipeline
+            app.UseSecurityHeaders();
 
             return app;
         }

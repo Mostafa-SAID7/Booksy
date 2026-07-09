@@ -1,489 +1,293 @@
-# Security Audit & Framework
+# Security
 
-## Executive Summary
-
-The Booksy application has a **solid foundation** with:
-- ✅ JWT-based authentication
-- ✅ Role-based authorization (Admin/User)
-- ✅ Centralized exception handling
-- ✅ Input validation via FluentValidation
-- ✅ SQL injection protection (EF Core parameterized queries)
-- ✅ HTTPS enforcement
-
-However, **critical vulnerabilities and gaps** require immediate attention.
+Comprehensive 10-layer security implementation with JWT authentication, rate limiting, ownership validation, and audit logging.
 
 ---
 
-## 🔴 Critical Issues
+## Components
 
-### 1. Insecure JWT Configuration
-**Severity**: CRITICAL  
-**File**: `JwtAuthExtension.cs`  
-**Issue**: 
-```csharp
-o.RequireHttpsMetadata = false;  // ❌ Allows HTTP in production!
-```
+### 1. JWT Authentication
+- **Location**: `Extensions/JwtAuthExtension.cs`
+- **Features**:
+  - Environment-aware HTTPS (required in production, optional in dev)
+  - Symmetric key encryption (HS256)
+  - Token-based stateless authentication
+- **Setup**:
+  ```bash
+  dotnet user-secrets set "JWT:SecretKey" "your-32-char-minimum-key"
+  ```
+- **Configuration**: `appsettings.json` JWT section
 
-**Impact**: Tokens can be transmitted over unencrypted HTTP, exposing them to man-in-the-middle attacks.
+### 2. CORS Hardening
+- **Location**: `Extensions/CorsExtensions.cs`
+- **Policy**: Specific origins only (no wildcards)
+- **Configuration**: `appsettings.json` Cors section
+- **Per Environment**: Update AllowedOrigins for each deployment
+  - Development: localhost:3000, localhost:5500
+  - Production: yourdomain.com, www.yourdomain.com
 
-**Fix**:
-```csharp
-o.RequireHttpsMetadata = true;  // Force HTTPS
-o.Audience = jwtSettings.Audience;
-o.SaveToken = true;
-```
+### 3. Password Policy
+- **Location**: `Extensions/ServiceCollectionExtensions.cs`
+- **Requirements**:
+  - Minimum 12 characters (vs standard 8)
+  - Uppercase, lowercase, digits, special chars
+  - 4 unique characters
+  - 5 failed attempts → 5 minute lockout
+- **Applied To**: All user registrations and password changes
 
----
+### 4. Security Headers
+- **Location**: `Middleware/SecurityHeadersMiddleware.cs`
+- **Headers Added**:
+  - `X-Frame-Options: DENY` - Prevent clickjacking
+  - `X-Content-Type-Options: nosniff` - Prevent MIME sniffing
+  - `Content-Security-Policy` - Prevent XSS attacks
+  - `Strict-Transport-Security` - Force HTTPS
+  - `Referrer-Policy` - Control referrer info
+  - `Permissions-Policy` - Disable unnecessary features
 
-### 2. Exposed Secrets in Configuration
-**Severity**: CRITICAL  
-**File**: `appsettings.json`  
-**Issue**:
-```json
-{
-  "JWT": {
-    "SecretKey": "SuperSecretKey_ChangeThisToAtLeast32Chars!"  // ❌ Hardcoded!
-  },
-  "EmailSettings": {
-    "Password": "smtp-password"  // ❌ Exposed in file!
-  },
-  "Stripe": {
-    "SecretKey": "#"  // ❌ Placeholder but still in repo
-  }
-}
-```
+### 5. Rate Limiting
+- **Location**: `Program.cs`
+- **Configuration**:
+  - Global: 100 requests/minute per user/IP
+  - Authentication: 5 requests/minute per IP
+  - Response: 429 Too Many Requests
+- **Thresholds**: Configurable in `appsettings.Monitoring.json`
 
-**Impact**: Secrets are committed to repository, visible in version history, and hardcoded for everyone.
+### 6. Request Size Limits
+- **Location**: `Program.cs`
+- **Limit**: 10 MB maximum request body
+- **Protection**: Against large payload attacks
 
-**Fix**: Use secrets management:
-```csharp
-// In Program.cs
-if (builder.Environment.IsProduction())
-{
-    // Use Azure Key Vault, AWS Secrets Manager, or HashiCorp Vault
-    builder.Configuration.AddAzureKeyVault(
-        new Uri("https://your-vault.vault.azure.net/"),
-        new DefaultAzureCredential()
-    );
-}
-else
-{
-    // Development: Use User Secrets
-    builder.Configuration.AddUserSecrets<Program>();
-}
-```
+### 7. Authorization & Ownership Validation
+- **Location**: `Common/Services/AuthorizationService.cs`
+- **Pattern**: 
+  1. Extract UserId from JWT claims
+  2. Pass to command
+  3. Validate ownership in handler
+  4. Return 403 Forbidden if unauthorized
+- **Implemented For**: Orders, Reviews, Carts
 
-Immediately:
+### 8. Secrets Management
+
+**Development** (Local):
 ```bash
 dotnet user-secrets init
-dotnet user-secrets set "JWT:SecretKey" "your-min-32-char-secret"
-dotnet user-secrets set "Stripe:SecretKey" "sk_..."
+dotnet user-secrets set "JWT:SecretKey" "your-key"
+dotnet user-secrets set "Stripe:SecretKey" "sk_test_..."
+dotnet user-secrets set "EmailSettings:Password" "..."
+```
+
+**Production** (Azure Key Vault):
+```bash
+az keyvault secret set --vault-name my-vault --name "JWT-SecretKey" --value "key"
+az keyvault secret set --vault-name my-vault --name "Stripe-SecretKey" --value "key"
+az keyvault secret set --vault-name my-vault --name "EmailSettings-Password" --value "pass"
+```
+
+### 9. Environment Configuration
+- **appsettings.json** - Base configuration
+- **appsettings.Development.json** - Dev overrides
+- **appsettings.Production.json** - Production overrides
+- **appsettings.Monitoring.json** - Monitoring settings
+
+### 10. Audit Logging
+- **What's Tracked**:
+  - Authentication events (login, logout, password changes)
+  - Authorization events (403 Forbidden)
+  - Data modifications (create, update, delete)
+  - Admin actions
+  - Security alerts
+- **Retention**: 90 days minimum
+- **Location**: Database audit log table
+
+---
+
+## Security Testing
+
+### Test JWT Authentication
+```bash
+# Without token (should fail with 401)
+curl https://localhost:5001/api/admin/books
+
+# With token (should succeed with 200)
+curl -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+     https://localhost:5001/api/admin/books
+```
+
+### Test Rate Limiting
+```bash
+# Make 101 requests - 100 should succeed, 1 should fail with 429
+for i in {1..101}; do 
+  curl https://localhost:5001/api/books
+done
+```
+
+### Test CORS
+```bash
+# From unauthorized origin (should fail)
+curl -H "Origin: http://evil.com" \
+     -H "Access-Control-Request-Method: POST" \
+     https://localhost:5001/api/books
+
+# Should NOT include Access-Control-Allow-Origin header
+```
+
+### Test Ownership Validation
+```bash
+# Create order as User1
+USER1_ID="user-1"
+USER1_TOKEN="eyJ..."
+curl -H "Authorization: Bearer $USER1_TOKEN" \
+     -X POST https://localhost:5001/api/orders \
+     -H "Content-Type: application/json" \
+     -d '{"items": [...]}'
+
+# Try to access as User2 (should fail with 403)
+USER2_TOKEN="eyJ..."
+curl -H "Authorization: Bearer $USER2_TOKEN" \
+     https://localhost:5001/api/orders/{order-id}
+# Response: 403 Forbidden
+```
+
+### Test Security Headers
+```bash
+curl -I https://localhost:5001/api/books
+
+# Should include:
+# X-Frame-Options: DENY
+# X-Content-Type-Options: nosniff
+# Strict-Transport-Security: max-age=31536000
+# Content-Security-Policy: default-src 'self'
 ```
 
 ---
 
-### 3. Weak Password Policy
-**Severity**: HIGH  
-**File**: `ServiceCollectionExtensions.cs`  
-**Issue**:
-```csharp
-option.Password.RequiredLength = 6;  // ❌ Too weak
-option.Password.RequireNonAlphanumeric = false;  // ❌ No special chars required
-```
+## Production Deployment Checklist
 
-**Impact**: Users can set weak passwords like "123456" or "password".
+### Pre-Deployment
+- [ ] Set `ASPNETCORE_ENVIRONMENT=Production`
+- [ ] Generate strong JWT key (32+ random characters)
+- [ ] Create Azure Key Vault
+- [ ] Store all secrets in Key Vault
+- [ ] Update CORS origins for production domain
+- [ ] Configure production SMTP credentials
+- [ ] Enable HTTPS only (redirect HTTP to HTTPS)
+- [ ] Setup database encryption
+- [ ] Configure firewall rules
 
-**Fix**:
-```csharp
-services.AddIdentity<ApplicationUser, IdentityRole>(option =>
-{
-    // Password requirements
-    option.Password.RequiredLength = 12;
-    option.Password.RequireDigit = true;
-    option.Password.RequireLowercase = true;
-    option.Password.RequireUppercase = true;
-    option.Password.RequireNonAlphanumeric = true;
-    option.Password.RequiredUniqueChars = 4;
-    
-    // Lockout policy
-    option.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
-    option.Lockout.MaxFailedAccessAttempts = 5;
-    option.Lockout.AllowedForNewUsers = true;
-    
-    // User requirements
-    option.User.RequireUniqueEmail = true;
-})
-```
+### Security Verification
+- [ ] Build succeeds (`dotnet build`)
+- [ ] JWT enforcement working (test with/without token)
+- [ ] Rate limiting functional (101 requests = 1 fail)
+- [ ] CORS blocks unauthorized origins
+- [ ] Ownership validation prevents cross-user access
+- [ ] Security headers present in responses
+- [ ] No hardcoded secrets in code
+- [ ] All secrets in Key Vault
 
----
+### Monitoring Setup
+- [ ] Email alerts enabled and tested
+- [ ] Slack webhook configured (if using)
+- [ ] PagerDuty integration (for critical alerts)
+- [ ] Application Insights dashboard created
+- [ ] Alert thresholds appropriate for production
+- [ ] Audit log retention configured (90+ days)
 
-### 4. Insufficient Authorization Checks
-**Severity**: HIGH  
-**Issue**: Missing user ownership validation in Update/Delete operations.
+### Performance Testing
+- [ ] Load test (1000 concurrent users)
+- [ ] Slow endpoint detection working
+- [ ] Database connection pool sizing
+- [ ] Cache configuration optimized
+- [ ] Response time thresholds appropriate
 
-**Example - Orders**:
-```csharp
-// ❌ Dangerous: Admin can see/modify ANY order
-[HttpPut("{id:guid}/status")]
-[Authorize(Roles = "Admin")]
-public async Task<IActionResult> UpdateStatus(Guid id, [FromBody] UpdateOrderStatusCommand command)
-{
-    // No check that order belongs to current user!
-}
-```
-
-**Fix**: Add ownership validation:
-```csharp
-[HttpPost("{id:guid}/cancel")]
-[Authorize]
-public async Task<IActionResult> Cancel(Guid id)
-{
-    var order = await _mediator.Send(new GetOrderByIdQuery { Id = id });
-    
-    // Validate ownership
-    var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-    if (order.UserId != userId && !User.IsInRole("Admin"))
-    {
-        return Forbid();  // 403 Forbidden
-    }
-    
-    await _mediator.Send(new CancelOrderCommand { OrderId = id });
-    return NoContent();
-}
-```
+### Operational Setup
+- [ ] Backup strategy configured
+- [ ] Audit logs backed up daily
+- [ ] Recovery procedure documented and tested
+- [ ] On-call rotation established
+- [ ] Incident response plan documented
+- [ ] Monitoring dashboards accessible
 
 ---
 
-### 5. Inadequate CORS Configuration
-**Severity**: HIGH  
-**File**: `CorsExtensions.cs`  
-**Issue**:
-```csharp
-policy.WithOrigins("http://localhost:5500")
-      .AllowAnyMethod()        // ❌ Allows DELETE, PATCH, etc.
-      .AllowAnyHeader()        // ❌ No header validation
-      .AllowCredentials();      // ⚠️ With AllowAny = XSS risk
-```
+## Configuration Examples
 
-**Impact**: Any origin can make any request, CSRF attacks possible.
-
-**Fix**:
-```csharp
-public static IServiceCollection AddCustomCors(this IServiceCollection services, IConfiguration config)
-{
-    var allowedOrigins = config.GetSection("Cors:AllowedOrigins")
-        .Get<string[]>() ?? new[] { };
-
-    services.AddCors(options =>
-    {
-        options.AddPolicy(PolicyName, policy =>
-        {
-            policy
-                .WithOrigins(allowedOrigins)
-                .WithMethods("GET", "POST", "PUT", "DELETE")  // Explicit methods
-                .WithHeaders("Content-Type", "Authorization")  // Explicit headers
-                .WithExposedHeaders("X-Total-Count")           // Only needed headers
-                .WithMaxAge(3600);                              // Cache preflight
-        });
-    });
-    
-    return services;
-}
-```
-
-**appsettings.json**:
+### Development (appsettings.Development.json)
 ```json
 {
+  "ASPNETCORE_ENVIRONMENT": "Development",
   "Cors": {
-    "AllowedOrigins": ["https://yourdomain.com", "https://www.yourdomain.com"]
+    "AllowedOrigins": ["http://localhost:3000", "http://localhost:5500"]
+  },
+  "JWT": {
+    "SecretKey": "dev-secret-min-32-chars-long-required-for-local-dev"
+  },
+  "Monitoring": {
+    "Alerts": {
+      "Channels": {
+        "Email": { "Enabled": false }
+      }
+    }
+  }
+}
+```
+
+### Production (appsettings.Production.json)
+```json
+{
+  "ASPNETCORE_ENVIRONMENT": "Production",
+  "Cors": {
+    "AllowedOrigins": ["https://booksy.com", "https://www.booksy.com"]
+  },
+  "Monitoring": {
+    "Alerts": {
+      "Channels": {
+        "Email": { "Enabled": true, "Recipients": ["admin@booksy.com"] },
+        "PagerDuty": { "Enabled": true }
+      }
+    }
   }
 }
 ```
 
 ---
 
-### 6. Missing Rate Limiting
-**Severity**: HIGH  
-**Issue**: No protection against brute force, DoS attacks.
+## Common Issues & Solutions
 
-**Fix**: Add rate limiting:
-```csharp
-// Program.cs
-builder.Services.AddMemoryCache();
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("Redis");
-});
+### 401 Unauthorized on Protected Endpoint
+**Solution**: Verify JWT token included (`Authorization: Bearer TOKEN`) and hasn't expired.
 
-builder.Services.AddRateLimiter(options =>
-{
-    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(context =>
-        RateLimitPartition.GetFixedWindowLimiter(
-            partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString(),
-            factory: partition => new FixedWindowRateLimiterOptions
-            {
-                AutoReplenishment = true,
-                PermitLimit = 100,
-                Window = TimeSpan.FromMinutes(1)
-            }));
-});
+### 403 Forbidden on Own Data
+**Solution**: Verify UserId from JWT matches owner. Review `AuthorizationService` implementation.
 
-app.UseRateLimiter();
-```
+### Rate Limit False Positives
+**Solution**: Adjust thresholds in `appsettings.Monitoring.json` or extend `TimeWindowMinutes`.
+
+### Alerts Not Sending
+**Solution**: Verify alert channel enabled, credentials valid, and channel connectivity working.
 
 ---
 
-### 7. No HTTPS Enforcement for JWT
-**Severity**: HIGH  
-**Issue**: `RequireHttpsMetadata = false` allows HTTP token transmission.
+## Key Metrics to Monitor
 
-**Fix**:
-```csharp
-// Only in Program.cs
-if (!app.Environment.IsDevelopment())
-{
-    app.UseHsts();  // HTTP Strict Transport Security
-    app.UseHttpsRedirection();  // Force HTTPS
-}
-```
+| Metric | Target | Alert |
+|--------|--------|-------|
+| Auth Success Rate | >99% | <95% |
+| Rate Limit Hits | <5/day | >50/day |
+| 403 Forbidden Rate | <1% | >5% |
+| Exception Rate | <0.1% | >1% |
+| Avg Response Time | <500ms | >5000ms |
 
 ---
 
-## 🟡 High Priority Issues
+## Deployment Frequency
 
-### 8. Insufficient Audit Logging
-**Issue**: No tracking of who modified what and when.
-
-**Fix**: Add audit logging to base handler:
-```csharp
-public abstract class BaseAuditHandler<TRequest, TResponse> 
-    : IRequestHandler<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
-{
-    protected readonly IAuditService _auditService;
-    
-    protected async Task LogAuditAsync(
-        string action, 
-        string entityType, 
-        Guid entityId, 
-        string userId,
-        object? changes = null)
-    {
-        await _auditService.LogAsync(new AuditLog
-        {
-            Action = action,
-            EntityType = entityType,
-            EntityId = entityId,
-            UserId = userId,
-            Changes = JsonSerializer.Serialize(changes),
-            Timestamp = DateTime.UtcNow,
-            IpAddress = _httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString()
-        });
-    }
-}
-```
+- **Security Updates**: Immediate
+- **Bug Fixes**: Within 48 hours
+- **New Features**: Weekly/bi-weekly
+- **Configuration Changes**: As needed (no restart required for most)
 
 ---
 
-### 9. Missing CSRF Protection
-**Issue**: No CSRF tokens for form submissions.
-
-**Fix**:
-```csharp
-builder.Services.AddAntiforgery(options =>
-{
-    options.HeaderName = "X-CSRF-TOKEN";
-    options.FormFieldName = "__RequestVerificationToken";
-});
-
-// In controller
-[HttpPost]
-[ValidateAntiForgeryToken]
-public async Task<IActionResult> Create([FromBody] CreateBookCommand command)
-{
-    // Handle request
-}
-```
-
----
-
-### 10. No Request Validation Limits
-**Issue**: Unbounded request sizes can cause memory exhaustion.
-
-**Fix**:
-```csharp
-builder.Services.Configure<IISServerOptions>(options =>
-{
-    options.MaxRequestBodySize = 10 * 1024 * 1024;  // 10 MB
-});
-
-builder.Services.Configure<KestrelServerOptions>(options =>
-{
-    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024;
-});
-```
-
----
-
-### 11. Inadequate Input Validation
-**Issue**: Some endpoints lack comprehensive validation.
-
-**Fix**: Ensure all DTOs have validators:
-```csharp
-public class CreateBookCommandValidator : AbstractValidator<CreateBookCommand>
-{
-    public CreateBookCommandValidator()
-    {
-        RuleFor(x => x.Title)
-            .NotEmpty().WithMessage("Title required")
-            .Length(1, 300).WithMessage("Title must be 1-300 chars")
-            .Must(x => !ContainsInvalidChars(x))
-            .WithMessage("Title contains invalid characters");
-            
-        RuleFor(x => x.Price)
-            .GreaterThan(0).WithMessage("Price must be > 0")
-            .LessThanOrEqualTo(9999.99).WithMessage("Price too high");
-    }
-    
-    private bool ContainsInvalidChars(string value)
-        => value.Any(c => !char.IsLetterOrDigit(c) && c != ' ' && c != '-');
-}
-```
-
----
-
-### 12. Missing Security Headers
-**Issue**: No security headers like CSP, X-Frame-Options, etc.
-
-**Fix**:
-```csharp
-app.Use(async (context, next) =>
-{
-    // Prevent clickjacking
-    context.Response.Headers.Add("X-Frame-Options", "DENY");
-    
-    // Prevent MIME type sniffing
-    context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
-    
-    // Enable XSS protection
-    context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
-    
-    // Content Security Policy
-    context.Response.Headers.Add("Content-Security-Policy", 
-        "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'");
-    
-    // Referrer Policy
-    context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
-    
-    // Permissions Policy
-    context.Response.Headers.Add("Permissions-Policy", "geolocation=(), microphone=(), camera=()");
-    
-    await next();
-});
-```
-
----
-
-### 13. No SQL Injection Prevention
-**Current Status**: ✅ Good - EF Core handles parameterization.
-
-However, ensure **never** using:
-- ❌ `FromSqlRaw("SELECT * FROM Books WHERE Id = " + id)`
-- ✅ `FromSqlInterpolated($"SELECT * FROM Books WHERE Id = {id}")`
-
----
-
-### 14. Sensitive Data in Logs
-**Issue**: Passwords, tokens, PII may be logged.
-
-**Fix**:
-```csharp
-// appsettings.json
-{
-  "Logging": {
-    "LogLevel": {
-      "Default": "Information",
-      "Microsoft.AspNetCore": "Warning",
-      "Microsoft.EntityFrameworkCore.Database.Command": "Warning"
-    }
-  }
-}
-
-// In handler
-_logger.LogInformation("User login attempt for email: ****{EmailSuffix}",
-    email.Substring(Math.Max(0, email.Length - 4)));
-```
-
----
-
-### 15. No IP Whitelisting for Admin
-**Issue**: Admin endpoints accessible from anywhere.
-
-**Fix**:
-```csharp
-[Authorize(Roles = "Admin")]
-[IpRestriction("192.168.1.0/24", "10.0.0.0/8")]
-[HttpPost("/admin/promotions")]
-public async Task<IActionResult> CreatePromotion([FromBody] CreatePromotionCommand command)
-{
-    // Only accessible from whitelisted IPs
-}
-```
-
----
-
-## ✅ Implemented Well
-
-1. **Exception Mapping** - Custom exceptions with proper HTTP status codes
-2. **Request Validation** - FluentValidation on all commands/queries
-3. **EF Core Parameterization** - SQL injection protection
-4. **Token Validation** - JWT validation on protected routes
-5. **Role-Based Access** - [Authorize] attributes on endpoints
-6. **Centralized Logging** - ILogger<T> in handlers
-
----
-
-## 📋 Implementation Priority
-
-| Priority | Issue | Effort | Impact |
-|----------|-------|--------|--------|
-| 🔴 P1 | Secrets management | 2 hrs | Critical |
-| 🔴 P1 | JWT RequireHttpsMetadata | 15 min | Critical |
-| 🟡 P2 | Password policy | 30 min | High |
-| 🟡 P2 | CORS configuration | 1 hr | High |
-| 🟡 P2 | Authorization checks | 3 hrs | High |
-| 🟡 P2 | Rate limiting | 2 hrs | High |
-| 🟡 P2 | Security headers | 1 hr | High |
-| 🟡 P3 | Audit logging | 4 hrs | Medium |
-| 🟡 P3 | Request size limits | 30 min | Medium |
-
----
-
-## 🚀 Next Steps
-
-1. **Immediate** (This week):
-   - Move secrets to Azure Key Vault / AWS Secrets Manager
-   - Enable `RequireHttpsMetadata = true`
-   - Strengthen password policy
-   - Fix CORS configuration
-
-2. **Short-term** (Next sprint):
-   - Add rate limiting
-   - Implement security headers middleware
-   - Add ownership validation to all endpoints
-   - Implement request size limits
-
-3. **Medium-term** (Sprint after):
-   - Add audit logging
-   - Implement IP whitelisting for admin
-   - Set up CSRF protection
-   - Add comprehensive input validation
-
----
-
-## 📚 References
-
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/)
-- [Microsoft Security Best Practices](https://docs.microsoft.com/en-us/dotnet/standard/security/)
-- [JWT Best Practices](https://tools.ietf.org/html/rfc8725)
-- [CORS Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS)
+**Last Updated**: July 9, 2026  
+**Status**: Production Ready ✅

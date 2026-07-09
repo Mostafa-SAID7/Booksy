@@ -23,6 +23,12 @@ public class UpdateOrderStatusCommand : ICommand<Unit>
 
     public OrderStatus Status { get; set; }
 
+    /// <summary>
+    /// The ID of the user requesting the status update
+    /// Used for ownership validation
+    /// </summary>
+    public string UserId { get; set; }
+
 }
 
 

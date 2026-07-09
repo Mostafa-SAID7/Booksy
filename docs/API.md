@@ -1,308 +1,141 @@
 # API Reference
 
-## Base URL
-```
-https://localhost:5001/api
-```
+**Base URL**: `https://localhost:5001/api`
 
-## Authentication
-All protected endpoints require JWT token in header:
+**Authentication**: Include JWT token in header:
 ```
 Authorization: Bearer <token>
+```
+
+---
+
+## Quick Response Format
+
+All responses follow this structure:
+```json
+{
+  "success": true/false,
+  "data": { ... },
+  "errors": [ ... ]
+}
 ```
 
 ---
 
 ## Authentication Endpoints
 
-### Register User
+### Register
 ```
 POST /authentication/register
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "Password@123",
-  "confirmPassword": "Password@123",
-  "firstName": "John",
-  "lastName": "Doe"
-}
-
-Response: 200 OK
-{
-  "id": "uuid",
-  "email": "user@example.com",
-  "firstName": "John",
-  "lastName": "Doe",
-  "createdAt": "2026-01-01T00:00:00Z"
-}
+{ "email", "password", "confirmPassword", "firstName", "lastName" }
+→ 200: User details with ID
 ```
 
 ### Login
 ```
 POST /authentication/login
-Content-Type: application/json
-
-{
-  "email": "user@example.com",
-  "password": "Password@123"
-}
-
-Response: 200 OK
-{
-  "token": "eyJhbGc...",
-  "expiresIn": 3600,
-  "user": { ... }
-}
+{ "email", "password" }
+→ 200: { "token", "expiresIn", "user" }
 ```
 
 ---
 
 ## Books Endpoints
 
-### Get All Books
+### List Books
 ```
-GET /books?pageNumber=1&pageSize=10&searchTerm=fiction&sortBy=title
-
-Response: 200 OK
-{
-  "success": true,
-  "data": {
-    "items": [ ... ],
-    "pageNumber": 1,
-    "pageSize": 10,
-    "totalItems": 50,
-    "totalPages": 5
-  }
-}
+GET /books?pageNumber=1&pageSize=10&searchTerm=fiction
+→ 200: { items, pageNumber, pageSize, totalItems, totalPages }
 ```
 
-### Get Book by ID
+### Get Book
 ```
 GET /books/{id}
-
-Response: 200 OK
-{
-  "id": "uuid",
-  "title": "Book Title",
-  "description": "...",
-  "price": 19.99,
-  "authorId": "uuid",
-  "categoryId": "uuid",
-  "tags": [ ... ],
-  "rating": 4.5,
-  "reviews": [ ... ]
-}
+→ 200: Book details with author, category, reviews, rating
 ```
 
-### Create Book (Admin Only)
+### Create Book (Admin)
 ```
 POST /books
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "title": "New Book",
-  "description": "Description",
-  "price": 29.99,
-  "stock": 100,
-  "authorId": "uuid",
-  "categoryId": "uuid"
-}
-
-Response: 201 Created
+[Authorize(Roles = "Admin")]
+{ "title", "description", "price", "stock", "authorId", "categoryId" }
+→ 201: Created book
 ```
 
-### Update Book (Admin Only)
+### Update Book (Admin)
 ```
 PUT /books/{id}
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{ ... }
-
-Response: 204 No Content
+[Authorize(Roles = "Admin")]
+→ 204: No content
 ```
 
-### Delete Book (Admin Only)
+### Delete Book (Admin)
 ```
 DELETE /books/{id}
-Authorization: Bearer <token>
-
-Response: 204 No Content
+[Authorize(Roles = "Admin")]
+→ 204: No content
 ```
 
 ---
 
-## Authors Endpoints
+## Cart Endpoints (Auth Required)
 
-### Get All Authors
-```
-GET /authors?pageNumber=1&pageSize=10
-
-Response: 200 OK
-```
-
-### Create Author (Admin Only)
-```
-POST /authors
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "name": "Author Name",
-  "bio": "Author biography"
-}
-
-Response: 201 Created
-```
-
-### Update Author (Admin Only)
-```
-PUT /authors/{id}
-Authorization: Bearer <token>
-
-Response: 204 No Content
-```
-
-### Delete Author (Admin Only)
-```
-DELETE /authors/{id}
-Authorization: Bearer <token>
-
-Response: 204 No Content
-```
-
----
-
-## Categories Endpoints
-
-### Get All Categories
-```
-GET /categories
-
-Response: 200 OK
-```
-
-### Create Category (Admin Only)
-```
-POST /categories
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "name": "Fiction",
-  "description": "Fictional books"
-}
-
-Response: 201 Created
-```
-
----
-
-## Cart Endpoints
-
-### Get User Cart
+### Get Cart
 ```
 GET /carts/{userId}
-Authorization: Bearer <token>
-
-Response: 200 OK
-{
-  "userId": "uuid",
-  "items": [ ... ],
-  "total": 99.99
-}
+→ 200: { userId, items, total }
 ```
 
-### Add to Cart (Auth Required)
+### Add to Cart
 ```
 POST /carts/add
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "userId": "uuid",
-  "bookId": "uuid",
-  "quantity": 1
-}
-
-Response: 204 No Content
+{ "userId", "bookId", "quantity" }
+→ 204: No content
 ```
 
-### Remove from Cart (Auth Required)
+### Remove from Cart
 ```
 POST /carts/remove
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "userId": "uuid",
-  "bookId": "uuid"
-}
-
-Response: 204 No Content
+{ "userId", "bookId" }
+→ 204: No content
 ```
 
-### Clear Cart (Auth Required)
+### Clear Cart
 ```
 POST /carts/clear
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "userId": "uuid"
-}
-
-Response: 204 No Content
+{ "userId" }
+→ 204: No content
 ```
 
 ---
 
 ## Orders Endpoints
 
-### Get User Orders
+### Get User Orders (Auth Required)
 ```
 GET /orders/user/{userId}
-Authorization: Bearer <token>
-
-Response: 200 OK
+→ 200: Array of orders with items
 ```
 
 ### Create Order (Auth Required)
 ```
 POST /orders
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "userId": "uuid",
-  "shippingAddress": "...",
-  "paymentMethod": "credit-card"
-}
-
-Response: 201 Created
-```
-
-### Update Order Status (Admin Only)
-```
-PUT /orders/{id}/status
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "status": "shipped"
-}
-
-Response: 204 No Content
+{ "userId", "shippingAddress", "paymentMethod" }
+→ 201: Created order
 ```
 
 ### Cancel Order (Auth Required)
 ```
 POST /orders/{id}/cancel
-Authorization: Bearer <token>
+→ 204: No content
+```
 
-Response: 204 No Content
+### Update Status (Admin)
+```
+PUT /orders/{id}/status
+[Authorize(Roles = "Admin")]
+{ "status" }
+→ 204: No content
 ```
 
 ---
@@ -312,122 +145,71 @@ Response: 204 No Content
 ### Get Book Reviews
 ```
 GET /reviews/book/{bookId}?pageNumber=1&pageSize=10
-
-Response: 200 OK
+→ 200: Paginated reviews
 ```
 
 ### Create Review (Auth Required)
 ```
 POST /reviews
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "bookId": "uuid",
-  "userId": "uuid",
-  "rating": 5,
-  "comment": "Great book!"
-}
-
-Response: 201 Created
+{ "bookId", "userId", "rating", "comment" }
+→ 201: Created review
 ```
 
 ### Update Review (Auth Required)
 ```
 PUT /reviews/{id}
-Authorization: Bearer <token>
-Content-Type: application/json
-
-{
-  "rating": 4,
-  "comment": "Updated comment"
-}
-
-Response: 204 No Content
+{ "rating", "comment" }
+→ 204: No content
 ```
 
-### Delete Review (Admin Only)
+### Delete Review (Admin)
 ```
 DELETE /reviews/{id}
-Authorization: Bearer <token>
+[Authorize(Roles = "Admin")]
+→ 204: No content
+```
 
-Response: 204 No Content
+---
+
+## Other Endpoints
+
+### Categories
+```
+GET /categories                    → 200: All categories
+POST /categories [Admin]           → 201: Create
+PUT /categories/{id} [Admin]       → 204: Update
+DELETE /categories/{id} [Admin]    → 204: Delete
+```
+
+### Authors
+```
+GET /authors?pageNumber=1&pageSize=10  → 200: Paginated
+POST /authors [Admin]                  → 201: Create
+PUT /authors/{id} [Admin]              → 204: Update
+DELETE /authors/{id} [Admin]           → 204: Delete
 ```
 
 ---
 
 ## Error Responses
 
-### 400 Bad Request
-```json
-{
-  "success": false,
-  "message": "Validation failed",
-  "errors": [
-    {
-      "field": "email",
-      "message": "Invalid email format"
-    }
-  ]
-}
-```
-
-### 401 Unauthorized
-```json
-{
-  "success": false,
-  "message": "Authentication required"
-}
-```
-
-### 403 Forbidden
-```json
-{
-  "success": false,
-  "message": "Admin role required"
-}
-```
-
-### 404 Not Found
-```json
-{
-  "success": false,
-  "message": "Book not found"
-}
-```
-
-### 409 Conflict
-```json
-{
-  "success": false,
-  "message": "Email already registered"
-}
-```
+| Status | Meaning | Example |
+|--------|---------|---------|
+| 400 | Bad Request | Validation errors |
+| 401 | Unauthorized | Missing/invalid token |
+| 403 | Forbidden | Admin role required, ownership violation |
+| 404 | Not Found | Resource not found |
+| 409 | Conflict | Email already registered |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Server Error | Unhandled exception |
 
 ---
 
 ## Rate Limiting
 
-Standard API rate limiting applies:
-- **200 requests per minute** per IP
-- Exceeding limit returns `429 Too Many Requests`
-
----
-
-## Status Codes
-
-| Code | Meaning |
-|------|---------|
-| 200 | OK |
-| 201 | Created |
-| 204 | No Content |
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 403 | Forbidden |
-| 404 | Not Found |
-| 409 | Conflict |
-| 429 | Too Many Requests |
-| 500 | Internal Server Error |
+- **Global**: 100 requests/minute per IP
+- **Auth endpoints**: 5 requests/minute per IP
+- **Response**: 429 Too Many Requests
 
 ---
 
@@ -437,6 +219,4 @@ All list endpoints support:
 - `pageNumber` (default: 1)
 - `pageSize` (default: 10, max: 100)
 - `searchTerm` (optional)
-- `sortBy` (optional)
-
-Example: `/api/books?pageNumber=2&pageSize=20&sortBy=price:desc`
+- `sortBy` (optional, format: `field:asc|desc`)

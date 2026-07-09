@@ -7,6 +7,16 @@ namespace Booksy.Security
     public interface IAuthorizationService
     {
         /// <summary>
+        /// Verify user can access order (owner or admin)
+        /// </summary>
+        bool CanUserAccessOrder(string userId, string orderOwnerId);
+
+        /// <summary>
+        /// Verify user can access review (owner or admin)
+        /// </summary>
+        bool CanUserAccessReview(string userId, string reviewOwnerId);
+
+        /// <summary>
         /// Verify user owns the resource (e.g., cart, order)
         /// </summary>
         /// <param name="resourceOwnerId">ID of user who owns resource</param>

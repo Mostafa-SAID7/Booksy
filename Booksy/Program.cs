@@ -40,8 +40,51 @@ builder.Services.AddControllers(options =>
     .AddNewtonsoftJson(options =>
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
+// Request size limits
+builder.Services.Configure<Microsoft.AspNetCore.Server.IISServerOptions>(options =>
+{
+    options.MaxRequestBodySize = 10 * 1024 * 1024;  // 10 MB
+});
+
+builder.Services.Configure<Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerOptions>(options =>
+{
+    options.Limits.MaxRequestBodySize = 10 * 1024 * 1024;  // 10 MB
+});
+
+// Memory cache for rate limiting
+builder.Services.AddMemoryCache();
+
+// Rate limiting
+builder.Services.AddRateLimiter(options =>
+{
+    options.GlobalLimiter = Microsoft.AspNetCore.RateLimiting.PartitionedRateLimiter.Create<HttpContext, string>(context =>
+        Microsoft.AspNetCore.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.User.Identity?.Name 
+                ?? context.Connection.RemoteIpAddress?.ToString() 
+                ?? "anonymous",
+            factory: _ => new Microsoft.AspNetCore.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 100,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    // Strict limits for authentication endpoints (prevent brute force)
+    options.AddPolicy("auth-limit", context =>
+        Microsoft.AspNetCore.RateLimiting.RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: context.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new Microsoft.AspNetCore.RateLimiting.FixedWindowRateLimiterOptions
+            {
+                AutoReplenishment = true,
+                PermitLimit = 5,
+                Window = TimeSpan.FromMinutes(1)
+            }));
+
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
+
 // Add Custom CORS
-builder.Services.AddCustomCors();
+builder.Services.AddCustomCors(configuration);
 
 // Add Swagger
 builder.Services.AddCustomSwagger();
@@ -61,6 +104,9 @@ var app = builder.Build();
 // ------------------------- Middleware -------------------------
 // Custom middleware pipeline (exception handling, logging, performance)
 app.UseCustomMiddleware();
+
+// Performance monitoring middleware
+app.UsePerformanceMonitoring();
 
 // Serve static files
 app.UseStaticFiles();
@@ -85,6 +131,9 @@ if (app.Environment.IsDevelopment())
 
 // Use HTTPS Redirection
 app.UseHttpsRedirection();
+
+// Rate limiting middleware
+app.UseRateLimiter();
 
 // Use Authentication & Authorization
 app.UseAuthentication();

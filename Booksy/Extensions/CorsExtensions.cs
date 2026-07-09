@@ -1,22 +1,28 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Booksy.Extensions
 {
     public static class CorsExtensions
     {
-        private const string PolicyName = "_myAllowSpecificOrigins";
+        private const string PolicyName = "BooksyPolicy";
 
-        public static IServiceCollection AddCustomCors(this IServiceCollection services)
+        public static IServiceCollection AddCustomCors(this IServiceCollection services, IConfiguration configuration = null)
         {
-            var allowedOrigins = new[] { "http://localhost:5500" };
+            // Use configuration if provided, otherwise fall back to defaults based on environment
+            var allowedOrigins = configuration?.GetSection("Cors:AllowedOrigins").Get<string[]>() 
+                ?? GetDefaultAllowedOrigins();
+
             services.AddCors(options =>
             {
                 options.AddPolicy(name: PolicyName, policy =>
                 {
-                    policy.WithOrigins(allowedOrigins) 
-                          .AllowAnyMethod()
-                          .AllowAnyHeader()
-                          .AllowCredentials(); // now allowed
+                    policy.WithOrigins(allowedOrigins)
+                          .WithMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
+                          .WithHeaders("Content-Type", "Authorization", "X-Requested-With")
+                          .WithExposedHeaders("X-Total-Count", "X-Total-Pages")
+                          .WithMaxAge(3600)
+                          .AllowCredentials();
                 });
             });
 
@@ -27,6 +33,13 @@ namespace Booksy.Extensions
         {
             app.UseCors(PolicyName);
             return app;
+        }
+
+        private static string[] GetDefaultAllowedOrigins()
+        {
+            // In production, configure via appsettings.Production.json
+            // For now, restrict to development localhost only
+            return new[] { "https://localhost:7001", "https://localhost:5001" };
         }
     }
 }

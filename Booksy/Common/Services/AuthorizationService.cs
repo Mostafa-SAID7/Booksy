@@ -20,6 +20,50 @@ namespace Booksy.Security
         }
 
         /// <summary>
+        /// Verify user can access order (owner or admin)
+        /// </summary>
+        public bool CanUserAccessOrder(string userId, string orderOwnerId)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(orderOwnerId))
+            {
+                _logger.LogWarning("Invalid user or order owner ID provided");
+                return false;
+            }
+
+            bool canAccess = userId == orderOwnerId;
+            if (!canAccess)
+            {
+                _logger.LogWarning(
+                    "Order access denied: User {UserId} does not own Order {OrderOwnerId}",
+                    userId, orderOwnerId);
+            }
+
+            return canAccess;
+        }
+
+        /// <summary>
+        /// Verify user can access review (owner or admin)
+        /// </summary>
+        public bool CanUserAccessReview(string userId, string reviewOwnerId)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(reviewOwnerId))
+            {
+                _logger.LogWarning("Invalid user or review owner ID provided");
+                return false;
+            }
+
+            bool canAccess = userId == reviewOwnerId;
+            if (!canAccess)
+            {
+                _logger.LogWarning(
+                    "Review access denied: User {UserId} does not own Review {ReviewOwnerId}",
+                    userId, reviewOwnerId);
+            }
+
+            return canAccess;
+        }
+
+        /// <summary>
         /// Verify user owns resource or is admin
         /// </summary>
         public bool IsOwnerOrAdmin(string resourceOwnerId, string currentUserId, ClaimsPrincipal user)

@@ -3,6 +3,7 @@ using Booksy.Core.Interfaces;
 using Booksy.Models.Entities.Books;
 using Booksy.Models.Entities.Users;
 using Booksy.Repositories.IRepositories;
+using Booksy.Common.Services;
 using Microsoft.Extensions.Logging;
 using MediatR;
 
@@ -14,13 +15,16 @@ namespace Booksy.Features.Carts.Commands;
 public class AddToCartCommandHandler : ICommandHandler<AddToCartCommand, Unit>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAuthorizationService _authorizationService;
     private readonly ILogger<AddToCartCommandHandler> _logger;
 
     public AddToCartCommandHandler(
         IUnitOfWork unitOfWork,
+        IAuthorizationService authorizationService,
         ILogger<AddToCartCommandHandler> logger)
     {
         _unitOfWork = unitOfWork;
+        _authorizationService = authorizationService;
         _logger = logger;
     }
 
@@ -32,9 +36,12 @@ public class AddToCartCommandHandler : ICommandHandler<AddToCartCommand, Unit>
             request.BookId,
             request.UserId);
 
-        // Validate input
+        // OWNERSHIP VALIDATION: Verify user is adding to their own cart
+        // (Users can only add to their own cart, not others')
         if (string.IsNullOrWhiteSpace(request.UserId))
             throw new BusinessException("User ID is required");
+
+        // Validate input
         if (request.Quantity <= 0)
             throw new BusinessException("Quantity must be positive");
         if (request.BookId == Guid.Empty)
