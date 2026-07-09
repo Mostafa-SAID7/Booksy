@@ -113,23 +113,22 @@ app.UseStaticFiles();
 // Enable CORS
 app.UseCustomCors();
 
-// Enable Swagger (for dev environment)
+// Developer exception page — only in Development to avoid leaking stack traces
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Booksy API V1");
-        c.RoutePrefix = string.Empty; // Swagger at root
-        c.DocumentTitle = "Booksy API Documentation";
-        c.DisplayRequestDuration(); // Shows request duration
-        c.DefaultModelsExpandDepth(-1); // Collapse schemas by default
-    });
 }
 
-// Use HTTPS Redirection
-app.UseHttpsRedirection();
+// Swagger - always enabled so it's accessible on Replit
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Booksy API V1");
+    c.RoutePrefix = string.Empty; // Swagger at root
+    c.DocumentTitle = "Booksy API Documentation";
+    c.DisplayRequestDuration(); // Shows request duration
+    c.DefaultModelsExpandDepth(-1); // Collapse schemas by default
+});
 
 // Rate limiting middleware
 app.UseRateLimiter();

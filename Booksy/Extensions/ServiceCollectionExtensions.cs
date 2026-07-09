@@ -1,4 +1,4 @@
-﻿using Booksy.Models.Entities.Books;
+using Booksy.Models.Entities.Books;
 using Booksy.Models.Entities.Orders;
 using Booksy.Models.Entities.Promotions;
 using Booksy.Models.Entities.Users;
@@ -23,20 +23,20 @@ namespace Booksy.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Database Context
+            // Database Context — build connection string from Replit PG* env vars,
+            // falling back to DefaultConnection in appsettings.
+            var pgHost     = Environment.GetEnvironmentVariable("PGHOST");
+            var pgPort     = Environment.GetEnvironmentVariable("PGPORT") ?? "5432";
+            var pgUser     = Environment.GetEnvironmentVariable("PGUSER");
+            var pgPassword = Environment.GetEnvironmentVariable("PGPASSWORD");
+            var pgDatabase = Environment.GetEnvironmentVariable("PGDATABASE");
+
+            var connectionString = (pgHost != null && pgUser != null && pgDatabase != null)
+                ? $"Host={pgHost};Port={pgPort};Database={pgDatabase};Username={pgUser};Password={pgPassword};SSL Mode=Disable"
+                : configuration.GetConnectionString("DefaultConnection");
+
             services.AddDbContext<ApplicationDbContext>(options =>
-                 options.UseSqlServer(
-                     configuration.GetConnectionString("DefaultConnection"),
-                     sqlOptions =>
-                     {
-                         sqlOptions.EnableRetryOnFailure(
-                             maxRetryCount: 5,
-                             maxRetryDelay: TimeSpan.FromSeconds(10),
-                             errorNumbersToAdd: null
-                         );
-                     }
-                 )
-             );
+                options.UseNpgsql(connectionString));
 
             // AutoMapper - Register all profiles from assembly
             services.AddAutoMapper(cfg =>

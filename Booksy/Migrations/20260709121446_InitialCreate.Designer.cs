@@ -3,17 +3,17 @@ using System;
 using Booksy.DataAccess;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
 namespace Booksy.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260709084522_AddAuthorSlugAndBookSlug")]
-    partial class AddAuthorSlugAndBookSlug
+    [Migration("20260709121446_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,476 +21,510 @@ namespace Booksy.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "9.0.9")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("BookTag", b =>
                 {
-                    b.Property<int>("BooksId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("TagsId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("TagId")
+                        .HasColumnType("uuid");
 
-                    b.HasKey("BooksId", "TagsId");
+                    b.HasKey("BookId", "TagId");
 
-                    b.HasIndex("TagsId");
+                    b.HasIndex("TagId");
 
                     b.ToTable("BookTag");
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Books.Author", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Bio")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("character varying(120)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Author_IsDeleted");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_Author_Name");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Author_Slug");
 
                     b.ToTable("Authors");
 
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            Bio = "Author of Harry Potter",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(4465),
+                            Id = new Guid("20000000-0000-0000-0000-000000000001"),
+                            Bio = "Author of Harry Potter series",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(5886),
                             IsDeleted = false,
                             Name = "J.K. Rowling",
-                            Slug = ""
+                            Slug = "jk-rowling"
                         },
                         new
                         {
-                            Id = 2,
-                            Bio = "Author of Game of Thrones",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5710),
+                            Id = new Guid("20000000-0000-0000-0000-000000000002"),
+                            Bio = "Author of Game of Thrones series",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6611),
                             IsDeleted = false,
                             Name = "George R.R. Martin",
-                            Slug = ""
+                            Slug = "george-rr-martin"
                         },
                         new
                         {
-                            Id = 3,
+                            Id = new Guid("20000000-0000-0000-0000-000000000003"),
                             Bio = "Author of The Lord of the Rings",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5714),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6665),
                             IsDeleted = false,
                             Name = "J.R.R. Tolkien",
-                            Slug = ""
+                            Slug = "jrr-tolkien"
                         },
                         new
                         {
-                            Id = 4,
-                            Bio = "Famous mystery writer",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5716),
+                            Id = new Guid("20000000-0000-0000-0000-000000000004"),
+                            Bio = "Famous mystery and crime writer",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6694),
                             IsDeleted = false,
                             Name = "Agatha Christie",
-                            Slug = ""
+                            Slug = "agatha-christie"
                         },
                         new
                         {
-                            Id = 5,
-                            Bio = "Horror and thriller author",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5726),
+                            Id = new Guid("20000000-0000-0000-0000-000000000005"),
+                            Bio = "Renowned horror and thriller author",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6716),
                             IsDeleted = false,
                             Name = "Stephen King",
-                            Slug = ""
+                            Slug = "stephen-king"
                         },
                         new
                         {
-                            Id = 6,
-                            Bio = "Author of Da Vinci Code",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5735),
+                            Id = new Guid("20000000-0000-0000-0000-000000000006"),
+                            Bio = "Author of The Da Vinci Code and Robert Langdon series",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6742),
                             IsDeleted = false,
                             Name = "Dan Brown",
-                            Slug = ""
+                            Slug = "dan-brown"
                         },
                         new
                         {
-                            Id = 7,
-                            Bio = "Author of Hunger Games",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5737),
+                            Id = new Guid("20000000-0000-0000-0000-000000000007"),
+                            Bio = "Author of The Hunger Games trilogy",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6763),
                             IsDeleted = false,
                             Name = "Suzanne Collins",
-                            Slug = ""
+                            Slug = "suzanne-collins"
                         },
                         new
                         {
-                            Id = 8,
-                            Bio = "American novelist",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5739),
+                            Id = new Guid("20000000-0000-0000-0000-000000000008"),
+                            Bio = "American novelist and Nobel Prize winner",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6785),
                             IsDeleted = false,
                             Name = "Ernest Hemingway",
-                            Slug = ""
+                            Slug = "ernest-hemingway"
                         },
                         new
                         {
-                            Id = 9,
-                            Bio = "Famous American writer",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5742),
+                            Id = new Guid("20000000-0000-0000-0000-000000000009"),
+                            Bio = "American writer and humorist",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6806),
                             IsDeleted = false,
                             Name = "Mark Twain",
-                            Slug = ""
+                            Slug = "mark-twain"
                         },
                         new
                         {
-                            Id = 10,
-                            Bio = "Science fiction author",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 7, DateTimeKind.Utc).AddTicks(5746),
+                            Id = new Guid("20000000-0000-0000-0000-000000000010"),
+                            Bio = "Science fiction and non-fiction author",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(6826),
                             IsDeleted = false,
                             Name = "Isaac Asimov",
-                            Slug = ""
+                            Slug = "isaac-asimov"
                         });
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Books.Book", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uuid");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CoverImageUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<decimal>("Discount")
-                        .HasColumnType("decimal(18,2)");
+                        .ValueGeneratedOnAdd()
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<string>("ISBN")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("numeric(10,2)");
 
-                    b.Property<int?>("PromotionId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("PromotionId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(220)
-                        .HasColumnType("nvarchar(220)");
+                        .HasColumnType("character varying(220)");
 
                     b.Property<int>("Stock")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int>("Traffic")
-                        .HasColumnType("int");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthorId");
+                    b.HasIndex("AuthorId")
+                        .HasDatabaseName("IX_Book_AuthorId");
 
-                    b.HasIndex("CategoryId");
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("IX_Book_CategoryId");
+
+                    b.HasIndex("ISBN")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Book_ISBN");
 
                     b.HasIndex("PromotionId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Book_Slug");
+
+                    b.HasIndex("Title")
+                        .HasDatabaseName("IX_Book_Title");
+
+                    b.HasIndex("CategoryId", "IsDeleted")
+                        .HasDatabaseName("IX_Book_CategoryId_IsDeleted");
 
                     b.ToTable("Books");
 
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            AuthorId = 1,
-                            CategoryId = 5,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 9, DateTimeKind.Utc).AddTicks(6143),
+                            Id = new Guid("30000000-0000-0000-0000-000000000001"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000001"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000005"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 99, DateTimeKind.Utc).AddTicks(8126),
                             Discount = 0m,
                             ISBN = "9780747532699",
                             IsDeleted = false,
                             Price = 19.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "harry-potter-and-the-philosophers-stone",
                             Stock = 50,
                             Title = "Harry Potter and the Philosopher's Stone",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 2,
-                            AuthorId = 1,
-                            CategoryId = 5,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 9, DateTimeKind.Utc).AddTicks(9996),
+                            Id = new Guid("30000000-0000-0000-0000-000000000002"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000001"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000005"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 99, DateTimeKind.Utc).AddTicks(9879),
                             Discount = 0m,
                             ISBN = "9780747538493",
                             IsDeleted = false,
                             Price = 19.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "harry-potter-and-the-chamber-of-secrets",
                             Stock = 45,
                             Title = "Harry Potter and the Chamber of Secrets",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 3,
-                            AuthorId = 2,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(5),
+                            Id = new Guid("30000000-0000-0000-0000-000000000003"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000002"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 99, DateTimeKind.Utc).AddTicks(9953),
                             Discount = 0m,
                             ISBN = "9780553103540",
                             IsDeleted = false,
                             Price = 24.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "a-game-of-thrones",
                             Stock = 40,
                             Title = "A Game of Thrones",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 4,
-                            AuthorId = 2,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(9),
+                            Id = new Guid("30000000-0000-0000-0000-000000000004"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000002"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 99, DateTimeKind.Utc).AddTicks(9987),
                             Discount = 0m,
                             ISBN = "9780553108033",
                             IsDeleted = false,
                             Price = 24.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "a-clash-of-kings",
                             Stock = 35,
                             Title = "A Clash of Kings",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 5,
-                            AuthorId = 5,
-                            CategoryId = 9,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(13),
+                            Id = new Guid("30000000-0000-0000-0000-000000000005"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000005"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000009"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(18),
                             Discount = 0m,
                             ISBN = "9780385121675",
                             IsDeleted = false,
                             Price = 17.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "the-shining",
                             Stock = 30,
                             Title = "The Shining",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 6,
-                            AuthorId = 5,
-                            CategoryId = 9,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(34),
+                            Id = new Guid("30000000-0000-0000-0000-000000000006"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000005"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000009"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(46),
                             Discount = 0m,
                             ISBN = "9780450411434",
                             IsDeleted = false,
                             Price = 18.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "it",
                             Stock = 25,
                             Title = "It",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 7,
-                            AuthorId = 3,
-                            CategoryId = 5,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(38),
+                            Id = new Guid("30000000-0000-0000-0000-000000000007"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000003"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000005"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(65),
                             Discount = 0m,
                             ISBN = "9780547928210",
                             IsDeleted = false,
                             Price = 22.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "the-lord-of-the-rings-fellowship",
                             Stock = 40,
                             Title = "The Lord of the Rings: Fellowship",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 8,
-                            AuthorId = 4,
-                            CategoryId = 6,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(41),
+                            Id = new Guid("30000000-0000-0000-0000-000000000008"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000004"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000006"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(108),
                             Discount = 0m,
                             ISBN = "9780062073501",
                             IsDeleted = false,
                             Price = 14.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "murder-on-the-orient-express",
                             Stock = 30,
                             Title = "Murder on the Orient Express",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 9,
-                            AuthorId = 6,
-                            CategoryId = 7,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(45),
+                            Id = new Guid("30000000-0000-0000-0000-000000000009"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000006"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000007"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(143),
                             Discount = 0m,
                             ISBN = "9780307474278",
                             IsDeleted = false,
                             Price = 16.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "the-da-vinci-code",
                             Stock = 25,
                             Title = "The Da Vinci Code",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 10,
-                            AuthorId = 7,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(51),
+                            Id = new Guid("30000000-0000-0000-0000-000000000010"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000007"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000014"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(172),
                             Discount = 0m,
                             ISBN = "9780439023481",
                             IsDeleted = false,
                             Price = 18.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "the-hunger-games",
                             Stock = 35,
                             Title = "The Hunger Games",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 11,
-                            AuthorId = 7,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(54),
+                            Id = new Guid("30000000-0000-0000-0000-000000000011"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000007"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000014"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(198),
                             Discount = 0m,
                             ISBN = "9780439023498",
                             IsDeleted = false,
                             Price = 18.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "catching-fire",
                             Stock = 35,
                             Title = "Catching Fire",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 12,
-                            AuthorId = 7,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(90),
+                            Id = new Guid("30000000-0000-0000-0000-000000000012"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000007"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000014"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(221),
                             Discount = 0m,
                             ISBN = "9780439023511",
                             IsDeleted = false,
                             Price = 18.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "mockingjay",
                             Stock = 35,
                             Title = "Mockingjay",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 13,
-                            AuthorId = 10,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(94),
+                            Id = new Guid("30000000-0000-0000-0000-000000000013"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000010"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000014"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(247),
                             Discount = 0m,
                             ISBN = "9780553293357",
                             IsDeleted = false,
                             Price = 15.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "foundation",
                             Stock = 25,
                             Title = "Foundation",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 14,
-                            AuthorId = 10,
-                            CategoryId = 14,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(98),
+                            Id = new Guid("30000000-0000-0000-0000-000000000014"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000010"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000014"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(266),
                             Discount = 0m,
                             ISBN = "9780553294385",
                             IsDeleted = false,
                             Price = 15.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "i-robot",
                             Stock = 25,
                             Title = "I, Robot",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 15,
-                            AuthorId = 8,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(101),
+                            Id = new Guid("30000000-0000-0000-0000-000000000015"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000008"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(293),
                             Discount = 0m,
                             ISBN = "9780684801223",
                             IsDeleted = false,
                             Price = 12.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "the-old-man-and-the-sea",
                             Stock = 20,
                             Title = "The Old Man and The Sea",
                             Traffic = 0
                         },
                         new
                         {
-                            Id = 16,
-                            AuthorId = 9,
-                            CategoryId = 1,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(104),
+                            Id = new Guid("30000000-0000-0000-0000-000000000016"),
+                            AuthorId = new Guid("20000000-0000-0000-0000-000000000009"),
+                            CategoryId = new Guid("10000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(327),
                             Discount = 0m,
                             ISBN = "9780486280615",
                             IsDeleted = false,
                             Price = 11.99m,
                             Quantity = 0,
-                            Slug = "",
+                            Slug = "adventures-of-huckleberry-finn",
                             Stock = 20,
                             Title = "Adventures of Huckleberry Finn",
                             Traffic = 0
@@ -499,259 +533,287 @@ namespace Booksy.Migrations
 
             modelBuilder.Entity("Booksy.Models.Entities.Books.Category", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("character varying(120)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Category_IsDeleted");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_Category_Name");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Category_Slug");
 
                     b.ToTable("Categories");
 
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(2860),
+                            Id = new Guid("10000000-0000-0000-0000-000000000001"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 90, DateTimeKind.Utc).AddTicks(7803),
                             IsDeleted = false,
                             Name = "Fiction",
-                            Slug = ""
+                            Slug = "fiction"
                         },
                         new
                         {
-                            Id = 2,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4357),
+                            Id = new Guid("10000000-0000-0000-0000-000000000002"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(5974),
                             IsDeleted = false,
                             Name = "Non-Fiction",
-                            Slug = ""
+                            Slug = "non-fiction"
                         },
                         new
                         {
-                            Id = 3,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4360),
+                            Id = new Guid("10000000-0000-0000-0000-000000000003"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9771),
                             IsDeleted = false,
                             Name = "Science",
-                            Slug = ""
+                            Slug = "science"
                         },
                         new
                         {
-                            Id = 4,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4363),
+                            Id = new Guid("10000000-0000-0000-0000-000000000004"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9827),
                             IsDeleted = false,
                             Name = "Children",
-                            Slug = ""
+                            Slug = "children"
                         },
                         new
                         {
-                            Id = 5,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4364),
+                            Id = new Guid("10000000-0000-0000-0000-000000000005"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9849),
                             IsDeleted = false,
                             Name = "Fantasy",
-                            Slug = ""
+                            Slug = "fantasy"
                         },
                         new
                         {
-                            Id = 6,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4379),
+                            Id = new Guid("10000000-0000-0000-0000-000000000006"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9873),
                             IsDeleted = false,
                             Name = "Mystery",
-                            Slug = ""
+                            Slug = "mystery"
                         },
                         new
                         {
-                            Id = 7,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4381),
+                            Id = new Guid("10000000-0000-0000-0000-000000000007"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9890),
                             IsDeleted = false,
                             Name = "Thriller",
-                            Slug = ""
+                            Slug = "thriller"
                         },
                         new
                         {
-                            Id = 8,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4383),
+                            Id = new Guid("10000000-0000-0000-0000-000000000008"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9904),
                             IsDeleted = false,
                             Name = "Romance",
-                            Slug = ""
+                            Slug = "romance"
                         },
                         new
                         {
-                            Id = 9,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4384),
+                            Id = new Guid("10000000-0000-0000-0000-000000000009"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9918),
                             IsDeleted = false,
                             Name = "Horror",
-                            Slug = ""
+                            Slug = "horror"
                         },
                         new
                         {
-                            Id = 10,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4389),
+                            Id = new Guid("10000000-0000-0000-0000-000000000010"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9934),
                             IsDeleted = false,
                             Name = "Biography",
-                            Slug = ""
+                            Slug = "biography"
                         },
                         new
                         {
-                            Id = 11,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4391),
+                            Id = new Guid("10000000-0000-0000-0000-000000000011"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 97, DateTimeKind.Utc).AddTicks(9951),
                             IsDeleted = false,
                             Name = "Self-Help",
-                            Slug = ""
+                            Slug = "self-help"
                         },
                         new
                         {
-                            Id = 12,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4411),
+                            Id = new Guid("10000000-0000-0000-0000-000000000012"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(85),
                             IsDeleted = false,
                             Name = "History",
-                            Slug = ""
+                            Slug = "history"
                         },
                         new
                         {
-                            Id = 13,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4414),
+                            Id = new Guid("10000000-0000-0000-0000-000000000013"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(101),
                             IsDeleted = false,
                             Name = "Poetry",
-                            Slug = ""
+                            Slug = "poetry"
                         },
                         new
                         {
-                            Id = 14,
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 6, DateTimeKind.Utc).AddTicks(4415),
+                            Id = new Guid("10000000-0000-0000-0000-000000000014"),
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 98, DateTimeKind.Utc).AddTicks(133),
                             IsDeleted = false,
                             Name = "Science Fiction",
-                            Slug = ""
+                            Slug = "science-fiction"
                         });
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Books.Review", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uuid");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Comment")
                         .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("Rating")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("ReviewerName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasMaxLength(450)
+                        .HasColumnType("character varying(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BookId");
+                    b.HasIndex("BookId")
+                        .HasDatabaseName("IX_Review_BookId");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Review_IsDeleted");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("IX_Review_Status");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Review_UserId");
+
+                    b.HasIndex("BookId", "Status")
+                        .HasDatabaseName("IX_Review_BookId_Status");
 
                     b.ToTable("Reviews");
 
                     b.HasData(
                         new
                         {
-                            Id = 1,
-                            BookId = 1,
-                            Comment = "Loved this book!",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 10, DateTimeKind.Utc).AddTicks(8167),
+                            Id = new Guid("40000000-0000-0000-0000-000000000001"),
+                            BookId = new Guid("30000000-0000-0000-0000-000000000001"),
+                            Comment = "Absolutely loved this book! A must-read for everyone.",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(5683),
                             IsDeleted = false,
                             Rating = 5,
+                            ReviewerName = "Alice",
                             Status = 1,
                             UserId = "00000000-0000-0000-0000-000000000002"
                         },
                         new
                         {
-                            Id = 2,
-                            BookId = 3,
-                            Comment = "Great story.",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 11, DateTimeKind.Utc).AddTicks(992),
+                            Id = new Guid("40000000-0000-0000-0000-000000000002"),
+                            BookId = new Guid("30000000-0000-0000-0000-000000000003"),
+                            Comment = "Great story and world-building, though a bit lengthy.",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(6675),
                             IsDeleted = false,
                             Rating = 4,
+                            ReviewerName = "Bob",
                             Status = 1,
                             UserId = "00000000-0000-0000-0000-000000000003"
                         },
                         new
                         {
-                            Id = 3,
-                            BookId = 5,
-                            Comment = "Terrifying but amazing.",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 11, DateTimeKind.Utc).AddTicks(1000),
+                            Id = new Guid("40000000-0000-0000-0000-000000000003"),
+                            BookId = new Guid("30000000-0000-0000-0000-000000000005"),
+                            Comment = "Terrifying but amazing. Couldn't put it down!",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(6685),
                             IsDeleted = false,
                             Rating = 5,
+                            ReviewerName = "Alice",
                             Status = 1,
                             UserId = "00000000-0000-0000-0000-000000000002"
                         },
                         new
                         {
-                            Id = 4,
-                            BookId = 10,
-                            Comment = "Could not put it down!",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 11, DateTimeKind.Utc).AddTicks(1002),
+                            Id = new Guid("40000000-0000-0000-0000-000000000004"),
+                            BookId = new Guid("30000000-0000-0000-0000-000000000010"),
+                            Comment = "The most thrilling read I've had all year!",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(6694),
                             IsDeleted = false,
                             Rating = 5,
+                            ReviewerName = "Bob",
                             Status = 1,
                             UserId = "00000000-0000-0000-0000-000000000003"
                         },
                         new
                         {
-                            Id = 5,
-                            BookId = 7,
-                            Comment = "Classic fantasy!",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 11, DateTimeKind.Utc).AddTicks(1005),
+                            Id = new Guid("40000000-0000-0000-0000-000000000005"),
+                            BookId = new Guid("30000000-0000-0000-0000-000000000007"),
+                            Comment = "Classic fantasy at its finest!",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(6702),
                             IsDeleted = false,
                             Rating = 5,
+                            ReviewerName = "Alice",
                             Status = 1,
                             UserId = "00000000-0000-0000-0000-000000000002"
                         },
                         new
                         {
-                            Id = 6,
-                            BookId = 13,
-                            Comment = "Interesting sci-fi.",
-                            CreatedAt = new DateTime(2026, 7, 9, 8, 45, 21, 11, DateTimeKind.Utc).AddTicks(1013),
+                            Id = new Guid("40000000-0000-0000-0000-000000000006"),
+                            BookId = new Guid("30000000-0000-0000-0000-000000000013"),
+                            Comment = "Interesting sci-fi concepts, great foundation for thought.",
+                            CreatedAt = new DateTime(2026, 7, 9, 12, 14, 46, 100, DateTimeKind.Utc).AddTicks(6715),
                             IsDeleted = false,
                             Rating = 4,
+                            ReviewerName = "Bob",
                             Status = 1,
                             UserId = "00000000-0000-0000-0000-000000000003"
                         });
@@ -759,77 +821,85 @@ namespace Booksy.Migrations
 
             modelBuilder.Entity("Booksy.Models.Entities.Books.Tag", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
+                        .HasColumnType("character varying(120)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted")
+                        .HasDatabaseName("IX_Tag_IsDeleted");
+
+                    b.HasIndex("Name")
+                        .HasDatabaseName("IX_Tag_Name");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("IX_Tag_Slug");
 
                     b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Orders.Order", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("OrderDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("OrderStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("SessionId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("TransactionId")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<int>("TransactionStatus")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -840,35 +910,33 @@ namespace Booksy.Migrations
 
             modelBuilder.Entity("Booksy.Models.Entities.Orders.OrderItem", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uuid");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Price")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("TotalPrice")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -881,42 +949,40 @@ namespace Booksy.Migrations
 
             modelBuilder.Entity("Booksy.Models.Entities.Orders.Shipment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CarrierName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("CarrierTrackingId")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("DeliveredDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("OrderId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("OrderId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("ShippedDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Status")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -928,34 +994,32 @@ namespace Booksy.Migrations
 
             modelBuilder.Entity("Booksy.Models.Entities.Promotions.Coupon", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("IsUsed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
-                    b.Property<int>("PromotionId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("PromotionId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -966,43 +1030,41 @@ namespace Booksy.Migrations
 
             modelBuilder.Entity("Booksy.Models.Entities.Promotions.Discount", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uuid");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BookId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("BookId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<int>("PromotionId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("PromotionId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Value")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -1015,37 +1077,35 @@ namespace Booksy.Migrations
 
             modelBuilder.Entity("Booksy.Models.Entities.Promotions.Promotion", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime>("EndDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("StartDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Type")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal>("Value")
-                        .HasColumnType("decimal(18,2)");
+                        .HasColumnType("numeric");
 
                     b.HasKey("Id");
 
@@ -1055,121 +1115,121 @@ namespace Booksy.Migrations
             modelBuilder.Entity("Booksy.Models.Entities.Users.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<int>("AccessFailedCount")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("City")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Country")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("FirstName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Gender")
                         .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("character varying(10)");
 
                     b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime?>("LastLoginDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("LastName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetimeoffset");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedUserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("PasswordHash")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("PhoneNumber")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("PreferredLanguage")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<string>("ProfilePictureUrl")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<bool>("ReceiveNewsletter")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("RegisteredDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("State")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Street")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("character varying(200)");
 
                     b.Property<string>("ThemePreference")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("TimeZone")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("bit");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("ZipCode")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)");
+                        .HasColumnType("character varying(20)");
 
                     b.HasKey("Id");
 
@@ -1178,8 +1238,7 @@ namespace Booksy.Migrations
 
                     b.HasIndex("NormalizedUserName")
                         .IsUnique()
-                        .HasDatabaseName("UserNameIndex")
-                        .HasFilter("[NormalizedUserName] IS NOT NULL");
+                        .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("AspNetUsers", (string)null);
 
@@ -1188,7 +1247,7 @@ namespace Booksy.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000001",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ae184e16-1012-4586-b027-7b7c668f060b",
+                            ConcurrencyStamp = "bf7e75ea-c38f-4566-9e61-3e42ac186b97",
                             Email = "admin@booksy.com",
                             EmailConfirmed = true,
                             IsActive = true,
@@ -1196,12 +1255,12 @@ namespace Booksy.Migrations
                             Name = "System Admin",
                             NormalizedEmail = "ADMIN@BOOKSY.COM",
                             NormalizedUserName = "ADMIN@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBqAiSD64I7IFkjkEftcao3WW58ubncGT3KTiWMvv08UtIqRaDOCCh6RLyhLnXQm1w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEs0o69nO7VnddP8ft7eYSDaRmmGv4w5lt+S/7fqSYIw98F5cXwrYi+8PYgsefJD2A==",
                             PhoneNumberConfirmed = false,
                             PreferredLanguage = "en",
                             ReceiveNewsletter = true,
-                            RegisteredDate = new DateTime(2026, 7, 9, 8, 45, 20, 663, DateTimeKind.Utc).AddTicks(9767),
-                            SecurityStamp = "f6d85dc6-8965-4c4f-8ab8-99c19bf9cb22",
+                            RegisteredDate = new DateTime(2026, 7, 9, 12, 14, 45, 949, DateTimeKind.Utc).AddTicks(1809),
+                            SecurityStamp = "19e55c10-d7fe-492a-b0bb-b67ae8484f2f",
                             TwoFactorEnabled = false,
                             UserName = "admin@booksy.com"
                         },
@@ -1209,7 +1268,7 @@ namespace Booksy.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000002",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "06b727a1-65b6-4c72-a946-4007055a7e41",
+                            ConcurrencyStamp = "8cba7cf9-e691-47b0-b32b-83fe86a48b2c",
                             Email = "customer1@booksy.com",
                             EmailConfirmed = true,
                             IsActive = true,
@@ -1217,12 +1276,12 @@ namespace Booksy.Migrations
                             Name = "Alice",
                             NormalizedEmail = "CUSTOMER1@BOOKSY.COM",
                             NormalizedUserName = "CUSTOMER1@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEH7A53sA2qNG/wj2TSUl6/MiRDiH1IPmrgTqZcXidEqEPIJ829J7Ovua4ZLPi9sOmQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPQ8Hchj0huHvHK9hN4IEJ5sdvFGBBzPPMK9SGG54GtRjVjdZqlDdTcxyMxj5Zeiaw==",
                             PhoneNumberConfirmed = false,
                             PreferredLanguage = "en",
                             ReceiveNewsletter = true,
-                            RegisteredDate = new DateTime(2026, 7, 9, 8, 45, 20, 775, DateTimeKind.Utc).AddTicks(6476),
-                            SecurityStamp = "f0509ac9-7cd5-419f-9866-a9ac7606ab1e",
+                            RegisteredDate = new DateTime(2026, 7, 9, 12, 14, 46, 3, DateTimeKind.Utc).AddTicks(6738),
+                            SecurityStamp = "fccc3de9-bf53-4381-a321-0e1fb39bba40",
                             TwoFactorEnabled = false,
                             UserName = "customer1@booksy.com"
                         },
@@ -1230,7 +1289,7 @@ namespace Booksy.Migrations
                         {
                             Id = "00000000-0000-0000-0000-000000000003",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "72cc0e0e-d06e-498e-a1f6-cf2211029336",
+                            ConcurrencyStamp = "e36e7b4c-cba2-47a9-a281-13c2ed39eb26",
                             Email = "customer2@booksy.com",
                             EmailConfirmed = true,
                             IsActive = true,
@@ -1238,12 +1297,12 @@ namespace Booksy.Migrations
                             Name = "Bob",
                             NormalizedEmail = "CUSTOMER2@BOOKSY.COM",
                             NormalizedUserName = "CUSTOMER2@BOOKSY.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEHf54+u3Vs/257kS1Sx7zQm9g3q1o88a/NusO/AZejf0Hcszvvy7FvIs6yCrREV+pQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDHBYNr73Zs99XA/iVnsUlio8RPZH3LUhGhiCGOc7f1eIRbF1FAYUqSrICbwhwTlXg==",
                             PhoneNumberConfirmed = false,
                             PreferredLanguage = "en",
                             ReceiveNewsletter = true,
-                            RegisteredDate = new DateTime(2026, 7, 9, 8, 45, 20, 886, DateTimeKind.Utc).AddTicks(7255),
-                            SecurityStamp = "98ac2587-5c55-4394-8026-0430afafcd19",
+                            RegisteredDate = new DateTime(2026, 7, 9, 12, 14, 46, 46, DateTimeKind.Utc).AddTicks(7697),
+                            SecurityStamp = "664b8164-777f-4388-9304-23db481a52ae",
                             TwoFactorEnabled = false,
                             UserName = "customer2@booksy.com"
                         });
@@ -1251,21 +1310,19 @@ namespace Booksy.Migrations
 
             modelBuilder.Entity("Booksy.Models.Entities.Users.Cart", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -1278,51 +1335,52 @@ namespace Booksy.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("BookId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("CartId")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
+
+                    b.Property<Guid>("CartId1")
+                        .HasColumnType("uuid");
 
                     b.Property<int>("Quantity")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 
                     b.HasIndex("BookId");
 
-                    b.HasIndex("CartId");
+                    b.HasIndex("CartId1");
 
                     b.ToTable("CartItem");
                 });
 
             modelBuilder.Entity("Booksy.Models.Entities.Users.Setting", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
+                        .HasColumnType("character varying(100)");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)");
+                        .HasColumnType("character varying(500)");
 
                     b.HasKey("Id");
 
@@ -1333,20 +1391,20 @@ namespace Booksy.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("OTPNumber")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("ValidTo")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
@@ -1358,26 +1416,25 @@ namespace Booksy.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.Property<string>("NormalizedName")
                         .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasColumnType("character varying(256)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedName")
                         .IsUnique()
-                        .HasDatabaseName("RoleNameIndex")
-                        .HasFilter("[NormalizedName] IS NOT NULL");
+                        .HasDatabaseName("RoleNameIndex");
 
                     b.ToTable("AspNetRoles", (string)null);
                 });
@@ -1386,19 +1443,19 @@ namespace Booksy.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -1411,19 +1468,19 @@ namespace Booksy.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ClaimValue")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -1435,17 +1492,17 @@ namespace Booksy.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderKey")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("LoginProvider", "ProviderKey");
 
@@ -1457,10 +1514,10 @@ namespace Booksy.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("RoleId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "RoleId");
 
@@ -1472,16 +1529,16 @@ namespace Booksy.Migrations
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
                     b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("LoginProvider")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("UserId", "LoginProvider", "Name");
 
@@ -1492,13 +1549,13 @@ namespace Booksy.Migrations
                 {
                     b.HasOne("Booksy.Models.Entities.Books.Book", null)
                         .WithMany()
-                        .HasForeignKey("BooksId")
+                        .HasForeignKey("BookId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Booksy.Models.Entities.Books.Tag", null)
                         .WithMany()
-                        .HasForeignKey("TagsId")
+                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -1635,7 +1692,7 @@ namespace Booksy.Migrations
 
                     b.HasOne("Booksy.Models.Entities.Users.Cart", "Cart")
                         .WithMany("Items")
-                        .HasForeignKey("CartId")
+                        .HasForeignKey("CartId1")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
