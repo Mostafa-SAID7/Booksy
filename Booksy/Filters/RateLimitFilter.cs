@@ -47,7 +47,7 @@ namespace Booksy.Filters
                         StatusCode = StatusCodes.Status429TooManyRequests
                     };
 
-                    context.HttpContext.Response.Headers.Add("Retry-After", "60");
+                    context.HttpContext.Response.Headers.Append("Retry-After", "60");
                     return;
                 }
 

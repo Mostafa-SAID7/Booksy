@@ -18,19 +18,19 @@ namespace Booksy.Security
             {
                 // ==================== CLICKJACKING PROTECTION ====================
                 // Prevent the page from being embedded in iframes
-                context.Response.Headers.Add("X-Frame-Options", "DENY");
+                context.Response.Headers.Append("X-Frame-Options", "DENY");
 
                 // ==================== MIME TYPE SNIFFING PROTECTION ====================
                 // Prevent browsers from MIME-sniffing a response away from the declared Content-Type
-                context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+                context.Response.Headers.Append("X-Content-Type-Options", "nosniff");
 
                 // ==================== XSS PROTECTION (Legacy) ====================
                 // Enable XSS protection in older browsers that support this header
-                context.Response.Headers.Add("X-XSS-Protection", "1; mode=block");
+                context.Response.Headers.Append("X-XSS-Protection", "1; mode=block");
 
                 // ==================== CONTENT SECURITY POLICY ====================
                 // Comprehensive CSP to prevent XSS, data injection, and other attacks
-                context.Response.Headers.Add("Content-Security-Policy",
+                context.Response.Headers.Append("Content-Security-Policy",
                     // Default: restrict to same-origin unless explicitly allowed
                     "default-src 'self'; " +
                     
@@ -89,18 +89,18 @@ namespace Booksy.Security
                 // max-age: 1 year, includeSubDomains: apply to all subdomains, preload: allow in browser preload lists
                 if (context.Request.IsHttps || context.Request.Host.Host == "localhost")
                 {
-                    context.Response.Headers.Add("Strict-Transport-Security",
+                    context.Response.Headers.Append("Strict-Transport-Security",
                         "max-age=31536000; includeSubDomains; preload");
                 }
 
                 // ==================== REFERRER POLICY ====================
                 // Control how much referrer information is shared with external sites
                 // strict-origin-when-cross-origin: send origin only for cross-origin requests
-                context.Response.Headers.Add("Referrer-Policy", "strict-origin-when-cross-origin");
+                context.Response.Headers.Append("Referrer-Policy", "strict-origin-when-cross-origin");
 
                 // ==================== PERMISSIONS POLICY ====================
                 // Disable dangerous APIs and features not needed by the application
-                context.Response.Headers.Add("Permissions-Policy",
+                context.Response.Headers.Append("Permissions-Policy",
                     "geolocation=(), " +           // No location tracking
                     "microphone=(), " +             // No microphone access
                     "camera=(), " +                 // No camera access
@@ -118,14 +118,14 @@ namespace Booksy.Security
 
                 // ==================== CROSS-ORIGIN POLICIES ====================
                 // COEP: Cross-Origin-Embedder-Policy (isolate resources)
-                context.Response.Headers.Add("Cross-Origin-Embedder-Policy", "require-corp");
+                context.Response.Headers.Append("Cross-Origin-Embedder-Policy", "require-corp");
                 
                 // COOP: Cross-Origin-Opener-Policy (isolate from opener)
-                context.Response.Headers.Add("Cross-Origin-Opener-Policy", "same-origin");
+                context.Response.Headers.Append("Cross-Origin-Opener-Policy", "same-origin");
 
                 // ==================== X-PERMITTED-CROSS-DOMAIN-POLICIES ====================
                 // Restrict Flash/PDF cross-domain policies
-                context.Response.Headers.Add("X-Permitted-Cross-Domain-Policies", "none");
+                context.Response.Headers.Append("X-Permitted-Cross-Domain-Policies", "none");
 
                 await next();
             });
