@@ -25,18 +25,16 @@ namespace Booksy.Extensions
         {
             // Database Context — build connection string from Replit PG* env vars,
             // falling back to DefaultConnection in appsettings.
-            var pgHost     = Environment.GetEnvironmentVariable("PGHOST");
-            var pgPort     = Environment.GetEnvironmentVariable("PGPORT") ?? "5432";
-            var pgUser     = Environment.GetEnvironmentVariable("PGUSER");
-            var pgPassword = Environment.GetEnvironmentVariable("PGPASSWORD");
-            var pgDatabase = Environment.GetEnvironmentVariable("PGDATABASE");
-
-            var connectionString = (pgHost != null && pgUser != null && pgDatabase != null)
-                ? $"Host={pgHost};Port={pgPort};Database={pgDatabase};Username={pgUser};Password={pgPassword};SSL Mode=Disable"
-                : configuration.GetConnectionString("DefaultConnection");
+            // Entity Framework Core - SQL Server
+            var connectionString = configuration.GetConnectionString("DefaultConnection");
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(connectionString));
+                options.UseSqlServer(connectionString,
+                    sqlOptions =>
+                    {
+                        sqlOptions.CommandTimeout(30);
+                        sqlOptions.UseRelationalNulls(true);
+                    }));
 
             // AutoMapper - Register all profiles from assembly
             services.AddAutoMapper(cfg =>
