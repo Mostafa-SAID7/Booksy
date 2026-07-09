@@ -61,7 +61,7 @@ namespace Booksy.DataAccess.Configurations
 
             builder.Property(r => r.Status)
                    .IsRequired()
-                   .HasDefaultValue(ReviewStatus.Pending);
+                   .HasConversion<int>(); // store enum as int; C# model defaults to ReviewStatus.Pending
 
             builder.Property(r => r.IsDeleted)
                    .HasDefaultValue(false);

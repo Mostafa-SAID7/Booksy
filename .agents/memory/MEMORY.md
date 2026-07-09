@@ -1,0 +1,1 @@
+- [Booksy Replit setup](booksy-replit-setup.md) — key decisions made to get this .NET 9 project running on Replit with PostgreSQL
