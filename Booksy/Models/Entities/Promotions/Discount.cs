@@ -28,11 +28,11 @@ namespace Booksy.Models.Entities.Promotions
         public bool IsActive => !IsDeleted && DateTime.UtcNow >= StartDate && DateTime.UtcNow <= EndDate;
 
         // 🔹 Optional: apply to specific books
-        public int? BookId { get; set; }
+        public Guid? BookId { get; set; }
         public Book? Book { get; set; }
 
         // 🔹 Foreign Key
-        public int PromotionId { get; set; }
+        public Guid PromotionId { get; set; }
         public Promotion Promotion { get; set; } = null!;
     }
 }

@@ -8,6 +8,9 @@ namespace Booksy.Models.Entities.Books
         [Required, MaxLength(100)]
         public string Name { get; set; } = string.Empty;
 
+        [Required, MaxLength(120)]
+        public string Slug { get; set; } = string.Empty;
+
         public bool IsDeleted { get; set; } = false;
 
         // One-to-Many: Books in this category

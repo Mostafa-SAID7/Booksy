@@ -8,6 +8,9 @@ namespace Booksy.Models.Entities.Books
         [Required, MaxLength(100)]
         public string Name { get; set; } = string.Empty;
 
+        [Required, MaxLength(120)]
+        public string Slug { get; set; } = string.Empty;
+
         public string? Bio { get; set; }
 
         public bool IsDeleted { get; set; } = false;

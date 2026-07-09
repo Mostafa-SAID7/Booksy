@@ -10,6 +10,9 @@ namespace Booksy.Models.Entities.Books
         [Required, MaxLength(200)]
         public string Title { get; set; } = string.Empty;
 
+        [Required, MaxLength(220)]
+        public string Slug { get; set; } = string.Empty;
+
         [Required]
         public decimal Price { get; set; }
 
@@ -27,18 +30,19 @@ namespace Booksy.Models.Entities.Books
 
         // Relationships
 
-        // Many-to-One: Category
-        public int CategoryId { get; set; }
+        // Many-to-One: Category (GUID FK)
+        public Guid CategoryId { get; set; }
         public Category Category { get; set; } = null!;
 
-        // Many-to-Many: Authors
-        // 🔹 Foreign Keys
-        public int AuthorId { get; set; }
-
-        // 🔹 Navigation Properties
+        // Many-to-One: Author (GUID FK)
+        public Guid AuthorId { get; set; }
         public Author Author { get; set; } = null!;
+
         // One-to-Many: Reviews
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
+
+        // Many-to-Many: Tags
+        public ICollection<Tag> Tags { get; set; } = new List<Tag>();
 
         // Optional: Orders containing this book
         public ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();

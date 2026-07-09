@@ -16,7 +16,7 @@ namespace Booksy.Models.Entities.Promotions
         public bool IsDeleted { get; set; } = false;
 
         // 🔹 Foreign Key
-        public int PromotionId { get; set; }
+        public Guid PromotionId { get; set; }
         public Promotion Promotion { get; set; } = null!;
     }
 }

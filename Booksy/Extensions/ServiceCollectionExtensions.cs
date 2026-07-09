@@ -1,14 +1,15 @@
-﻿using Booksy.Areas.Admin.Services;
-using Booksy.Areas.Admin.Services.IServices;
-using Booksy.Models.Entities.Books;
+﻿using Booksy.Models.Entities.Books;
 using Booksy.Models.Entities.Orders;
 using Booksy.Models.Entities.Promotions;
 using Booksy.Models.Entities.Users;
+using Booksy.Repositories;
+using Booksy.Repositories.IRepositories;
 using Booksy.Services;
 using Booksy.Utility.DBInitializer;
-using Booksy.Utility.Mapping;
 using Booksy.Utility.Settings;
-using Mapster;
+using Booksy.Infrastructure.FileUpload;
+using Booksy.Common.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +38,11 @@ namespace Booksy.Extensions
                  )
              );
 
-            Booksy.Utility.Mapping.MapsterConfig.RegisterMappings();
+            // AutoMapper - Register all profiles from assembly
+            services.AddAutoMapper(cfg =>
+            {
+                cfg.AddMaps(typeof(Program).Assembly);
+            });
 
             // Identity
             services.AddIdentity<ApplicationUser, IdentityRole>(option =>
@@ -57,13 +62,14 @@ namespace Booksy.Extensions
             });
 
 
-            // Repositories
-            services.AddScoped<IBookRepository, BookRepository>();
-            services.AddScoped<ICategoryRepository, CategoryRepository>();
-            services.AddScoped<IAuthorRepository, AuthorRepository>();
+            // Unit of Work Pattern - Centralized repository management
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // Repositories - Only generic repositories (old specialized ones removed)
             services.AddScoped<IRepository<Category>, Repository<Category>>();
             services.AddScoped<IRepository<Author>, Repository<Author>>();
             services.AddScoped<IRepository<Book>, Repository<Book>>();
+            services.AddScoped<IRepository<Tag>, Repository<Tag>>();
             services.AddScoped<IRepository<Cart>, Repository<Cart>>();
             services.AddScoped<IRepository<CartItem>, Repository<CartItem>>();
             services.AddScoped<IRepository<Order>, Repository<Order>>();
@@ -71,12 +77,20 @@ namespace Booksy.Extensions
             services.AddScoped<IRepository<Promotion>, Repository<Promotion>>();
             services.AddScoped<IRepository<ApplicationUser>, Repository<ApplicationUser>>();
             services.AddScoped<IRepository<UserOTP>, Repository<UserOTP>>();
-            services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+            services.AddScoped<IRepository<Booksy.Models.Entities.Books.Review>, Repository<Booksy.Models.Entities.Books.Review>>();
 
             // Services
-            services.AddScoped<ICategoryService, CategoryService>();
-
-
+            // Query Service - Centralized aggregations and filtering
+            services.AddScoped<IQueryService, QueryService>();
+            
+            // Validation Service - Centralized business rule validation
+            services.AddScoped<IValidationService, ValidationService>();
+            
+            // Slug Service - Centralized slug generation
+            services.AddScoped<ISlugService, SlugService>();
+            
+            // File Upload Service
+            services.AddScoped<IFileUploadService, FileUploadService>();
 
             // DB Initializer
             services.AddScoped<IDBInitializer, DBInitializer>();
@@ -88,8 +102,6 @@ namespace Booksy.Extensions
             // Stripe Config
             services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
             StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
-            // mapster config
-            MapsterConfig.RegisterMappings();
 
             return services;
         }

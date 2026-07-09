@@ -2,6 +2,7 @@ using Booksy.Extensions;
 using Booksy.Models.Entities.Users;
 using Booksy.Utility.DBInitializer;
 using Booksy.Utility.Settings;
+using Booksy.Common.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
@@ -30,8 +31,12 @@ builder.Services.Configure<RequestLocalizationOptions>(options => {
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
 });
-// Add Controllers
-builder.Services.AddControllers()
+// Add Controllers with filters
+builder.Services.AddControllers(options =>
+{
+    // Register global filters
+    options.Filters.Add<Booksy.Filters.ValidateModelFilter>();
+})
     .AddNewtonsoftJson(options =>
         options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
 
@@ -44,6 +49,9 @@ builder.Services.AddCustomSwagger();
 // Add JWT Authentication
 builder.Services.AddCustomJwtAuth(configuration);
 
+// Add CQRS Services (MediatR, FluentValidation, Validators, Behaviors)
+builder.Services.AddCqrsServices();
+
 // Add Application Services (EF, Identity, Repositories, Stripe, Email, etc.)
 builder.Services.AddApplicationServices(configuration);
 
@@ -51,11 +59,14 @@ builder.Services.AddApplicationServices(configuration);
 var app = builder.Build();
 
 // ------------------------- Middleware -------------------------
+// Custom middleware pipeline (exception handling, logging, performance)
+app.UseCustomMiddleware();
+
 // Serve static files
 app.UseStaticFiles();
+
 // Enable CORS
 app.UseCustomCors();
-// Cookie settings
 
 // Enable Swagger (for dev environment)
 if (app.Environment.IsDevelopment())
@@ -79,6 +90,9 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+// Request localization
+app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
+
 // Map Controllers
 app.MapControllers();
 
@@ -86,10 +100,8 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var dbInitializer = scope.ServiceProvider.GetRequiredService<IDBInitializer>();
-    dbInitializer.Initialize(); // <- synchronous
+    dbInitializer.Initialize();
 }
-app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
-
 
 // ------------------------- Run -------------------------
 app.Run();

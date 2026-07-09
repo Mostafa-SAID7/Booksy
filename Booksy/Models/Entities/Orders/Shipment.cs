@@ -8,7 +8,7 @@ namespace Booksy.Models.Entities.Orders
     {
         // Linked Order
         [Required]
-        public int OrderId { get; set; }
+        public Guid OrderId { get; set; }
         public Order Order { get; set; } = null!;
 
         // Carrier Information
