@@ -119,12 +119,12 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 
-// Swagger - always enabled so it's accessible on Replit
+// Swagger - at /swagger route
 app.UseSwagger();
 app.UseSwaggerUI(c =>
 {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Booksy API V1");
-    c.RoutePrefix = string.Empty; // Swagger at root
+    c.RoutePrefix = "swagger"; // Swagger at /swagger
     c.DocumentTitle = "Booksy API Documentation";
     c.DisplayRequestDuration(); // Shows request duration
     c.DefaultModelsExpandDepth(-1); // Collapse schemas by default
@@ -142,6 +142,32 @@ app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocal
 
 // Map Controllers
 app.MapControllers();
+
+// 404 fallback for unmatched routes
+app.MapFallback(async context =>
+{
+    var path = context.Request.Path.Value ?? "";
+
+    // API and Swagger routes return JSON 404
+    if (path.StartsWith("/api", StringComparison.OrdinalIgnoreCase) ||
+        path.StartsWith("/swagger", StringComparison.OrdinalIgnoreCase))
+    {
+        context.Response.StatusCode = 404;
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync("{\"error\":\"Not found\"}");
+        return;
+    }
+
+    // HTML 404 for other routes
+    context.Response.StatusCode = 404;
+    context.Response.ContentType = "text/html; charset=utf-8";
+    var env = context.RequestServices.GetRequiredService<IWebHostEnvironment>();
+    var filePath = Path.Combine(env.WebRootPath, "404.html");
+    if (File.Exists(filePath))
+    {
+        await context.Response.SendFileAsync(filePath);
+    }
+});
 
 // ------------------------- DB Initialization -------------------------
 using (var scope = app.Services.CreateScope())
