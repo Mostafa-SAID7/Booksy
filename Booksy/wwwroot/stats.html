@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Live Statistics — Booksy</title>
+    <meta name="description" content="Real-time statistics dashboard for the Booksy API.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230078d4'/><text x='50' y='70' font-size='60' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>B</text></svg>" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/design-system.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="nav-inner">
+            <a href="/" class="nav-logo">
+                <i class="bi bi-book-fill"></i>
+                <span>Booksy</span>
+            </a>
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+                <i class="bi bi-list"></i>
+            </button>
+            <ul class="nav-links" id="nav-links">
+                <li><a href="/"><i class="bi bi-house"></i> Home</a></li>
+                <li><a href="/docs.html"><i class="bi bi-file-earmark-text"></i> Docs</a></li>
+                <li><a href="/dashboard.html"><i class="bi bi-graph-up"></i> Dashboard</a></li>
+                <li><a href="/stats.html"><i class="bi bi-bar-chart"></i> Stats</a></li>
+                <li><a href="/swagger"><i class="bi bi-braces"></i> Swagger</a></li>
+            </ul>
+            <div class="nav-cta">
+                <a href="/swagger" class="btn btn-primary btn-sm">
+                    <i class="bi bi-play-fill"></i> Try the API
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Hero -->
+    <div class="page-hero">
+        <div class="container">
+            <div class="page-hero-header">
+                <div>
+                    <div class="live-data-container">
+                        <span class="live-dot"></span>
+                        <span class="live-data-label">Live Data</span>
+                    </div>
+                    <h1>Statistics Dashboard</h1>
+                    <p>Real-time data from the Booksy API.</p>
+                </div>
+                <div class="page-hero-actions">
+                    <div class="last-updated" id="last-updated">
+                        <i class="bi bi-clock"></i> Loading…
+                    </div>
+                    <button class="btn btn-secondary btn-sm refresh-btn" id="refresh-btn">
+                        <i class="bi bi-arrow-clockwise"></i> Refresh
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container page-hero-content">
+        <!-- Error Banner -->
+        <div id="error-banner" class="error-state hidden container-pb-24">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+            <span id="error-msg">Could not load statistics.</span>
+        </div>
+
+        <!-- Dashboard Stats -->
+        <div class="section-group">
+            <div class="section-group-title">
+                <i class="bi bi-speedometer2"></i> Overview
+            </div>
+            <div class="grid-4" id="dashboard-stats">
+                <div class="skeleton skeleton-lg"></div>
+                <div class="skeleton skeleton-lg"></div>
+                <div class="skeleton skeleton-lg"></div>
+                <div class="skeleton skeleton-lg"></div>
+            </div>
+        </div>
+
+        <!-- Book + User Stats -->
+        <div class="grid-2 section-group">
+            <!-- Book Stats -->
+            <div>
+                <div class="section-group-title">
+                    <i class="bi bi-journal-richtext"></i> Catalog
+                </div>
+                <div class="card">
+                    <div id="book-stats-content">
+                        <div class="skeleton skeleton-text skeleton-text-sm"></div>
+                        <div class="skeleton skeleton-text skeleton-text-md skeleton-spacing"></div>
+                        <div class="skeleton skeleton-text skeleton-text-lg skeleton-spacing-sm"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Stats -->
+            <div>
+                <div class="section-group-title">
+                    <i class="bi bi-people"></i> Users
+                </div>
+                <div class="card">
+                    <div id="user-stats-content">
+                        <div class="skeleton skeleton-text skeleton-text-sm"></div>
+                        <div class="skeleton skeleton-text skeleton-text-md skeleton-spacing"></div>
+                        <div class="skeleton skeleton-text skeleton-text-lg skeleton-spacing-sm"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Books + Revenue -->
+        <div class="grid-2 section-group">
+            <!-- Top Books -->
+            <div>
+                <div class="section-group-title">
+                    <i class="bi bi-trophy"></i> Top Selling Books
+                </div>
+                <div id="top-books-content">
+                    <div class="skeleton skeleton-item"></div>
+                    <div class="skeleton skeleton-item"></div>
+                    <div class="skeleton skeleton-item"></div>
+                    <div class="skeleton skeleton-item"></div>
+                </div>
+            </div>
+
+            <!-- Revenue Chart -->
+            <div>
+                <div class="section-group-title">
+                    <i class="bi bi-bar-chart"></i> Monthly Revenue
+                </div>
+                <div class="card">
+                    <div id="revenue-content">
+                        <div class="skeleton skeleton-chart"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-inner">
+                <div class="footer-logo">
+                    <i class="bi bi-book-fill"></i> Booksy API
+                </div>
+                <ul class="footer-links">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/docs.html">Docs</a></li>
+                    <li><a href="/stats.html">Stats</a></li>
+                    <li><a href="/swagger">Swagger</a></li>
+                </ul>
+            </div>
+            <div class="footer-copy">
+                Built with .NET 9 • CQRS • SQL Server &nbsp;|&nbsp; MIT License
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/app.js"></script>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>

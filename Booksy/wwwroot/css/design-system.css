@@ -1223,3 +1223,690 @@ img {
     gap: 8px;
   }
 }
+
+
+/* =========================================================
+   Statistics Page Styles
+   ========================================================= */
+
+.refresh-btn {
+  margin-left: auto;
+}
+
+.last-updated {
+  font-size: 0.78rem;
+  color: var(--text-subtle);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 0 2px var(--success-dim);
+  animation: pulse 2s infinite;
+  display: inline-block;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+.section-group {
+  margin-bottom: 48px;
+}
+
+.section-group-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-group-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.top-books-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.book-rank-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 12px 16px;
+  transition: all var(--transition);
+}
+
+.book-rank-item:hover {
+  border-color: var(--border-2);
+  background: var(--surface-2);
+}
+
+.rank-num {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-subtle);
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.rank-num.top {
+  color: var(--warning);
+}
+
+.book-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.book-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.book-author {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.book-sales {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.book-sales-num {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.book-sales-label {
+  font-size: 0.72rem;
+  color: var(--text-subtle);
+}
+
+.revenue-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 120px;
+  padding: 0 4px;
+}
+
+.revenue-bar-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  height: 100%;
+}
+
+.revenue-bar {
+  width: 100%;
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+  background: var(--primary);
+  opacity: 0.8;
+  transition: opacity 0.2s, height 0.6s ease;
+  min-height: 4px;
+}
+
+.revenue-bar:hover {
+  opacity: 1;
+}
+
+.revenue-label {
+  font-size: 0.65rem;
+  color: var(--text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.metric-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+}
+
+.metric-label {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metric-val {
+  font-weight: 600;
+}
+
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r);
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+}
+
+.stat-icon.blue { background: var(--primary-dim); color: var(--primary); }
+.stat-icon.green { background: var(--success-dim); color: var(--success); }
+.stat-icon.yellow { background: var(--warning-dim); color: var(--warning); }
+.stat-icon.cyan { background: var(--accent-dim); color: var(--accent); }
+
+.stat-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.stat-sub {
+  font-size: 0.8rem;
+  color: var(--text-subtle);
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  transition: all var(--transition);
+}
+
+.stat-card:hover {
+  border-color: var(--border-2);
+  box-shadow: var(--shadow);
+}
+
+.error-state {
+  background: var(--danger-dim);
+  border: 1px solid var(--danger);
+  border-radius: var(--r);
+  padding: 16px;
+  color: var(--danger);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.error-state i {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+  opacity: 0.5;
+  display: block;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.6s infinite;
+  border-radius: var(--r-sm);
+}
+
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+.skeleton-text {
+  height: 16px;
+  margin-bottom: 8px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .refresh-btn {
+    margin-left: 0;
+  }
+
+  .page-hero {
+    flex-direction: column;
+  }
+
+  .revenue-chart {
+    height: 100px;
+  }
+
+  .section-group-title {
+    font-size: 0.7rem;
+  }
+}
+
+
+/* =========================================================
+   Feature Icon Variants
+   ========================================================= */
+
+.feature-icon-primary {
+  background: var(--primary-dim);
+  color: var(--primary);
+}
+
+.feature-icon-success {
+  background: var(--success-dim);
+  color: var(--success);
+}
+
+.feature-icon-warning {
+  background: var(--warning-dim);
+  color: var(--warning);
+}
+
+.feature-icon-accent {
+  background: rgba(138, 79, 255, 0.14);
+  color: #a97fff;
+}
+
+.feature-icon-info {
+  background: var(--info-dim);
+  color: var(--info);
+}
+
+.feature-icon-cyan {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+/* =========================================================
+   CTA Section
+   ========================================================= */
+
+.cta-section {
+  text-align: center;
+}
+
+.cta-subtitle {
+  margin: 10px auto 28px;
+  max-width: 460px;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+
+/* =========================================================
+   Error Page (404)
+   ========================================================= */
+
+.error-page-hero {
+  min-height: 100vh;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-code {
+  font-size: 4em;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.status-warning {
+  background: var(--warning-dim);
+  border-left-color: var(--warning);
+}
+
+.status code {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 2px 6px;
+  border-radius: var(--r-xs);
+  font-family: 'SF Mono', 'Cascadia Code', monospace;
+  font-size: 0.85em;
+}
+
+
+/* =========================================================
+   Dashboard Page
+   ========================================================= */
+
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+
+.dashboard-stats-section {
+  margin-bottom: 48px;
+}
+
+.dashboard-card {
+  margin-bottom: 24px;
+}
+
+.dashboard-card-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+
+.dashboard-stat-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.dashboard-stat-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+  }
+
+  .dashboard-header button {
+    width: 100%;
+  }
+}
+
+
+/* =========================================================
+   Page Hero Badges & Tags
+   ========================================================= */
+
+.page-hero-tags {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.page-hero-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.page-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* =========================================================
+   Lock Icon Styling
+   ========================================================= */
+
+.lock-icon-small {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.lock-icon-warning {
+  font-size: 0.7rem;
+  color: var(--warning);
+}
+
+/* =========================================================
+   Stat Icon Group (with background & sizing)
+   ========================================================= */
+
+.stat-icon-auth {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  background: var(--primary-dim);
+  color: var(--primary);
+}
+
+.stat-icon-books {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  background: var(--success-dim);
+  color: var(--success);
+}
+
+.stat-icon-cart {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  background: var(--warning-dim);
+  color: var(--warning);
+}
+
+.stat-icon-orders {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.stat-icon-reviews {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  background: rgba(138, 79, 255, 0.14);
+  color: #a97fff;
+}
+
+.stat-icon-stats {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  background: var(--info-dim);
+  color: var(--info);
+}
+
+/* =========================================================
+   Skeleton Loaders (Variations)
+   ========================================================= */
+
+.skeleton-lg {
+  height: 130px;
+  border-radius: var(--r-lg);
+}
+
+.skeleton-item {
+  height: 56px;
+  border-radius: var(--r);
+  margin-bottom: 10px;
+}
+
+.skeleton-item:last-child {
+  margin-bottom: 0;
+}
+
+.skeleton-chart {
+  height: 120px;
+  border-radius: var(--r-sm);
+}
+
+.skeleton-text-sm {
+  width: 50%;
+}
+
+.skeleton-text-md {
+  width: 70%;
+}
+
+.skeleton-text-lg {
+  width: 60%;
+}
+
+.skeleton-spacing {
+  margin-top: 12px;
+}
+
+.skeleton-spacing-sm {
+  margin-top: 8px;
+}
+
+/* =========================================================
+   Page Hero Content Area
+   ========================================================= */
+
+.page-hero-content {
+  padding-bottom: 80px;
+}
+
+.page-hero-cta {
+  text-align: center;
+  margin-bottom: 16px;
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   Live Data Indicator & Spacing
+   ========================================================= */
+
+.live-data-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.live-data-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+/* =========================================================
+   Endpoint Icon Groups (Consolidated)
+   ========================================================= */
+
+.endpoint-icon-base {
+  width: 32px;
+  height: 32px;
+  font-size: 1rem;
+  border-radius: var(--r);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.endpoint-icon-auth {
+  background: var(--primary-dim);
+  color: var(--primary);
+}
+
+.endpoint-icon-books {
+  background: var(--success-dim);
+  color: var(--success);
+}
+
+.endpoint-icon-cart {
+  background: var(--warning-dim);
+  color: var(--warning);
+}
+
+.endpoint-icon-orders {
+  background: var(--accent-dim);
+  color: var(--accent);
+}
+
+.endpoint-icon-reviews {
+  background: rgba(138, 79, 255, 0.14);
+  color: #a97fff;
+}
+
+.endpoint-icon-stats {
+  background: var(--primary-dim);
+  color: var(--primary);
+}
+
+/* =========================================================
+   Component Container Styles
+   ========================================================= */
+
+.container-pb-80 {
+  padding-bottom: 80px;
+}
+
+.container-pb-24 {
+  padding-bottom: 24px;
+}
+
+.card-cta {
+  text-align: center;
+}
+
+.card-cta-text {
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}

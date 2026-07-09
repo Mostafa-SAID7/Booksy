@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>API Docs — Booksy</title>
     <meta name="description" content="Complete API reference for Booksy — all endpoints, methods and descriptions.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230078d4'/><text x='50' y='70' font-size='60' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>B</text></svg>" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/design-system.css">
 </head>
@@ -23,6 +24,7 @@
                 <li><a href="/"><i class="bi bi-house"></i> Home</a></li>
                 <li><a href="/docs.html"><i class="bi bi-file-earmark-text"></i> Docs</a></li>
                 <li><a href="/dashboard.html"><i class="bi bi-graph-up"></i> Dashboard</a></li>
+                <li><a href="/stats.html"><i class="bi bi-bar-chart"></i> Stats</a></li>
                 <li><a href="/swagger"><i class="bi bi-braces"></i> Swagger</a></li>
             </ul>
             <div class="nav-cta">
@@ -36,9 +38,9 @@
     <!-- Page Hero -->
     <div class="page-hero">
         <div class="container">
-            <div class="flex items-center justify-between gap-16 flex-wrap-responsive">
+            <div class="page-hero-header">
                 <div>
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                    <div class="page-hero-tags">
                         <span class="tag"><i class="bi bi-braces"></i> REST</span>
                         <span class="tag"><i class="bi bi-lock"></i> JWT Bearer</span>
                         <span class="tag">v1.0</span>
@@ -55,13 +57,13 @@
     </div>
 
     <!-- Main Content -->
-    <div class="container" style="padding-bottom: 80px;">
+    <div class="container page-hero-content">
         <!-- Authentication Note -->
         <div class="auth-note">
             <i class="bi bi-info-circle-fill"></i>
             <div>
                 <strong>Authentication</strong>
-                Endpoints marked with <i class="bi bi-lock-fill" style="color: var(--warning);"></i> require a JWT bearer token. 
+                Endpoints marked with <i class="bi bi-lock-fill lock-icon-warning"></i> require a JWT bearer token. 
                 Register via <code class="mono">POST /api/Authentication/register</code>, then login to receive your token. 
                 Pass it as <code class="mono">Authorization: Bearer &lt;token&gt;</code>.
             </div>
@@ -73,7 +75,7 @@
             <div class="endpoint-group open">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
-                        <span class="stat-icon" style="width: 32px; height: 32px; font-size: 1rem; background: var(--primary-dim); color: var(--primary);">
+                        <span class="stat-icon endpoint-icon-base endpoint-icon-auth">
                             <i class="bi bi-shield-lock"></i>
                         </span>
                         Authentication
@@ -121,7 +123,7 @@
             <div class="endpoint-group">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
-                        <span class="stat-icon" style="width: 32px; height: 32px; font-size: 1rem; background: var(--success-dim); color: var(--success);">
+                        <span class="stat-icon endpoint-icon-base endpoint-icon-books">
                             <i class="bi bi-journal-richtext"></i>
                         </span>
                         Books
@@ -149,22 +151,22 @@
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-post">POST</span>
-                        <span class="endpoint-path">/api/Books <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Books <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Create book</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-put">PUT</span>
-                        <span class="endpoint-path">/api/Books/{id} <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Books/{id} <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Update book</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-delete">DELETE</span>
-                        <span class="endpoint-path">/api/Books/{id} <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Books/{id} <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Soft-delete book</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-post">POST</span>
-                        <span class="endpoint-path">/api/Books/{id}/image <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Books/{id}/image <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Upload book cover image</span>
                     </div>
                 </div>
@@ -174,7 +176,7 @@
             <div class="endpoint-group">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
-                        <span class="stat-icon" style="width: 32px; height: 32px; font-size: 1rem; background: var(--warning-dim); color: var(--warning);">
+                        <span class="stat-icon endpoint-icon-base endpoint-icon-cart">
                             <i class="bi bi-cart3"></i>
                         </span>
                         Cart & Checkout
@@ -187,32 +189,32 @@
                 <div class="endpoint-list">
                     <div class="endpoint-item">
                         <span class="badge badge-get">GET</span>
-                        <span class="endpoint-path">/api/Carts <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Carts <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Get current user's cart</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-post">POST</span>
-                        <span class="endpoint-path">/api/Carts/items <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Carts/items <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Add item to cart</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-put">PUT</span>
-                        <span class="endpoint-path">/api/Carts/items/{id} <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Carts/items/{id} <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Update cart item quantity</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-delete">DELETE</span>
-                        <span class="endpoint-path">/api/Carts/items/{id} <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Carts/items/{id} <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Remove cart item</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-delete">DELETE</span>
-                        <span class="endpoint-path">/api/Carts <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Carts <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Clear cart</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-post">POST</span>
-                        <span class="endpoint-path">/api/Checkouts <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Checkouts <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Create Stripe checkout session</span>
                     </div>
                     <div class="endpoint-item">
@@ -227,7 +229,7 @@
             <div class="endpoint-group">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
-                        <span class="stat-icon" style="width: 32px; height: 32px; font-size: 1rem; background: var(--accent-dim); color: var(--accent);">
+                        <span class="stat-icon endpoint-icon-base endpoint-icon-orders">
                             <i class="bi bi-receipt"></i>
                         </span>
                         Orders
@@ -240,27 +242,27 @@
                 <div class="endpoint-list">
                     <div class="endpoint-item">
                         <span class="badge badge-get">GET</span>
-                        <span class="endpoint-path">/api/Orders <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Orders <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">List user orders</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-get">GET</span>
-                        <span class="endpoint-path">/api/Orders/{id} <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Orders/{id} <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Get order details</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-post">POST</span>
-                        <span class="endpoint-path">/api/Orders <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Orders <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Place an order</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-patch">PATCH</span>
-                        <span class="endpoint-path">/api/Orders/{id}/status <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Orders/{id}/status <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Update order status (admin)</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-delete">DELETE</span>
-                        <span class="endpoint-path">/api/Orders/{id} <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Orders/{id} <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Cancel order</span>
                     </div>
                 </div>
@@ -270,7 +272,7 @@
             <div class="endpoint-group">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
-                        <span class="stat-icon" style="width: 32px; height: 32px; font-size: 1rem; background: rgba(138, 79, 255, 0.14); color: #a97fff;">
+                        <span class="stat-icon endpoint-icon-base endpoint-icon-reviews">
                             <i class="bi bi-star-half"></i>
                         </span>
                         Reviews
@@ -293,17 +295,17 @@
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-post">POST</span>
-                        <span class="endpoint-path">/api/Reviews <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Reviews <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Submit a review</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-put">PUT</span>
-                        <span class="endpoint-path">/api/Reviews/{id} <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Reviews/{id} <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Update review status</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-delete">DELETE</span>
-                        <span class="endpoint-path">/api/Reviews/{id} <i class="bi bi-lock-fill" style="font-size: 0.7rem; color: var(--text-muted);"></i></span>
+                        <span class="endpoint-path">/api/Reviews/{id} <i class="bi bi-lock-fill lock-icon-small"></i></span>
                         <span class="endpoint-desc">Delete review</span>
                     </div>
                 </div>
@@ -313,7 +315,7 @@
             <div class="endpoint-group">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
-                        <span class="stat-icon" style="width: 32px; height: 32px; font-size: 1rem; background: var(--primary-dim); color: var(--primary);">
+                        <span class="stat-icon endpoint-icon-base endpoint-icon-stats">
                             <i class="bi bi-graph-up"></i>
                         </span>
                         Statistics & Reports
@@ -359,8 +361,8 @@
         </div>
 
         <!-- CTA Card -->
-        <div class="card mt-32" style="text-align: center;">
-            <p style="color: var(--text-muted); margin-bottom: 16px;">
+        <div class="card card-cta mt-32">
+            <p class="card-cta-text">
                 Want to try these endpoints interactively with full request/response details?
             </p>
             <a href="/swagger" class="btn btn-primary">
