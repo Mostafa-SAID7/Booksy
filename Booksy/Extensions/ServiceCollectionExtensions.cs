@@ -25,15 +25,28 @@ namespace Booksy.Extensions
         {
             // Database Context — build connection string from Replit PG* env vars,
             // falling back to DefaultConnection in appsettings.
-            // Entity Framework Core - SQL Server
-            var connectionString = configuration.GetConnectionString("DefaultConnection");
+            var pgHost = Environment.GetEnvironmentVariable("PGHOST");
+            var pgPort = Environment.GetEnvironmentVariable("PGPORT") ?? "5432";
+            var pgDb = Environment.GetEnvironmentVariable("PGDATABASE");
+            var pgUser = Environment.GetEnvironmentVariable("PGUSER");
+            var pgPass = Environment.GetEnvironmentVariable("PGPASSWORD");
+
+            string connectionString;
+            if (!string.IsNullOrEmpty(pgHost) && !string.IsNullOrEmpty(pgDb))
+            {
+                connectionString = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass};SSL Mode=Disable;Trust Server Certificate=true;";
+            }
+            else
+            {
+                connectionString = configuration.GetConnectionString("DefaultConnection")
+                    ?? throw new InvalidOperationException("No database connection string found.");
+            }
 
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(connectionString,
-                    sqlOptions =>
+                options.UseNpgsql(connectionString,
+                    npgsqlOptions =>
                     {
-                        sqlOptions.CommandTimeout(30);
-                        sqlOptions.UseRelationalNulls(true);
+                        npgsqlOptions.CommandTimeout(30);
                     }));
 
             // AutoMapper - Register all profiles from assembly
@@ -118,9 +131,14 @@ namespace Booksy.Extensions
             // Alerting Service
             services.AddScoped<Booksy.Infrastructure.Monitoring.IAlertingService, Booksy.Infrastructure.Monitoring.AlertingService>();
 
-            // Stripe Config
+            // Stripe Config — prefer STRIPE_SECRET_KEY env var, fall back to appsettings
+            var stripeSecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY")
+                ?? configuration["Stripe:SecretKey"];
             services.Configure<StripeSettings>(configuration.GetSection("Stripe"));
-            StripeConfiguration.ApiKey = configuration["Stripe:SecretKey"];
+            if (!string.IsNullOrWhiteSpace(stripeSecretKey))
+            {
+                StripeConfiguration.ApiKey = stripeSecretKey;
+            }
 
             return services;
         }
