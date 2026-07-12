@@ -1,6 +1,7 @@
 modules = ["dotnet-9.0", "web", "postgresql-16"]
 [agent]
 expertMode = true
+stack = "BEST_EFFORT_FALLBACK"
 
 [nix]
 channel = "stable-25_05"
@@ -10,6 +11,7 @@ channel = "stable-25_05"
 [userenv.shared]
 ASPNETCORE_ENVIRONMENT = "Development"
 ASPNETCORE_URLS = "http://0.0.0.0:5000"
+JWT__SecretKey = "booksy-jwt-secret-key-min-32-chars-secure-2024!"
 
 [workflows]
 runButton = "Project"

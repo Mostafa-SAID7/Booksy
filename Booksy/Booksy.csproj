@@ -17,6 +17,7 @@
 
 		<!-- JSON / MVC -->
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.9" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.4" />
 
 		<!-- OpenAPI / Swagger -->
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.4" />
