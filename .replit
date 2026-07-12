@@ -1,4 +1,4 @@
-modules = ["dotnet-7.0", "web", "nodejs-20"]
+modules = ["web", "nodejs-20", "dotnet-9.0"]
 [agent]
 expertMode = true
 stack = "BEST_EFFORT_FALLBACK"
@@ -44,3 +44,7 @@ externalPort = 80
 [[ports]]
 localPort = 5001
 externalPort = 3001
+
+[[ports]]
+localPort = 5010
+externalPort = 3002
