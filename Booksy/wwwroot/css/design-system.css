@@ -466,8 +466,8 @@ img {
 
 .status {
   background: var(--primary-dim);
-  border-left: 4px solid var(--primary);
-  padding: 15px;
+  border: 1px solid rgba(0, 120, 212, 0.3);
+  padding: 14px 18px;
   margin: 20px 0;
   text-align: left;
   border-radius: var(--r);
@@ -1503,6 +1503,13 @@ img {
   margin-bottom: 8px;
 }
 
+.skeleton-value {
+  height: 36px;
+  width: 55%;
+  margin: 10px 0 6px;
+  border-radius: var(--r-sm);
+}
+
 .hidden {
   display: none !important;
 }
@@ -1603,7 +1610,7 @@ img {
 
 .status-warning {
   background: var(--warning-dim);
-  border-left-color: var(--warning);
+  border-color: rgba(255, 202, 40, 0.35);
 }
 
 .status code {
@@ -1720,56 +1727,23 @@ img {
 }
 
 /* =========================================================
-   Stat Icon Group (with background & sizing)
+   Stat Icon Group — shared 32px size, used for endpoint
+   and dashboard icon badges
    ========================================================= */
 
-.stat-icon-auth {
+.stat-icon-sm {
   width: 32px;
   height: 32px;
   font-size: 1rem;
-  background: var(--primary-dim);
-  color: var(--primary);
 }
 
-.stat-icon-books {
-  width: 32px;
-  height: 32px;
-  font-size: 1rem;
-  background: var(--success-dim);
-  color: var(--success);
-}
-
-.stat-icon-cart {
-  width: 32px;
-  height: 32px;
-  font-size: 1rem;
-  background: var(--warning-dim);
-  color: var(--warning);
-}
-
-.stat-icon-orders {
-  width: 32px;
-  height: 32px;
-  font-size: 1rem;
-  background: var(--accent-dim);
-  color: var(--accent);
-}
-
-.stat-icon-reviews {
-  width: 32px;
-  height: 32px;
-  font-size: 1rem;
-  background: rgba(138, 79, 255, 0.14);
-  color: #a97fff;
-}
-
-.stat-icon-stats {
-  width: 32px;
-  height: 32px;
-  font-size: 1rem;
-  background: var(--info-dim);
-  color: var(--info);
-}
+/* colour variants — apply alongside .stat-icon or .stat-icon-sm */
+.icon-auth,    .stat-icon-auth    { background: var(--primary-dim);            color: var(--primary); }
+.icon-books,   .stat-icon-books   { background: var(--success-dim);            color: var(--success); }
+.icon-cart,    .stat-icon-cart    { background: var(--warning-dim);            color: var(--warning); }
+.icon-orders,  .stat-icon-orders  { background: var(--accent-dim);             color: var(--accent); }
+.icon-reviews, .stat-icon-reviews { background: rgba(138,79,255,.14);          color: #a97fff; }
+.icon-stats,   .stat-icon-stats   { background: var(--info-dim);               color: var(--info); }
 
 /* =========================================================
    Skeleton Loaders (Variations)

@@ -33,14 +33,6 @@
   }
 })();
 
-/* ----- Endpoint accordion (docs page) ----- */
-document.querySelectorAll('.endpoint-group-header').forEach(header => {
-  header.addEventListener('click', () => {
-    const group = header.closest('.endpoint-group');
-    group.classList.toggle('open');
-  });
-});
-
 /* ----- API helpers ----- */
 const API = {
   base: '',
