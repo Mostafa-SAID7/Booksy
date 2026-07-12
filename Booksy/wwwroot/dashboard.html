@@ -56,6 +56,20 @@
                 <span class="live-dot"></span> <i class="bi bi-clock"></i> Loading…
             </div>
 
+            <!-- System Health -->
+            <div class="card dashboard-card" id="health-card">
+                <div class="health-card-header">
+                    <h3 class="dashboard-card-title" style="margin:0">🩺 System Health</h3>
+                    <div class="health-refresh-info">
+                        <span id="health-status-badge" class="health-badge">—</span>
+                        <span class="health-next-refresh">next refresh in <strong id="health-countdown">30</strong>s</span>
+                    </div>
+                </div>
+                <div id="health-content">
+                    <!-- Populated by dashboard.js -->
+                </div>
+            </div>
+
             <!-- Main Stats -->
             <div class="dashboard-stats-section">
                 <h2 class="section-title">Key Metrics</h2>
