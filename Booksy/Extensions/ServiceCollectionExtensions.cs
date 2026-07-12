@@ -140,6 +140,9 @@ namespace Booksy.Extensions
                 StripeConfiguration.ApiKey = stripeSecretKey;
             }
 
+            // Elasticsearch — full-text search
+            services.AddElasticsearch(configuration);
+
             return services;
         }
     }

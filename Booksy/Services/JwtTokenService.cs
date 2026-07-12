@@ -1,4 +1,4 @@
-﻿using Booksy.Models.Entities.Users;
+using Booksy.Models.Entities.Users;
 using Booksy.Utility.Settings;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
@@ -46,7 +46,7 @@ namespace Booksy.Services
                 issuer: _jwtSettings.Issuer,
                 audience: _jwtSettings.Audience,
                 claims: claims,
-                expires: DateTime.UtcNow.AddHours(2),
+                expires: DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiryMinutes),
                 signingCredentials: creds
             );
 

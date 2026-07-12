@@ -1,7 +1,5 @@
-﻿using Booksy.Utility.Settings;
+using Booksy.Utility.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -14,9 +12,9 @@ namespace Booksy.Extensions
             // Bind JwtSettings
             services.Configure<JwtSettings>(configuration.GetSection("JWT"));
 
-            // Resolve settings via Options pattern
-            var serviceProvider = services.BuildServiceProvider();
-            var jwtSettings = serviceProvider.GetRequiredService<IOptions<JwtSettings>>().Value;
+            // Read settings directly from configuration — avoids BuildServiceProvider() anti-pattern
+            var jwtSettings = configuration.GetSection("JWT").Get<JwtSettings>()
+                ?? throw new InvalidOperationException("JWT settings are missing from configuration.");
 
             services.AddAuthentication(o =>
             {
@@ -27,9 +25,10 @@ namespace Booksy.Extensions
             .AddJwtBearer(o =>
             {
                 // Only require HTTPS in production (safe in dev with self-signed certs)
-                o.RequireHttpsMetadata = !Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")?.Equals("Development", StringComparison.OrdinalIgnoreCase) ?? true;
+                o.RequireHttpsMetadata = !Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                    ?.Equals("Development", StringComparison.OrdinalIgnoreCase) ?? true;
                 o.SaveToken = true;
-                o.TokenValidationParameters = new TokenValidationParameters()
+                o.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidIssuer = jwtSettings.Issuer,
@@ -37,7 +36,9 @@ namespace Booksy.Extensions
                     ValidAudience = jwtSettings.Audience,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+                        Encoding.UTF8.GetBytes(jwtSettings.SecretKey)),
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero   // no grace period beyond ExpiryMinutes
                 };
             });
 
