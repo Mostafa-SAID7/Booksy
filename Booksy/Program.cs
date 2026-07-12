@@ -107,6 +107,9 @@ app.UseCustomMiddleware();
 // Performance monitoring middleware
 app.UsePerformanceMonitoring();
 
+// Map / → index.html (must come before UseStaticFiles)
+app.UseDefaultFiles();
+
 // Serve static files
 app.UseStaticFiles();
 
@@ -142,6 +145,13 @@ app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocal
 
 // Map Controllers
 app.MapControllers();
+
+// Serve index.html for root path (UseDefaultFiles can't run before implicit routing)
+app.MapGet("/", async (IWebHostEnvironment env) =>
+{
+    var filePath = Path.Combine(env.WebRootPath, "index.html");
+    return Results.File(filePath, "text/html");
+});
 
 // 404 fallback for unmatched routes
 app.MapFallback(async context =>
