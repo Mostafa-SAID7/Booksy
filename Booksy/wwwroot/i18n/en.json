@@ -1,0 +1,84 @@
+{
+  "nav": {
+    "home": "Home",
+    "docs": "Docs",
+    "dashboard": "Dashboard",
+    "stats": "Stats",
+    "swagger": "Swagger",
+    "tryApi": "Try the API",
+    "backHome": "Back Home"
+  },
+  "common": {
+    "refresh": "Refresh",
+    "loading": "Loading…",
+    "updated": "Updated",
+    "nextRefresh": "next refresh in",
+    "healthy": "Healthy",
+    "degraded": "Degraded",
+    "unhealthy": "Unhealthy",
+    "search": "Search endpoints…",
+    "copyEndpoint": "Copy endpoint",
+    "copied": "Copied!",
+    "online": "Online",
+    "connected": "Connected",
+    "responding": "Responding"
+  },
+  "home": {
+    "badge": ".NET 9 • CQRS • PostgreSQL",
+    "headline": "The Booksy API",
+    "sub": "A production-ready REST API for modern book platforms — authentication, catalog, cart, orders, payments, analytics and more.",
+    "exploreSwagger": "Explore with Swagger",
+    "viewDashboard": "View Dashboard",
+    "stat_controllers": "API Controllers",
+    "stat_endpoints": "Endpoints",
+    "stat_security": "Security Layers",
+    "stat_release": "Stable Release",
+    "features_title": "Everything you need",
+    "features_sub": "A full-featured book platform API — built on .NET 9, CQRS, and PostgreSQL.",
+    "cta_title": "Ready to integrate?",
+    "cta_sub": "Explore the interactive docs, test live endpoints, and track real-time stats.",
+    "openSwagger": "Open Swagger UI",
+    "liveDashboard": "Live Dashboard"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "sub": "Real-time statistics for the Booksy platform",
+    "systemHealth": "System Health",
+    "keyMetrics": "Key Metrics",
+    "totalUsers": "Total Users",
+    "totalBooks": "Total Books",
+    "totalOrders": "Total Orders",
+    "totalRevenue": "Total Revenue",
+    "bookStats": "Book Statistics",
+    "userStats": "User Statistics",
+    "topBooks": "Top Selling Books",
+    "revenue": "Monthly Revenue",
+    "registeredAccounts": "Registered accounts",
+    "activeCatalog": "Active in catalog",
+    "allTime": "All time"
+  },
+  "docs": {
+    "title": "API Reference",
+    "sub": "All endpoints grouped by feature area. Click any group to expand.",
+    "swaggerLink": "Swagger",
+    "swaggerHint": "for interactive testing."
+  },
+  "stats": {
+    "title": "Live Statistics",
+    "sub": "Real-time platform metrics"
+  },
+  "health": {
+    "apiServer": "API Server",
+    "postgres": "PostgreSQL",
+    "statsApi": "Statistics API"
+  },
+  "errors": {
+    "notFound": "Page Not Found",
+    "notFoundSub": "The resource you're looking for doesn't exist or has been moved.",
+    "tip": "Looking for the API?",
+    "visitSwagger": "Swagger UI",
+    "visitDocs": "API Docs",
+    "backHome": "Back to Home",
+    "apiDocs": "API Docs"
+  }
+}

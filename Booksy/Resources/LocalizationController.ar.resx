@@ -1,64 +1,5 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
-    Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
-    associated with the data types.
-    
-    Example:
-    
-    ... ado.net/XML headers & schema ...
-    <resheader name="resmimetype">text/microsoft-resx</resheader>
-    <resheader name="version">2.0</resheader>
-    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
-    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
-    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
-    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
-    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
-        <value>[base64 mime encoded serialized .NET Framework object]</value>
-    </data>
-    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
-        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
-        <comment>This is a comment</comment>
-    </data>
-                
-    There are any number of "resheader" rows that contain simple 
-    name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
-    mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
-    extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
-    read any of the formats listed below.
-    
-    mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
-            : and then encoded with base64 encoding.
-    
-    mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
-            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
-            : and then encoded with base64 encoding.
-
-    mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
-            : using a System.ComponentModel.TypeConverter
-            : and then encoded with base64 encoding.
-    -->
   <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
     <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
     <xsd:element name="root" msdata:IsDataSet="true">
@@ -117,7 +58,118 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+
+  <!-- ── Authentication success ── -->
   <data name="Add user" xml:space="preserve">
-    <value>تم اضافه الحساب بنجاح يرجاء تاكيد الحساب</value>
+    <value>تم إنشاء الحساب بنجاح. يرجى تأكيد بريدك الإلكتروني!</value>
+  </data>
+  <data name="EmailConfirmed" xml:space="preserve">
+    <value>تم تأكيد البريد الإلكتروني بنجاح. يمكنك الآن تسجيل الدخول.</value>
+  </data>
+  <data name="PasswordReset" xml:space="preserve">
+    <value>تم إعادة تعيين كلمة المرور بنجاح.</value>
+  </data>
+  <data name="OperationSuccess" xml:space="preserve">
+    <value>تمت العملية بنجاح.</value>
+  </data>
+
+  <!-- ── Auth errors ── -->
+  <data name="UserNotFound" xml:space="preserve">
+    <value>المستخدم غير موجود.</value>
+  </data>
+  <data name="UserInactive" xml:space="preserve">
+    <value>هذا الحساب غير نشط. يرجى التواصل مع الدعم الفني.</value>
+  </data>
+  <data name="InvalidCredentials" xml:space="preserve">
+    <value>البريد الإلكتروني أو كلمة المرور غير صحيحة.</value>
+  </data>
+  <data name="UserAlreadyExists" xml:space="preserve">
+    <value>يوجد حساب مسجّل بهذا البريد الإلكتروني بالفعل.</value>
+  </data>
+  <data name="RegistrationFailed" xml:space="preserve">
+    <value>فشل تسجيل الحساب. يرجى المحاولة مرة أخرى.</value>
+  </data>
+  <data name="ValidationFailed" xml:space="preserve">
+    <value>فشل التحقق من الصحة. يرجى مراجعة الحقول أدناه.</value>
+  </data>
+  <data name="Unauthorized" xml:space="preserve">
+    <value>ليس لديك صلاحية لتنفيذ هذا الإجراء.</value>
+  </data>
+  <data name="TokenInvalid" xml:space="preserve">
+    <value>الرمز غير صالح أو منتهي الصلاحية.</value>
+  </data>
+
+  <!-- ── Register validation ── -->
+  <data name="Email_Required" xml:space="preserve">
+    <value>البريد الإلكتروني مطلوب.</value>
+  </data>
+  <data name="Email_Invalid" xml:space="preserve">
+    <value>يرجى إدخال بريد إلكتروني صحيح.</value>
+  </data>
+  <data name="Password_Required" xml:space="preserve">
+    <value>كلمة المرور مطلوبة.</value>
+  </data>
+  <data name="Password_TooShort" xml:space="preserve">
+    <value>يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.</value>
+  </data>
+  <data name="Password_NeedsUppercase" xml:space="preserve">
+    <value>يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل.</value>
+  </data>
+  <data name="Password_NeedsLowercase" xml:space="preserve">
+    <value>يجب أن تحتوي كلمة المرور على حرف صغير واحد على الأقل.</value>
+  </data>
+  <data name="Password_NeedsDigit" xml:space="preserve">
+    <value>يجب أن تحتوي كلمة المرور على رقم واحد على الأقل.</value>
+  </data>
+  <data name="Password_NeedsSpecial" xml:space="preserve">
+    <value>يجب أن تحتوي كلمة المرور على رمز خاص واحد على الأقل.</value>
+  </data>
+  <data name="Passwords_NoMatch" xml:space="preserve">
+    <value>كلمتا المرور غير متطابقتين.</value>
+  </data>
+  <data name="Name_Required" xml:space="preserve">
+    <value>الاسم مطلوب.</value>
+  </data>
+  <data name="Name_TooLong" xml:space="preserve">
+    <value>يجب ألا يتجاوز الاسم 100 حرف.</value>
+  </data>
+  <data name="FirstName_TooLong" xml:space="preserve">
+    <value>يجب ألا يتجاوز الاسم الأول 100 حرف.</value>
+  </data>
+  <data name="LastName_TooLong" xml:space="preserve">
+    <value>يجب ألا يتجاوز اسم العائلة 100 حرف.</value>
+  </data>
+
+  <!-- ── Books ── -->
+  <data name="Book_NotFound" xml:space="preserve">
+    <value>الكتاب غير موجود.</value>
+  </data>
+  <data name="Book_Created" xml:space="preserve">
+    <value>تم إضافة الكتاب بنجاح.</value>
+  </data>
+  <data name="Book_Updated" xml:space="preserve">
+    <value>تم تحديث الكتاب بنجاح.</value>
+  </data>
+  <data name="Book_Deleted" xml:space="preserve">
+    <value>تم حذف الكتاب بنجاح.</value>
+  </data>
+
+  <!-- ── Orders ── -->
+  <data name="Order_NotFound" xml:space="preserve">
+    <value>الطلب غير موجود.</value>
+  </data>
+  <data name="Order_Created" xml:space="preserve">
+    <value>تم تقديم الطلب بنجاح.</value>
+  </data>
+  <data name="Order_Cancelled" xml:space="preserve">
+    <value>تم إلغاء الطلب بنجاح.</value>
+  </data>
+
+  <!-- ── Reviews ── -->
+  <data name="Review_NotFound" xml:space="preserve">
+    <value>التقييم غير موجود.</value>
+  </data>
+  <data name="Review_Created" xml:space="preserve">
+    <value>تم إرسال التقييم بنجاح.</value>
   </data>
 </root>

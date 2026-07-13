@@ -1,0 +1,84 @@
+{
+  "nav": {
+    "home": "الرئيسية",
+    "docs": "التوثيق",
+    "dashboard": "لوحة التحكم",
+    "stats": "الإحصائيات",
+    "swagger": "Swagger",
+    "tryApi": "جرّب الـ API",
+    "backHome": "العودة للرئيسية"
+  },
+  "common": {
+    "refresh": "تحديث",
+    "loading": "جارٍ التحميل…",
+    "updated": "تم التحديث",
+    "nextRefresh": "التحديث القادم خلال",
+    "healthy": "يعمل بشكل جيد",
+    "degraded": "أداء منخفض",
+    "unhealthy": "غير متاح",
+    "search": "ابحث عن نقطة نهاية…",
+    "copyEndpoint": "نسخ المسار",
+    "copied": "تم النسخ!",
+    "online": "متصل",
+    "connected": "متصل بقاعدة البيانات",
+    "responding": "يستجيب"
+  },
+  "home": {
+    "badge": "NET 9 • CQRS • PostgreSQL.",
+    "headline": "Booksy API",
+    "sub": "واجهة برمجية جاهزة للإنتاج لمنصات الكتب الحديثة — مصادقة، كتالوج، سلة تسوق، طلبات، مدفوعات، وتحليلات.",
+    "exploreSwagger": "استكشف مع Swagger",
+    "viewDashboard": "عرض لوحة التحكم",
+    "stat_controllers": "وحدة تحكم",
+    "stat_endpoints": "نقطة نهاية",
+    "stat_security": "طبقة أمان",
+    "stat_release": "إصدار مستقر",
+    "features_title": "كل ما تحتاجه",
+    "features_sub": "واجهة برمجية متكاملة لمنصة الكتب — مبنية على .NET 9 وCQRS وPostgreSQL.",
+    "cta_title": "مستعد للتكامل؟",
+    "cta_sub": "استكشف التوثيق التفاعلي، اختبر النقاط الحية، وتابع الإحصائيات الفورية.",
+    "openSwagger": "افتح واجهة Swagger",
+    "liveDashboard": "لوحة التحكم الحية"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "sub": "إحصائيات فورية لمنصة Booksy",
+    "systemHealth": "صحة النظام",
+    "keyMetrics": "المقاييس الرئيسية",
+    "totalUsers": "إجمالي المستخدمين",
+    "totalBooks": "إجمالي الكتب",
+    "totalOrders": "إجمالي الطلبات",
+    "totalRevenue": "إجمالي الإيرادات",
+    "bookStats": "إحصائيات الكتب",
+    "userStats": "إحصائيات المستخدمين",
+    "topBooks": "الكتب الأكثر مبيعاً",
+    "revenue": "الإيرادات الشهرية",
+    "registeredAccounts": "حسابات مسجّلة",
+    "activeCatalog": "نشط في الكتالوج",
+    "allTime": "منذ البداية"
+  },
+  "docs": {
+    "title": "مرجع الـ API",
+    "sub": "جميع النقاط مجمّعة حسب المجال. اضغط على أي مجموعة للتوسيع.",
+    "swaggerLink": "Swagger",
+    "swaggerHint": "للاختبار التفاعلي."
+  },
+  "stats": {
+    "title": "إحصائيات مباشرة",
+    "sub": "مقاييس المنصة الفورية"
+  },
+  "health": {
+    "apiServer": "خادم الـ API",
+    "postgres": "قاعدة البيانات",
+    "statsApi": "خدمة الإحصائيات"
+  },
+  "errors": {
+    "notFound": "الصفحة غير موجودة",
+    "notFoundSub": "المورد الذي تبحث عنه غير موجود أو تم نقله.",
+    "tip": "تبحث عن الـ API؟",
+    "visitSwagger": "واجهة Swagger",
+    "visitDocs": "توثيق الـ API",
+    "backHome": "العودة للرئيسية",
+    "apiDocs": "توثيق الـ API"
+  }
+}

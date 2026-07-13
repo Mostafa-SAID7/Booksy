@@ -1,53 +1,56 @@
 using FluentValidation;
 using Booksy.Features.Authentication.Commands;
+using Microsoft.Extensions.Localization;
 
 namespace Booksy.Features.Authentication.Validators;
 
 /// <summary>
-/// Validator for RegisterCommand
+/// Validator for RegisterCommand — validation messages are fully localised
+/// via IStringLocalizer&lt;LocalizationController&gt; and respond to the
+/// Accept-Language / culture-cookie on the request.
 /// </summary>
 public class RegisterValidator : AbstractValidator<RegisterCommand>
 {
-    public RegisterValidator()
+    public RegisterValidator(IStringLocalizer<LocalizationController> localizer)
     {
         RuleFor(x => x.Email)
             .NotEmpty()
-            .WithMessage("Email is required")
+            .WithMessage(_ => localizer["Email_Required"])
             .EmailAddress()
-            .WithMessage("Email format is invalid");
+            .WithMessage(_ => localizer["Email_Invalid"]);
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .WithMessage("Password is required")
+            .WithMessage(_ => localizer["Password_Required"])
             .MinimumLength(8)
-            .WithMessage("Password must be at least 8 characters")
+            .WithMessage(_ => localizer["Password_TooShort"])
             .Matches(@"[A-Z]")
-            .WithMessage("Password must contain at least one uppercase letter")
+            .WithMessage(_ => localizer["Password_NeedsUppercase"])
             .Matches(@"[a-z]")
-            .WithMessage("Password must contain at least one lowercase letter")
+            .WithMessage(_ => localizer["Password_NeedsLowercase"])
             .Matches(@"[0-9]")
-            .WithMessage("Password must contain at least one digit")
+            .WithMessage(_ => localizer["Password_NeedsDigit"])
             .Matches(@"[^a-zA-Z0-9]")
-            .WithMessage("Password must contain at least one special character");
+            .WithMessage(_ => localizer["Password_NeedsSpecial"]);
 
         RuleFor(x => x.ConfirmPassword)
             .Equal(x => x.Password)
-            .WithMessage("Passwords do not match");
+            .WithMessage(_ => localizer["Passwords_NoMatch"]);
 
         RuleFor(x => x.Name)
             .NotEmpty()
-            .WithMessage("Name is required")
+            .WithMessage(_ => localizer["Name_Required"])
             .MaximumLength(100)
-            .WithMessage("Name must not exceed 100 characters");
+            .WithMessage(_ => localizer["Name_TooLong"]);
 
         RuleFor(x => x.FirstName)
             .MaximumLength(100)
-            .WithMessage("First name must not exceed 100 characters")
+            .WithMessage(_ => localizer["FirstName_TooLong"])
             .When(x => !string.IsNullOrEmpty(x.FirstName));
 
         RuleFor(x => x.LastName)
             .MaximumLength(100)
-            .WithMessage("Last name must not exceed 100 characters")
+            .WithMessage(_ => localizer["LastName_TooLong"])
             .When(x => !string.IsNullOrEmpty(x.LastName));
     }
 }
