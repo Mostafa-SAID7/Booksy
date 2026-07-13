@@ -31,6 +31,26 @@ description: Key decisions and quirks encountered setting up this .NET 9 project
 
 **Why:** 9.x is a full rewrite of NEST 7.x; many method signatures changed and must be verified against the installed version, not NEST docs.
 
+## Swagger nav injection (Swashbuckle v9)
+
+- Use `c.InjectStylesheet("/css/swagger-nav.css")` and `c.InjectJavascript("/js/swagger-nav.js")` in `UseSwaggerUI` block of `Program.cs`.
+- The injected JS must use a `MutationObserver` to hide `.swagger-ui .topbar` because React renders it asynchronously after DOMContentLoaded.
+- `swagger-nav.css` must NOT use `@import url(cdn...)` — this can delay CSS parsing in strict CSP contexts. Use inline SVG icons in the JS instead.
+- The app has a strict CSP middleware (`script-src 'self'`). All injected scripts must be served from `'self'` (static files in wwwroot) — no CDN scripts.
+- Screenshot tools may capture the Swagger page before JavaScript modifies the React-rendered DOM; the nav does appear correctly in real browsers.
+
+**Why:** Swashbuckle v9 + Swagger UI v5 renders via React; timing-sensitive DOM injection requires MutationObserver. CDN @imports in CSS can block parsing under strict CSP.
+
+## wwwroot static pages enhancement
+
+- CSS animations: use `[data-reveal]` + `IntersectionObserver` in `app.js` for scroll-reveal. Classes `[data-reveal-delay="1-6"]` control stagger timing.
+- Inline scripts blocked by `script-src 'self'` CSP — all page-specific JS must be external files (e.g. `particles-404.js`, `health-card.js`).
+- 404 particle canvas must be in external `wwwroot/js/particles-404.js` (not inline `<script>`).
+- Health card countdown (`health-card.js`) and dashboard stats (`dashboard.js`) are both served to `dashboard.html` as separate external scripts.
+- Toast container is a `<div id="toasts" class="toast-container">` appended to body by `app.js`'s `toast()` function — no HTML markup needed.
+
+**Why:** CSP blocks inline scripts on all pages; all dynamic behaviour must live in external JS files under wwwroot.
+
 ## Known pre-existing issues (not introduced by setup)
 
 - `DBInitializer` has an inverted seed condition (`if (Roles.Any())` should be `if (!Roles.Any())`) — no roles or admin user are seeded on fresh DB. Follow-up task #2 covers this.

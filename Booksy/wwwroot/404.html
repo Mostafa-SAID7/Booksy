@@ -3,12 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Page Not Found</title>
+    <title>404 – Page Not Found · Booksy</title>
+    <meta name="description" content="The page you are looking for does not exist.">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230078d4'/><text x='50' y='70' font-size='60' font-weight='bold' fill='white' text-anchor='middle' font-family='Arial'>B</text></svg>" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/design-system.css">
 </head>
 <body>
+
+    <!-- Particle Canvas Background -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- Scan line overlay -->
+    <div class="err-scanline" aria-hidden="true"></div>
+
     <!-- Navigation -->
     <nav class="nav">
         <div class="nav-inner">
@@ -34,25 +42,40 @@
         </div>
     </nav>
 
-    <div class="hero error-page-hero">
-        <div class="container">
-            <div class="error-code">404</div>
-            <h1>Page Not Found</h1>
-            <p class="section-subtitle">
-                The resource you're looking for doesn't exist. This could be due to an invalid URL or a removed resource.
+    <!-- 404 Content -->
+    <main class="err-page">
+        <div class="err-content">
+            <!-- Glitch 404 -->
+            <div class="glitch" data-text="404" aria-label="404" role="img">404</div>
+
+            <div class="err-divider"></div>
+
+            <h1 class="err-title">Page Not Found</h1>
+            <p class="err-desc">
+                The resource you're looking for doesn't exist or has been moved.
+                Double-check the URL or navigate back to safety.
             </p>
-            
-            <div class="status status-warning">
-                <strong>💡 Tip:</strong> If you're looking for API documentation, visit <code>/swagger</code>
+
+            <div class="err-tip">
+                <i class="bi bi-lightbulb-fill"></i>
+                Looking for the API? Visit <a href="/swagger">Swagger UI</a> or <a href="/docs.html">API Docs</a>
             </div>
 
-            <div class="hero-actions">
-                <a href="/" class="btn btn-primary">← Back to Home</a>
-                <a href="/swagger" class="btn btn-secondary">API Docs</a>
+            <div class="err-actions">
+                <a href="/" class="btn btn-primary btn-lg">
+                    <i class="bi bi-house-fill"></i> Back to Home
+                </a>
+                <a href="/docs.html" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-file-earmark-text"></i> API Docs
+                </a>
+                <a href="/swagger" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-braces"></i> Swagger
+                </a>
             </div>
         </div>
-    </div>
+    </main>
 
     <script src="/js/app.js"></script>
+    <script src="/js/particles-404.js"></script>
 </body>
 </html>

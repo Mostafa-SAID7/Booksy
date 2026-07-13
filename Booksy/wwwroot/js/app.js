@@ -4,11 +4,12 @@
    Global utilities and helpers used across all pages
    - API helpers
    - Formatters
-   - Navigation
+   - Navigation (active link + mobile toggle)
    - Skeleton loaders
    - Toast notifications
    - Counter animations
    - HTML escaping
+   - Scroll-reveal (IntersectionObserver)
 */
 
 /* ----- Navigation ----- */
@@ -24,12 +25,64 @@
   const toggle = document.getElementById('nav-toggle');
   const links  = document.getElementById('nav-links');
   if (toggle && links) {
-    toggle.addEventListener('click', () => links.classList.toggle('open'));
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
     document.addEventListener('click', e => {
       if (!toggle.contains(e.target) && !links.contains(e.target)) {
         links.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
       }
     });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        links.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  /* Slightly deepen border on scroll */
+  const nav = document.querySelector('.nav');
+  if (nav) {
+    window.addEventListener('scroll', () => {
+      nav.style.borderBottomColor = window.scrollY > 10 ? 'var(--border-2)' : 'var(--border)';
+    }, { passive: true });
+  }
+})();
+
+/* ----- Page entrance animation ----- */
+(function pageEntrance() {
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('page-enter');
+  });
+})();
+
+/* ----- Scroll-reveal (IntersectionObserver) ----- */
+(function initScrollReveal() {
+  if (!('IntersectionObserver' in window)) {
+    document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('revealed'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -48px 0px' });
+
+  const observe = () => {
+    document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observe);
+  } else {
+    observe();
   }
 })();
 
@@ -60,7 +113,7 @@ const fmt = {
     if (n == null) return '—';
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
     if (n >= 1_000)     return (n / 1_000).toFixed(1) + 'K';
-    return Number(n).toLocaleString();
+    return Math.round(n).toLocaleString();
   },
 
   currency(n) {
@@ -105,27 +158,42 @@ function toast(msg, type = 'info', duration = 4000) {
 
   const icons = {
     success: 'bi-check-circle-fill',
-    error: 'bi-x-circle-fill',
-    info: 'bi-info-circle-fill'
+    error:   'bi-x-circle-fill',
+    info:    'bi-info-circle-fill',
+    warning: 'bi-exclamation-triangle-fill'
   };
 
   const el = document.createElement('div');
   el.className = `toast ${type}`;
-  el.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i><span>${escapeHtml(msg)}</span>`;
+  el.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i><span></span>`;
+  el.querySelector('span').textContent = msg;  /* textContent — XSS safe */
   container.appendChild(el);
 
-  setTimeout(() => el.remove(), duration);
+  /* Remove on click */
+  el.addEventListener('click', () => el.remove());
+
+  /* Auto-remove with fade */
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    setTimeout(() => el.remove(), 360);
+  }, duration - 360);
 }
 
 /* ----- Animate counter ----- */
-function animateCounter(el, target, formatter = fmt.number, duration = 800) {
-  const start = performance.now();
-  const num = parseFloat(target) || 0;
+function animateCounter(el, target, formatter = fmt.number, duration = 900) {
+  const start  = performance.now();
+  const num    = parseFloat(target) || 0;
+  const isInt  = Number.isInteger(num);
 
   const tick = (now) => {
     const progress = Math.min((now - start) / duration, 1);
-    const ease = 1 - Math.pow(1 - progress, 3);
-    el.textContent = formatter(num * ease);
+    /* Ease-out cubic */
+    const ease    = 1 - Math.pow(1 - progress, 3);
+    /* Round integers so animation never shows "2.9" for a target of "3" */
+    const current = isInt ? Math.round(num * ease) : num * ease;
+    el.textContent = formatter(current);
 
     if (progress < 1) {
       requestAnimationFrame(tick);
@@ -137,7 +205,7 @@ function animateCounter(el, target, formatter = fmt.number, duration = 800) {
   requestAnimationFrame(tick);
 }
 
-/* ----- HTML escaping (use for all API-sourced values in innerHTML) ----- */
+/* ----- HTML escaping ----- */
 function escapeHtml(str) {
   if (str == null) return '';
   return String(str)

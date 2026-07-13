@@ -17,7 +17,7 @@
                 <i class="bi bi-book-fill"></i>
                 <span>Booksy</span>
             </a>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
                 <i class="bi bi-list"></i>
             </button>
             <ul class="nav-links" id="nav-links">
@@ -39,16 +39,17 @@
     <div class="page-hero">
         <div class="container">
             <div class="page-hero-header">
-                <div>
+                <div data-reveal>
                     <div class="page-hero-tags">
                         <span class="tag"><i class="bi bi-braces"></i> REST</span>
                         <span class="tag"><i class="bi bi-lock"></i> JWT Bearer</span>
                         <span class="tag">v1.0</span>
                     </div>
                     <h1>API Reference</h1>
-                    <p>All endpoints grouped by feature area. Click any group to expand. Use <a href="/swagger">Swagger</a> for interactive testing.</p>
+                    <p>All endpoints grouped by feature area. Click any group to expand.<br>
+                       Use <a href="/swagger">Swagger</a> for interactive testing.</p>
                 </div>
-                <div class="search-bar">
+                <div class="search-bar" data-reveal data-reveal="right">
                     <i class="bi bi-search"></i>
                     <input type="text" id="search" placeholder="Search endpoints…" autocomplete="off">
                 </div>
@@ -58,21 +59,23 @@
 
     <!-- Main Content -->
     <div class="container page-hero-content">
+
         <!-- Authentication Note -->
-        <div class="auth-note">
+        <div class="auth-note" data-reveal>
             <i class="bi bi-info-circle-fill"></i>
             <div>
                 <strong>Authentication</strong>
-                Endpoints marked with <i class="bi bi-lock-fill lock-icon-warning"></i> require a JWT bearer token. 
-                Register via <code class="mono">POST /api/Authentication/register</code>, then login to receive your token. 
+                Endpoints marked with <i class="bi bi-lock-fill lock-icon-warning"></i> require a JWT bearer token.
+                Register via <code class="mono">POST /api/Authentication/register</code>, then login to receive your token.
                 Pass it as <code class="mono">Authorization: Bearer &lt;token&gt;</code>.
             </div>
         </div>
 
         <!-- Endpoint Groups -->
         <div id="endpoint-groups">
+
             <!-- Authentication -->
-            <div class="endpoint-group open">
+            <div class="endpoint-group open" data-reveal data-reveal-delay="1">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
                         <span class="stat-icon endpoint-icon-base endpoint-icon-auth">
@@ -94,7 +97,7 @@
                     <div class="endpoint-item">
                         <span class="badge badge-post">POST</span>
                         <span class="endpoint-path">/api/Authentication/login</span>
-                        <span class="endpoint-desc">Login & receive JWT token</span>
+                        <span class="endpoint-desc">Login &amp; receive JWT token</span>
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-post">POST</span>
@@ -120,7 +123,7 @@
             </div>
 
             <!-- Books -->
-            <div class="endpoint-group">
+            <div class="endpoint-group" data-reveal data-reveal-delay="2">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
                         <span class="stat-icon endpoint-icon-base endpoint-icon-books">
@@ -173,13 +176,13 @@
             </div>
 
             <!-- Cart & Checkout -->
-            <div class="endpoint-group">
+            <div class="endpoint-group" data-reveal data-reveal-delay="3">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
                         <span class="stat-icon endpoint-icon-base endpoint-icon-cart">
                             <i class="bi bi-cart3"></i>
                         </span>
-                        Cart & Checkout
+                        Cart &amp; Checkout
                     </div>
                     <div class="endpoint-group-meta">
                         <span class="endpoint-count">7 endpoints</span>
@@ -226,7 +229,7 @@
             </div>
 
             <!-- Orders -->
-            <div class="endpoint-group">
+            <div class="endpoint-group" data-reveal data-reveal-delay="1">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
                         <span class="stat-icon endpoint-icon-base endpoint-icon-orders">
@@ -269,7 +272,7 @@
             </div>
 
             <!-- Reviews -->
-            <div class="endpoint-group">
+            <div class="endpoint-group" data-reveal data-reveal-delay="2">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
                         <span class="stat-icon endpoint-icon-base endpoint-icon-reviews">
@@ -312,13 +315,13 @@
             </div>
 
             <!-- Statistics & Reports -->
-            <div class="endpoint-group">
+            <div class="endpoint-group" data-reveal data-reveal-delay="3">
                 <div class="endpoint-group-header">
                     <div class="endpoint-group-title">
                         <span class="stat-icon endpoint-icon-base endpoint-icon-stats">
                             <i class="bi bi-graph-up"></i>
                         </span>
-                        Statistics & Reports
+                        Statistics &amp; Reports
                     </div>
                     <div class="endpoint-group-meta">
                         <span class="endpoint-count">6 endpoints</span>
@@ -353,15 +356,16 @@
                     </div>
                     <div class="endpoint-item">
                         <span class="badge badge-get">GET</span>
-                        <span class="endpoint-path">/api/Reports/sales?startDate=&endDate=</span>
+                        <span class="endpoint-path">/api/Reports/sales?startDate=&amp;endDate=</span>
                         <span class="endpoint-desc">Detailed sales report</span>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <!-- CTA Card -->
-        <div class="card card-cta mt-32">
+        <div class="card card-cta mt-32" data-reveal>
             <p class="card-cta-text">
                 Want to try these endpoints interactively with full request/response details?
             </p>
@@ -382,11 +386,12 @@
                     <li><a href="/">Home</a></li>
                     <li><a href="/docs.html">Docs</a></li>
                     <li><a href="/dashboard.html">Dashboard</a></li>
+                    <li><a href="/stats.html">Stats</a></li>
                     <li><a href="/swagger">Swagger</a></li>
                 </ul>
             </div>
             <div class="footer-copy">
-                Built with .NET 9 • CQRS • PostgreSQL &nbsp;|&nbsp; MIT License
+                Built with .NET 9 &bull; CQRS &bull; PostgreSQL &nbsp;|&nbsp; MIT License
             </div>
         </div>
     </footer>
