@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/css/design-system.css">
 </head>
 <body>
+
     <!-- Navigation -->
     <nav class="nav">
         <div class="nav-inner">
@@ -17,7 +18,7 @@
                 <i class="bi bi-book-fill"></i>
                 <span>Booksy</span>
             </a>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
                 <i class="bi bi-list"></i>
             </button>
             <ul class="nav-links" id="nav-links">
@@ -37,13 +38,18 @@
 
     <!-- Hero Section -->
     <section class="hero">
+        <!-- Decorative background -->
+        <div class="hero-grid-bg" aria-hidden="true"></div>
+        <div class="hero-glow-orb hero-glow-orb-1" aria-hidden="true"></div>
+        <div class="hero-glow-orb hero-glow-orb-2" aria-hidden="true"></div>
+
         <div class="container">
-            <div class="hero-badge">
-                <i class="bi bi-lightning-fill"></i> .NET 9 • CQRS • PostgreSQL
+            <div class="hero-badge" data-reveal data-reveal-delay="1">
+                <i class="bi bi-lightning-fill"></i> .NET 9 &bull; CQRS &bull; PostgreSQL
             </div>
-            <h1>The <span class="grad">Booksy</span> API</h1>
-            <p>A production-ready REST API for modern book platforms — authentication, catalog, cart, orders, payments, analytics and more.</p>
-            <div class="hero-actions">
+            <h1 data-reveal data-reveal-delay="2">The <span class="grad">Booksy</span> API</h1>
+            <p data-reveal data-reveal-delay="3">A production-ready REST API for modern book platforms — authentication, catalog, cart, orders, payments, analytics and more.</p>
+            <div class="hero-actions" data-reveal data-reveal-delay="4">
                 <a href="/swagger" class="btn btn-primary btn-lg">
                     <i class="bi bi-braces"></i> Explore with Swagger
                 </a>
@@ -53,7 +59,7 @@
             </div>
 
             <!-- Highlights Bar -->
-            <div class="highlights">
+            <div class="highlights" data-reveal data-reveal-delay="5">
                 <div class="highlight-item">
                     <div class="highlight-val">15+</div>
                     <div class="highlight-label">API Controllers</div>
@@ -77,7 +83,7 @@
     <!-- Features Section -->
     <section class="section">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header" data-reveal>
                 <div>
                     <h2 class="section-title">Everything you need</h2>
                     <p class="section-subtitle">A complete back-end for book commerce — from user accounts to payments.</p>
@@ -86,7 +92,7 @@
 
             <div class="grid-3">
                 <!-- Auth & Security -->
-                <div class="card card-feature">
+                <div class="card card-feature" data-reveal data-reveal-delay="1">
                     <div class="feature-icon feature-icon-primary">
                         <i class="bi bi-shield-lock"></i>
                     </div>
@@ -100,12 +106,12 @@
                 </div>
 
                 <!-- Book Catalog -->
-                <div class="card card-feature">
+                <div class="card card-feature" data-reveal data-reveal-delay="2">
                     <div class="feature-icon feature-icon-success">
                         <i class="bi bi-journal-richtext"></i>
                     </div>
                     <div class="feature-title">Book Catalog</div>
-                    <div class="feature-desc">Full CRUD for books, authors, categories and tags. Slug-based URLs, soft delete, image upload, search & pagination.</div>
+                    <div class="feature-desc">Full CRUD for books, authors, categories and tags. Slug-based URLs, soft delete, image upload, search &amp; pagination.</div>
                     <div class="feature-tags">
                         <span class="tag">CRUD</span>
                         <span class="tag">Search</span>
@@ -114,11 +120,11 @@
                 </div>
 
                 <!-- Cart & Checkout -->
-                <div class="card card-feature">
+                <div class="card card-feature" data-reveal data-reveal-delay="3">
                     <div class="feature-icon feature-icon-warning">
                         <i class="bi bi-cart3"></i>
                     </div>
-                    <div class="feature-title">Cart & Checkout</div>
+                    <div class="feature-title">Cart &amp; Checkout</div>
                     <div class="feature-desc">Shopping cart management, Stripe-powered checkout, promotion codes, order tracking and inventory sync.</div>
                     <div class="feature-tags">
                         <span class="tag">Stripe</span>
@@ -128,11 +134,11 @@
                 </div>
 
                 <!-- Reviews & Ratings -->
-                <div class="card card-feature">
+                <div class="card card-feature" data-reveal data-reveal-delay="1">
                     <div class="feature-icon feature-icon-accent">
                         <i class="bi bi-star-half"></i>
                     </div>
-                    <div class="feature-title">Reviews & Ratings</div>
+                    <div class="feature-title">Reviews &amp; Ratings</div>
                     <div class="feature-desc">User reviews with star ratings, moderation workflow (Pending / Approved / Rejected) and average rating calculation.</div>
                     <div class="feature-tags">
                         <span class="tag">Ratings</span>
@@ -141,11 +147,11 @@
                 </div>
 
                 <!-- Analytics & Reports -->
-                <div class="card card-feature">
+                <div class="card card-feature" data-reveal data-reveal-delay="2">
                     <div class="feature-icon feature-icon-info">
                         <i class="bi bi-graph-up-arrow"></i>
                     </div>
-                    <div class="feature-title">Analytics & Reports</div>
+                    <div class="feature-title">Analytics &amp; Reports</div>
                     <div class="feature-desc">Dashboard stats, top-selling books, monthly revenue charts, sales reports and user activity metrics.</div>
                     <div class="feature-tags">
                         <span class="tag">Reports</span>
@@ -155,7 +161,7 @@
                 </div>
 
                 <!-- Monitoring -->
-                <div class="card card-feature">
+                <div class="card card-feature" data-reveal data-reveal-delay="3">
                     <div class="feature-icon feature-icon-cyan">
                         <i class="bi bi-activity"></i>
                     </div>
@@ -175,7 +181,7 @@
     <!-- Tech Stack Section -->
     <section class="section-sm">
         <div class="container">
-            <div class="section-header">
+            <div class="section-header" data-reveal>
                 <div>
                     <h2 class="section-title">Tech Stack</h2>
                     <p class="section-subtitle">Built with battle-tested libraries on .NET 9.</p>
@@ -183,7 +189,7 @@
             </div>
 
             <div class="stack-row">
-                <div class="stack-item">
+                <div class="stack-item" data-reveal data-reveal-delay="1">
                     <i class="bi bi-microsoft"></i>
                     <div>
                         <div class="stack-name">.NET 9</div>
@@ -191,23 +197,23 @@
                     </div>
                 </div>
 
-                <div class="stack-item">
+                <div class="stack-item" data-reveal data-reveal-delay="2">
                     <i class="bi bi-database"></i>
                     <div>
                         <div class="stack-name">PostgreSQL</div>
-                        <div class="stack-ver">EF Core 9 • Npgsql</div>
+                        <div class="stack-ver">EF Core 9 &bull; Npgsql</div>
                     </div>
                 </div>
 
-                <div class="stack-item">
+                <div class="stack-item" data-reveal data-reveal-delay="3">
                     <i class="bi bi-person-badge"></i>
                     <div>
                         <div class="stack-name">JWT Auth</div>
-                        <div class="stack-ver">Bearer • Identity</div>
+                        <div class="stack-ver">Bearer &bull; Identity</div>
                     </div>
                 </div>
 
-                <div class="stack-item">
+                <div class="stack-item" data-reveal data-reveal-delay="4">
                     <i class="bi bi-arrow-left-right"></i>
                     <div>
                         <div class="stack-name">CQRS</div>
@@ -215,7 +221,7 @@
                     </div>
                 </div>
 
-                <div class="stack-item">
+                <div class="stack-item" data-reveal data-reveal-delay="1">
                     <i class="bi bi-check2-circle"></i>
                     <div>
                         <div class="stack-name">Validation</div>
@@ -223,15 +229,15 @@
                     </div>
                 </div>
 
-                <div class="stack-item">
+                <div class="stack-item" data-reveal data-reveal-delay="2">
                     <i class="bi bi-credit-card"></i>
                     <div>
                         <div class="stack-name">Stripe</div>
-                        <div class="stack-ver">Payments • v48</div>
+                        <div class="stack-ver">Payments &bull; v48</div>
                     </div>
                 </div>
 
-                <div class="stack-item">
+                <div class="stack-item" data-reveal data-reveal-delay="3">
                     <i class="bi bi-file-earmark-code"></i>
                     <div>
                         <div class="stack-name">Swagger</div>
@@ -239,11 +245,11 @@
                     </div>
                 </div>
 
-                <div class="stack-item">
+                <div class="stack-item" data-reveal data-reveal-delay="4">
                     <i class="bi bi-funnel"></i>
                     <div>
                         <div class="stack-name">AutoMapper</div>
-                        <div class="stack-ver">v12 • Profiles</div>
+                        <div class="stack-ver">v12 &bull; Profiles</div>
                     </div>
                 </div>
             </div>
@@ -253,7 +259,7 @@
     <hr class="divider">
 
     <!-- CTA Section -->
-    <section class="section-sm">
+    <section class="section-sm" data-reveal>
         <div class="container cta-section">
             <h2 class="section-title">Ready to explore?</h2>
             <p class="section-subtitle cta-subtitle">
@@ -279,12 +285,14 @@
                 </div>
                 <ul class="footer-links">
                     <li><a href="/">Home</a></li>
+                    <li><a href="/docs.html">Docs</a></li>
                     <li><a href="/dashboard.html">Dashboard</a></li>
+                    <li><a href="/stats.html">Stats</a></li>
                     <li><a href="/swagger">Swagger</a></li>
                 </ul>
             </div>
             <div class="footer-copy">
-                Built with .NET 9 • CQRS • PostgreSQL &nbsp;|&nbsp; MIT License
+                Built with .NET 9 &bull; CQRS &bull; PostgreSQL &nbsp;|&nbsp; MIT License
             </div>
         </div>
     </footer>

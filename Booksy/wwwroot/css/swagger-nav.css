@@ -1,0 +1,116 @@
+/* Booksy Swagger Navigation — no external imports to avoid CSP issues */
+
+.bk-swagger-nav {
+  position: relative;
+  z-index: 10000;
+  background: #0b0b12;
+  border-bottom: 1px solid #22223a;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.6);
+}
+
+.bk-swagger-nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 20px;
+  gap: 16px;
+}
+
+.bk-swagger-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #eaeaf4;
+  text-decoration: none;
+  letter-spacing: -0.2px;
+  flex-shrink: 0;
+}
+
+.bk-swagger-nav-badge {
+  background: rgba(0,120,212,0.2);
+  color: #60c0f8;
+  border: 1px solid rgba(0,120,212,0.4);
+  border-radius: 99px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.bk-swagger-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex: 1;
+  justify-content: center;
+}
+
+.bk-swagger-links a {
+  display: flex;
+  align-items: center;
+  padding: 5px 14px;
+  border-radius: 6px;
+  font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.83rem;
+  font-weight: 500;
+  color: #8484a0;
+  text-decoration: none;
+  transition: color 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.bk-swagger-links a:hover {
+  color: #eaeaf4;
+  background: #181826;
+}
+
+.bk-swagger-links a.bk-active {
+  color: #60c0f8;
+  background: rgba(0,120,212,0.14);
+}
+
+.bk-swagger-cta a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 15px;
+  background: #0078d4;
+  color: #fff;
+  border-radius: 6px;
+  font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.bk-swagger-cta a:hover {
+  background: #106ebe;
+}
+
+/* Hide the native green Swagger topbar */
+.swagger-ui .topbar {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 600px) {
+  .bk-swagger-links { display: none; }
+}

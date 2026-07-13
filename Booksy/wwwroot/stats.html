@@ -17,7 +17,7 @@
                 <i class="bi bi-book-fill"></i>
                 <span>Booksy</span>
             </a>
-            <button class="nav-toggle" id="nav-toggle" aria-label="Menu">
+            <button class="nav-toggle" id="nav-toggle" aria-label="Menu" aria-expanded="false">
                 <i class="bi bi-list"></i>
             </button>
             <ul class="nav-links" id="nav-links">
@@ -39,15 +39,15 @@
     <div class="page-hero">
         <div class="container">
             <div class="page-hero-header">
-                <div>
+                <div data-reveal>
                     <div class="live-data-container">
                         <span class="live-dot"></span>
                         <span class="live-data-label">Live Data</span>
                     </div>
-                    <h1>Statistics Dashboard</h1>
-                    <p>Real-time data from the Booksy API.</p>
+                    <h1>Statistics</h1>
+                    <p>Real-time data from the Booksy API — auto-refreshes every 30 s.</p>
                 </div>
-                <div class="page-hero-actions">
+                <div class="page-hero-actions" data-reveal data-reveal="right">
                     <div class="last-updated" id="last-updated">
                         <i class="bi bi-clock"></i> Loading…
                     </div>
@@ -61,6 +61,7 @@
 
     <!-- Main Content -->
     <div class="container page-hero-content">
+
         <!-- Error Banner -->
         <div id="error-banner" class="error-state hidden container-pb-24">
             <i class="bi bi-exclamation-triangle-fill"></i>
@@ -68,7 +69,7 @@
         </div>
 
         <!-- Dashboard Stats -->
-        <div class="section-group">
+        <div class="section-group" data-reveal>
             <div class="section-group-title">
                 <i class="bi bi-speedometer2"></i> Overview
             </div>
@@ -83,7 +84,7 @@
         <!-- Book + User Stats -->
         <div class="grid-2 section-group">
             <!-- Book Stats -->
-            <div>
+            <div data-reveal data-reveal-delay="1">
                 <div class="section-group-title">
                     <i class="bi bi-journal-richtext"></i> Catalog
                 </div>
@@ -92,12 +93,13 @@
                         <div class="skeleton skeleton-text skeleton-text-sm"></div>
                         <div class="skeleton skeleton-text skeleton-text-md skeleton-spacing"></div>
                         <div class="skeleton skeleton-text skeleton-text-lg skeleton-spacing-sm"></div>
+                        <div class="skeleton skeleton-text skeleton-text-sm skeleton-spacing"></div>
                     </div>
                 </div>
             </div>
 
             <!-- User Stats -->
-            <div>
+            <div data-reveal data-reveal-delay="2">
                 <div class="section-group-title">
                     <i class="bi bi-people"></i> Users
                 </div>
@@ -106,15 +108,16 @@
                         <div class="skeleton skeleton-text skeleton-text-sm"></div>
                         <div class="skeleton skeleton-text skeleton-text-md skeleton-spacing"></div>
                         <div class="skeleton skeleton-text skeleton-text-lg skeleton-spacing-sm"></div>
+                        <div class="skeleton skeleton-text skeleton-text-sm skeleton-spacing"></div>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Top Books + Revenue -->
-        <div class="grid-2 section-group">
+        <div class="grid-2 section-group" style="margin-bottom:48px;">
             <!-- Top Books -->
-            <div>
+            <div data-reveal data-reveal-delay="1">
                 <div class="section-group-title">
                     <i class="bi bi-trophy"></i> Top Selling Books
                 </div>
@@ -127,7 +130,7 @@
             </div>
 
             <!-- Revenue Chart -->
-            <div>
+            <div data-reveal data-reveal-delay="2">
                 <div class="section-group-title">
                     <i class="bi bi-bar-chart"></i> Monthly Revenue
                 </div>
@@ -138,6 +141,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 
     <!-- Footer -->
@@ -150,12 +154,13 @@
                 <ul class="footer-links">
                     <li><a href="/">Home</a></li>
                     <li><a href="/docs.html">Docs</a></li>
+                    <li><a href="/dashboard.html">Dashboard</a></li>
                     <li><a href="/stats.html">Stats</a></li>
                     <li><a href="/swagger">Swagger</a></li>
                 </ul>
             </div>
             <div class="footer-copy">
-                Built with .NET 9 • CQRS • PostgreSQL &nbsp;|&nbsp; MIT License
+                Built with .NET 9 &bull; CQRS &bull; PostgreSQL &nbsp;|&nbsp; MIT License
             </div>
         </div>
     </footer>

@@ -4,11 +4,12 @@
    Global utilities and helpers used across all pages
    - API helpers
    - Formatters
-   - Navigation
+   - Navigation (active link + mobile toggle)
    - Skeleton loaders
    - Toast notifications
    - Counter animations
    - HTML escaping
+   - Scroll-reveal (IntersectionObserver)
 */
 
 /* ----- Navigation ----- */
@@ -24,12 +25,74 @@
   const toggle = document.getElementById('nav-toggle');
   const links  = document.getElementById('nav-links');
   if (toggle && links) {
-    toggle.addEventListener('click', () => links.classList.toggle('open'));
+    toggle.addEventListener('click', () => {
+      const open = links.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', String(open));
+    });
     document.addEventListener('click', e => {
       if (!toggle.contains(e.target) && !links.contains(e.target)) {
         links.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
       }
     });
+    /* Close on Esc */
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') {
+        links.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  /* Shrink nav on scroll */
+  const nav = document.querySelector('.nav');
+  if (nav) {
+    let lastY = 0;
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      nav.style.borderBottomColor = y > 10 ? 'var(--border-2)' : 'var(--border)';
+      lastY = y;
+    }, { passive: true });
+  }
+})();
+
+/* ----- Page entrance animation ----- */
+(function pageEntrance() {
+  document.documentElement.style.setProperty('--page-opacity', '0');
+  window.addEventListener('DOMContentLoaded', () => {
+    document.body.classList.add('page-enter');
+  });
+})();
+
+/* ----- Scroll-reveal (IntersectionObserver) ----- */
+(function initScrollReveal() {
+  if (!('IntersectionObserver' in window)) {
+    /* Graceful degradation for older browsers */
+    document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('revealed'));
+    return;
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -48px 0px'
+  });
+
+  /* Observe all [data-reveal] elements */
+  const observe = () => {
+    document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', observe);
+  } else {
+    observe();
   }
 })();
 
@@ -105,8 +168,8 @@ function toast(msg, type = 'info', duration = 4000) {
 
   const icons = {
     success: 'bi-check-circle-fill',
-    error: 'bi-x-circle-fill',
-    info: 'bi-info-circle-fill'
+    error:   'bi-x-circle-fill',
+    info:    'bi-info-circle-fill'
   };
 
   const el = document.createElement('div');
@@ -114,16 +177,23 @@ function toast(msg, type = 'info', duration = 4000) {
   el.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i><span>${escapeHtml(msg)}</span>`;
   container.appendChild(el);
 
-  setTimeout(() => el.remove(), duration);
+  /* Fade-out before remove */
+  setTimeout(() => {
+    el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    setTimeout(() => el.remove(), 320);
+  }, duration - 320);
 }
 
 /* ----- Animate counter ----- */
-function animateCounter(el, target, formatter = fmt.number, duration = 800) {
+function animateCounter(el, target, formatter = fmt.number, duration = 900) {
   const start = performance.now();
-  const num = parseFloat(target) || 0;
+  const num   = parseFloat(target) || 0;
 
   const tick = (now) => {
     const progress = Math.min((now - start) / duration, 1);
+    /* Ease-out cubic */
     const ease = 1 - Math.pow(1 - progress, 3);
     el.textContent = formatter(num * ease);
 

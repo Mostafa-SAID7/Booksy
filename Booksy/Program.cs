@@ -131,6 +131,8 @@ app.UseSwaggerUI(c =>
     c.DocumentTitle = "Booksy API Documentation";
     c.DisplayRequestDuration(); // Shows request duration
     c.DefaultModelsExpandDepth(-1); // Collapse schemas by default
+    c.InjectStylesheet("/css/swagger-nav.css");
+    c.InjectJavascript("/js/swagger-nav.js");
 });
 
 // Rate limiting middleware
