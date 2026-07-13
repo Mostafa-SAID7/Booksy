@@ -35,7 +35,6 @@
         toggle.setAttribute('aria-expanded', 'false');
       }
     });
-    /* Close on Esc */
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         links.classList.remove('open');
@@ -44,21 +43,17 @@
     });
   }
 
-  /* Shrink nav on scroll */
+  /* Slightly deepen border on scroll */
   const nav = document.querySelector('.nav');
   if (nav) {
-    let lastY = 0;
     window.addEventListener('scroll', () => {
-      const y = window.scrollY;
-      nav.style.borderBottomColor = y > 10 ? 'var(--border-2)' : 'var(--border)';
-      lastY = y;
+      nav.style.borderBottomColor = window.scrollY > 10 ? 'var(--border-2)' : 'var(--border)';
     }, { passive: true });
   }
 })();
 
 /* ----- Page entrance animation ----- */
 (function pageEntrance() {
-  document.documentElement.style.setProperty('--page-opacity', '0');
   window.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('page-enter');
   });
@@ -67,7 +62,6 @@
 /* ----- Scroll-reveal (IntersectionObserver) ----- */
 (function initScrollReveal() {
   if (!('IntersectionObserver' in window)) {
-    /* Graceful degradation for older browsers */
     document.querySelectorAll('[data-reveal]').forEach(el => el.classList.add('revealed'));
     return;
   }
@@ -79,12 +73,8 @@
         observer.unobserve(entry.target);
       }
     });
-  }, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -48px 0px'
-  });
+  }, { threshold: 0.1, rootMargin: '0px 0px -48px 0px' });
 
-  /* Observe all [data-reveal] elements */
   const observe = () => {
     document.querySelectorAll('[data-reveal]').forEach(el => observer.observe(el));
   };
@@ -123,7 +113,7 @@ const fmt = {
     if (n == null) return '—';
     if (n >= 1_000_000) return (n / 1_000_000).toFixed(1) + 'M';
     if (n >= 1_000)     return (n / 1_000).toFixed(1) + 'K';
-    return Number(n).toLocaleString();
+    return Math.round(n).toLocaleString();
   },
 
   currency(n) {
@@ -169,33 +159,41 @@ function toast(msg, type = 'info', duration = 4000) {
   const icons = {
     success: 'bi-check-circle-fill',
     error:   'bi-x-circle-fill',
-    info:    'bi-info-circle-fill'
+    info:    'bi-info-circle-fill',
+    warning: 'bi-exclamation-triangle-fill'
   };
 
   const el = document.createElement('div');
   el.className = `toast ${type}`;
-  el.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i><span>${escapeHtml(msg)}</span>`;
+  el.innerHTML = `<i class="bi ${icons[type] || icons.info}"></i><span></span>`;
+  el.querySelector('span').textContent = msg;  /* textContent — XSS safe */
   container.appendChild(el);
 
-  /* Fade-out before remove */
+  /* Remove on click */
+  el.addEventListener('click', () => el.remove());
+
+  /* Auto-remove with fade */
   setTimeout(() => {
-    el.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    el.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
     el.style.opacity = '0';
     el.style.transform = 'translateX(20px)';
-    setTimeout(() => el.remove(), 320);
-  }, duration - 320);
+    setTimeout(() => el.remove(), 360);
+  }, duration - 360);
 }
 
 /* ----- Animate counter ----- */
 function animateCounter(el, target, formatter = fmt.number, duration = 900) {
-  const start = performance.now();
-  const num   = parseFloat(target) || 0;
+  const start  = performance.now();
+  const num    = parseFloat(target) || 0;
+  const isInt  = Number.isInteger(num);
 
   const tick = (now) => {
     const progress = Math.min((now - start) / duration, 1);
     /* Ease-out cubic */
-    const ease = 1 - Math.pow(1 - progress, 3);
-    el.textContent = formatter(num * ease);
+    const ease    = 1 - Math.pow(1 - progress, 3);
+    /* Round integers so animation never shows "2.9" for a target of "3" */
+    const current = isInt ? Math.round(num * ease) : num * ease;
+    el.textContent = formatter(current);
 
     if (progress < 1) {
       requestAnimationFrame(tick);
@@ -207,7 +205,7 @@ function animateCounter(el, target, formatter = fmt.number, duration = 900) {
   requestAnimationFrame(tick);
 }
 
-/* ----- HTML escaping (use for all API-sourced values in innerHTML) ----- */
+/* ----- HTML escaping ----- */
 function escapeHtml(str) {
   if (str == null) return '';
   return String(str)

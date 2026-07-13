@@ -2654,3 +2654,58 @@ input:focus-visible {
   background: var(--primary-dim);
   color: var(--primary);
 }
+
+/* =========================================================
+   Spin animation (refresh button loading state)
+   ========================================================= */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  display: inline-block;
+  animation: spin 0.7s linear infinite;
+}
+
+/* =========================================================
+   Endpoint copy button (Docs page)
+   ========================================================= */
+.endpoint-item {
+  position: relative;
+}
+.endpoint-copy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-subtle);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s, border-color 0.15s;
+  font-size: 0.8rem;
+}
+.endpoint-item:hover .endpoint-copy-btn,
+.endpoint-item:focus-within .endpoint-copy-btn {
+  opacity: 1;
+}
+.endpoint-copy-btn:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border-2);
+}
+.endpoint-copy-btn:active {
+  transform: scale(0.93);
+}
+
+/* Toast click-to-dismiss + hover brightness */
+.toast {
+  cursor: pointer;
+}
+.toast:hover {
+  filter: brightness(1.08);
+}
