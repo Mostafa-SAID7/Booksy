@@ -2,6 +2,33 @@
 
 All notable changes to Booksy API are documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/),
+and this project adheres to [Semantic Versioning](https://semver.org/).
+
+# 1.0.0 (2026-09-07)
+
+
+### Bug Fixes
+
+* correct Dependabot dependency-type values (production vs invalid 'all') ([36e58d4](https://github.com/Mostafa-SAID7/Booksy-Api/commit/36e58d4ec33f192cde4b982acd01445ebc09919b))
+* correct yamllint truthy rule configuration (check-keys instead of allowed) ([99e793f](https://github.com/Mostafa-SAID7/Booksy-Api/commit/99e793f6c333325e1179bccecb2f6954c4dee0c3))
+* remove npm plugin from semantic-release config (.NET backend project) ([6b1167f](https://github.com/Mostafa-SAID7/Booksy-Api/commit/6b1167f4eed594fe104893be76b4deb106587e21))
+* remove unused packages (Mapster, Scalar) and resolve all compilation errors ([ce514d2](https://github.com/Mostafa-SAID7/Booksy-Api/commit/ce514d24c57728676f8a1b178bf7544e33651f7b))
+* Replace PostgreSQL with SQL Server support and fix header warnings ([721c3f5](https://github.com/Mostafa-SAID7/Booksy-Api/commit/721c3f58954e35beb89fb148401750e6c8a83c19))
+* Update connection strings from PostgreSQL to SQL Server format ([eeefbce](https://github.com/Mostafa-SAID7/Booksy-Api/commit/eeefbce6eadcdeb5ccdf9640a2a50795eaa2ec3d))
+
+
+### Features
+
+* Add centralized JavaScript files and dashboard page ([20e5ae4](https://github.com/Mostafa-SAID7/Booksy-Api/commit/20e5ae490762fed37c8ce7f2028911c49654da2c))
+* Add wwwroot static files and improve middleware pipeline ([6d80a45](https://github.com/Mostafa-SAID7/Booksy-Api/commit/6d80a4510ce40eb1777c592161e9a553ae9890eb))
+* comprehensive security, monitoring, and documentation update ([d4e4729](https://github.com/Mostafa-SAID7/Booksy-Api/commit/d4e47292d08887d921f8dcc30f744e45394bc695))
+* frontend comprehensive cleanup and standardization ([e0a81b6](https://github.com/Mostafa-SAID7/Booksy-Api/commit/e0a81b65c78c6dde43a781388d997ea75e96e1c8))
+
+# Changelog
+
+All notable changes to Booksy API are documented in this file.
+
 ## [1.0.0] - 2026-07-09
 
 ### Added - Security Infrastructure
