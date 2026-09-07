@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  booksy-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: booksy-api
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    environment:
+      # ASP.NET Core Configuration
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORT=5000
+      - ASPNETCORE_HTTPS_PORT=5001
+      
+      # Database Configuration (Session Pooler)
+      - ConnectionStrings__DefaultConnection=Host=aws-0-us-east-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres.ojajqshyjkggaklfxejh;sslmode=require;Trust Server Certificate=true
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      
+      # Supabase Configuration
+      - Supabase__Url=${SUPABASE_URL}
+      - Supabase__AnonKey=${SUPABASE_ANON_KEY}
+      - Supabase__ServiceRoleKey=${SUPABASE_SERVICE_ROLE_KEY}
+      
+      # JWT Configuration
+      - JWT__SecretKey=${JWT_SECRET_KEY}
+      
+      # Stripe Configuration
+      - Stripe__SecretKey=${STRIPE_SECRET_KEY}
+      
+      # Email Configuration
+      - EmailSettings__Password=${EMAIL_PASSWORD}
+      
+    depends_on:
+      - postgres
+    restart: unless-stopped
+    networks:
+      - booksy-network
+
+  # Optional: Local PostgreSQL for development (remove for production with Supabase)
+  postgres:
+    image: postgres:16-alpine
+    container_name: booksy-postgres-local
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-booksy_dev}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - booksy-network
+    profiles:
+      - dev
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  booksy-network:
+    driver: bridge

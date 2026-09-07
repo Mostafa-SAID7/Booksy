@@ -23,10 +23,11 @@ namespace Booksy.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Database Context — PostgreSQL connection string from:
-            // 1. Replit PG* env vars
-            // 2. User Secrets (ConnectionStrings:DefaultConnection)
-            // 3. appsettings.json ConnectionStrings:DefaultConnection
+            // Database Context — PostgreSQL Session Pooler connection string from:
+            // 1. Replit PG* env vars (for backwards compatibility)
+            // 2. User Secrets or deployment env vars (ConnectionStrings:DefaultConnection or PASSWORD)
+            // 3. Build from components if using Session Pooler
+            
             var pgHost = Environment.GetEnvironmentVariable("PGHOST");
             var pgPort = Environment.GetEnvironmentVariable("PGPORT") ?? "5432";
             var pgDb = Environment.GetEnvironmentVariable("PGDATABASE");
@@ -36,6 +37,7 @@ namespace Booksy.Extensions
             string connectionString;
             if (!string.IsNullOrEmpty(pgHost) && !string.IsNullOrEmpty(pgDb))
             {
+                // Replit environment variables take precedence
                 connectionString = $"Host={pgHost};Port={pgPort};Database={pgDb};Username={pgUser};Password={pgPass};SSL Mode=Disable;Trust Server Certificate=true;";
             }
             else
@@ -45,7 +47,21 @@ namespace Booksy.Extensions
                 
                 if (string.IsNullOrEmpty(connectionString))
                 {
-                    throw new InvalidOperationException("No database connection string found. Set 'ConnectionStrings:DefaultConnection' in appsettings.json or user secrets.");
+                    throw new InvalidOperationException("No database connection string found. Set 'ConnectionStrings:DefaultConnection' in appsettings.json, user secrets, or environment variable.");
+                }
+
+                // If connection string doesn't include password, append it from secure source
+                if (!connectionString.Contains("Password="))
+                {
+                    var password = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") 
+                        ?? configuration["DatabasePassword"];
+                    
+                    if (string.IsNullOrEmpty(password))
+                    {
+                        throw new InvalidOperationException("Database password not found. Set 'DatabasePassword' in user secrets/environment, or include 'Password=' in connection string.");
+                    }
+
+                    connectionString = connectionString.TrimEnd(';') + $";Password={password};";
                 }
             }
 
