@@ -5,6 +5,13 @@ All notable changes to Booksy API are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.0.1](https://github.com/Mostafa-SAID7/Booksy-Api/compare/v1.0.0...v1.0.1) (2026-09-07)
+
+
+### Bug Fixes
+
+* correct Docker metadata tag format and update action versions for Node.js 24 ([f7384b7](https://github.com/Mostafa-SAID7/Booksy-Api/commit/f7384b74c55fe5bc99b89214fc816ed4eb8ba4dc))
+
 # 1.0.0 (2026-09-07)
 
 
