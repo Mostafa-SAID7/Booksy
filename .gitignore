@@ -361,3 +361,34 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# GitHub Actions & CI/CD
+.github/workflows/*.bak
+.github/actions/**/*.bak
+
+# semantic-release & release-please
+node_modules/
+package-lock.json
+.npmrc
+
+# Docker build cache
+.docker/
+*.tar
+
+# Build artifacts
+publish/
+booksy-deploy.zip
+
+# Release artifacts
+CHANGELOG.*.md
+.release-please-manifest.json
+.releaserc.json
+
+# Test coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# NuGet cache
+.nuget/packages/
+.nuget/NuGetScratch/

@@ -80,13 +80,97 @@ dotnet run
 
 | Document | Purpose |
 |----------|---------|
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Development workflow & conventions |
+| [RELEASES.md](RELEASES.md) | Release process & versioning |
 | [docs/SECURITY.md](docs/SECURITY.md) | Security configuration & testing |
 | [docs/MONITORING.md](docs/MONITORING.md) | Monitoring & alert setup |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | CQRS patterns & design |
 | [docs/API.md](docs/API.md) | Endpoint reference |
 | [docs/DATABASE.md](docs/DATABASE.md) | Schema & migrations |
-| [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) | Development guidelines |
 | [CHANGELOG.md](CHANGELOG.md) | Version history |
+
+---
+
+## 🔄 CI/CD Pipeline
+
+Booksy API uses automated GitHub Actions for quality assurance and deployment.
+
+### Workflows
+
+| Workflow | Trigger | Purpose |
+|----------|---------|---------|
+| **CI** | PR/push to `master` | Build, test, Docker validation |
+| **Security** | PR/push to `master`, weekly | CodeQL, secret scanning, dependencies |
+| **Docker** | Tag push (v*) or master | Build & push container image |
+| **Release** | Push to `master` | Semantic versioning, changelog, tags |
+
+### Process
+
+```
+Your Commit (feat: feature)
+         ↓
+GitHub Actions CI
+   ✓ Build
+   ✓ Tests
+   ✓ Security
+   ✓ Docker validation
+         ↓
+Merge to master
+         ↓
+Automatic Release
+   ✓ Analyze commits
+   ✓ Calculate version (v1.1.0)
+   ✓ Generate changelog
+   ✓ Create tag & GitHub Release
+   ✓ Build & push Docker image
+```
+
+### Conventional Commits
+
+All commits must follow [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat(feature-name): description        # MINOR bump
+fix(bug-name): description             # PATCH bump
+feat!: breaking change                 # MAJOR bump
+docs: update docs                      # NO bump
+```
+
+### How to Contribute
+
+1. **Create branch**: `git checkout -b feature/my-feature`
+2. **Make changes**: Write code following conventions
+3. **Commit**: `git commit -m "feat(scope): description"`
+4. **Push PR**: Push and create pull request targeting `master`
+5. **Automated checks**: GitHub Actions validates automatically
+6. **Merge**: Once approved, merge to `master`
+7. **Release**: Automatic release created if commits trigger version bump
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+### Release Notes
+
+Each release includes:
+- ✨ Features (from `feat:` commits)
+- 🐛 Bug Fixes (from `fix:` commits)
+- ⚡ Performance (from `perf:` commits)
+- 📚 Other changes
+
+See [GitHub Releases](../../releases) for history.
+
+See [RELEASES.md](RELEASES.md) for detailed release documentation.
+
+### Docker Images
+
+Built automatically on release:
+
+```bash
+# Pull latest release
+docker pull ghcr.io/YOUR_ORG/booksy-api:1.0.0
+
+# Run
+docker run -p 5000:5000 ghcr.io/YOUR_ORG/booksy-api:1.0.0
+```
 
 ---
 
