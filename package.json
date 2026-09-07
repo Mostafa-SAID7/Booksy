@@ -1,0 +1,30 @@
+{
+  "name": "booksy-api",
+  "version": "1.0.0",
+  "description": "A modern, scalable book management API built with .NET 9 and CQRS",
+  "private": true,
+  "scripts": {
+    "release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Mostafa-SAID7/Booksy-Api.git"
+  },
+  "keywords": [
+    "booksy",
+    "api",
+    ".net",
+    "cqrs"
+  ],
+  "author": "Booksy Team",
+  "license": "MIT",
+  "devDependencies": {
+    "semantic-release": "^24.2.9",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^10.0.6"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

@@ -370,7 +370,6 @@ FodyWeavers.xsd
 node_modules/
 package-lock.json
 .npmrc
-.release-please-manifest.json
 
 # Docker build cache
 .docker/

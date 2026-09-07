@@ -127,8 +127,7 @@
       "@semantic-release/git",
       {
         "assets": [
-          "CHANGELOG.md",
-          "Booksy/Booksy.csproj"
+          "CHANGELOG.md"
         ],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
@@ -138,8 +137,7 @@
       {
         "releasedLabels": [
           "released"
-        ],
-        "successComment": "## 🎉 Release ${nextRelease.version}\n\nThis issue/PR is included in version ${nextRelease.version} released on ${new Date().toLocaleDateString('en-US', {year: 'numeric', month: 'long', day: 'numeric'})}."
+        ]
       }
     ]
   ]
