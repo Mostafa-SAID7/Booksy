@@ -36,23 +36,17 @@ updates:
     # Group updates by type
     groups:
       security-updates:
-        dependency-type: "all"
+        dependency-type: "production"
         update-types:
           - "patch"
-        patterns:
-          - "*"
       minor-updates:
-        dependency-type: "all"
+        dependency-type: "production"
         update-types:
           - "minor"
-        patterns:
-          - "*"
       major-updates:
-        dependency-type: "all"
+        dependency-type: "production"
         update-types:
           - "major"
-        patterns:
-          - "*"
 
   # Docker
   - package-ecosystem: "docker"
