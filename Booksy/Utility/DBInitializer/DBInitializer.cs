@@ -1,4 +1,4 @@
-﻿using Booksy.DataAccess;
+using Booksy.DataAccess;
 using Booksy.Models.Entities.Users;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -30,7 +30,7 @@ namespace Booksy.Utility.DBInitializer
                     _context.Database.Migrate();
                 }
 
-                if (_roleManager.Roles.Any())
+                if (!_roleManager.Roles.Any())
                 {
                     _roleManager.CreateAsync(new(SD.SuperAdminRole)).GetAwaiter().GetResult();
                     _roleManager.CreateAsync(new(SD.AdminRole)).GetAwaiter().GetResult();

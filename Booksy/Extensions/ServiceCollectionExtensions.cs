@@ -23,8 +23,10 @@ namespace Booksy.Extensions
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
-            // Database Context — build connection string from Replit PG* env vars,
-            // falling back to DefaultConnection in appsettings.
+            // Database Context — PostgreSQL connection string from:
+            // 1. Replit PG* env vars
+            // 2. User Secrets (ConnectionStrings:DefaultConnection)
+            // 3. appsettings.json ConnectionStrings:DefaultConnection
             var pgHost = Environment.GetEnvironmentVariable("PGHOST");
             var pgPort = Environment.GetEnvironmentVariable("PGPORT") ?? "5432";
             var pgDb = Environment.GetEnvironmentVariable("PGDATABASE");
@@ -38,10 +40,16 @@ namespace Booksy.Extensions
             }
             else
             {
-                connectionString = configuration.GetConnectionString("DefaultConnection")
-                    ?? throw new InvalidOperationException("No database connection string found.");
+                // Try to get from configuration (includes user secrets and appsettings)
+                connectionString = configuration.GetConnectionString("DefaultConnection");
+                
+                if (string.IsNullOrEmpty(connectionString))
+                {
+                    throw new InvalidOperationException("No database connection string found. Set 'ConnectionStrings:DefaultConnection' in appsettings.json or user secrets.");
+                }
             }
 
+            // PostgreSQL only
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString,
                     npgsqlOptions =>

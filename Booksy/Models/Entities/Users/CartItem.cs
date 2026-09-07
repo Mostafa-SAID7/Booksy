@@ -1,4 +1,4 @@
-﻿using Booksy.Models.Entities.Books;
+using Booksy.Models.Entities.Books;
 using System.ComponentModel.DataAnnotations;
 
 namespace Booksy.Models.Entities.Users
@@ -13,7 +13,7 @@ namespace Booksy.Models.Entities.Users
 
         public int Quantity { get; set; }
 
-        public int CartId { get; set; }
+        public Guid CartId { get; set; }
         public Cart Cart { get; set; } = null!;
     }
 }

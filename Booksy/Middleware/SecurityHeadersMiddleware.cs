@@ -34,11 +34,10 @@ namespace Booksy.Security
                     // Default: restrict to same-origin unless explicitly allowed
                     "default-src 'self'; " +
                     
-                    // Scripts: only from same-origin (no inline scripts)
-                    "script-src 'self'; " +
+                    // Scripts: allow from same-origin + inline scripts for frontend pages
+                    "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
                     
-                    // Styles: allow from same-origin and unsafe-inline (needed for dynamic styling)
-                    // Plus trusted CDNs for bootstrap, material-ui, etc.
+                    // Styles: allow from same-origin, unsafe-inline, and trusted CDNs
                     "style-src 'self' 'unsafe-inline' " +
                         "https://cdn.jsdelivr.net " +
                         "https://cdnjs.cloudflare.com " +
@@ -53,8 +52,8 @@ namespace Booksy.Security
                         "https://cdn.jsdelivr.net " +
                         "https://cdnjs.cloudflare.com; " +
                     
-                    // API connections: only to same-origin (all fetch, XHR, websockets)
-                    "connect-src 'self'; " +
+                    // API connections: same-origin + Supabase for frontend calls
+                    "connect-src 'self' https://*.supabase.co; " +
                     
                     // Prevent framing (no iframes allowed from external sources)
                     "frame-ancestors 'none'; " +
@@ -76,13 +75,7 @@ namespace Booksy.Security
                     "object-src 'none'; " +
                     
                     // Media (audio/video) from same-origin only
-                    "media-src 'self'; " +
-                    
-                    // Upgrade insecure requests automatically
-                    "upgrade-insecure-requests; " +
-                    
-                    // Block all mixed content
-                    "block-all-mixed-content");
+                    "media-src 'self'");
 
                 // ==================== STRICT TRANSPORT SECURITY ====================
                 // Force HTTPS for all future connections
@@ -117,11 +110,12 @@ namespace Booksy.Security
                     "sync-xhr=()");                 // No sync XHR
 
                 // ==================== CROSS-ORIGIN POLICIES ====================
-                // COEP: Cross-Origin-Embedder-Policy (isolate resources)
-                context.Response.Headers.Append("Cross-Origin-Embedder-Policy", "require-corp");
+                // COEP: 'unsafe-none' — 'require-corp' blocks CDNs (Google Fonts, Bootstrap Icons)
+                // that don't serve Cross-Origin-Resource-Policy headers
+                context.Response.Headers.Append("Cross-Origin-Embedder-Policy", "unsafe-none");
                 
-                // COOP: Cross-Origin-Opener-Policy (isolate from opener)
-                context.Response.Headers.Append("Cross-Origin-Opener-Policy", "same-origin");
+                // COOP: isolate from opener (safe to keep)
+                context.Response.Headers.Append("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
 
                 // ==================== X-PERMITTED-CROSS-DOMAIN-POLICIES ====================
                 // Restrict Flash/PDF cross-domain policies
