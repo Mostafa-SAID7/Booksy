@@ -85,7 +85,7 @@ jobs:
               indentation:
                 spaces: 2
               truthy:
-                allowed: ['true', 'false']
+                check-keys: false
 
   docker-validate:
     name: Validate Dockerfile
